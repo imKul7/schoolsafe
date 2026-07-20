@@ -1,3 +1,6 @@
+import PickupPersonFaceRegistration, {
+    type PickupPersonFaceProfile,
+} from '@/components/pickup-persons/pickup-person-face-registration';
 import PickupPersonPhotoManager from '@/components/pickup-persons/pickup-person-photo-manager';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
@@ -29,6 +32,7 @@ interface PickupPerson {
     photo_path: string | null;
     photo_url: string | null;
     face_status: string;
+    face_profile: PickupPersonFaceProfile | null;
     is_active: boolean;
     notes: string | null;
     students: StudentItem[];
@@ -37,11 +41,18 @@ interface PickupPerson {
 interface Permissions {
     can_manage: boolean;
     can_archive: boolean;
+    can_manage_face: boolean;
+}
+
+interface BiometricConfig {
+    minimum_quality_score: number;
+    consent_version: string;
 }
 
 interface PageProps {
     pickupPerson: PickupPerson;
     permissions: Permissions;
+    biometricConfig: BiometricConfig;
 }
 
 function relationshipLabel(value: string): string {
@@ -97,6 +108,7 @@ function formatDate(value: string | null): string {
 export default function PickupPersonShow({
     pickupPerson,
     permissions,
+    biometricConfig,
 }: PageProps) {
     const [isTogglingStatus, setIsTogglingStatus] =
         useState(false);
@@ -262,14 +274,28 @@ export default function PickupPersonShow({
                 </header>
 
                 <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-                    <PickupPersonPhotoManager
-                        pickupPersonId={pickupPerson.id}
-                        pickupPersonName={pickupPerson.full_name}
-                        initials={pickupPerson.initials}
-                        currentPhotoUrl={pickupPerson.photo_url}
-                        faceStatus={pickupPerson.face_status}
-                        canManage={permissions.can_manage}
-                    />
+                    <div className="space-y-6">
+                        <PickupPersonPhotoManager
+                            pickupPersonId={pickupPerson.id}
+                            pickupPersonName={pickupPerson.full_name}
+                            initials={pickupPerson.initials}
+                            currentPhotoUrl={pickupPerson.photo_url}
+                            faceStatus={pickupPerson.face_status}
+                            canManage={permissions.can_manage}
+                        />
+
+                        <PickupPersonFaceRegistration
+                            pickupPersonId={pickupPerson.id}
+                            pickupPersonName={pickupPerson.full_name}
+                            currentPhotoUrl={pickupPerson.photo_url}
+                            faceStatus={pickupPerson.face_status}
+                            faceProfile={pickupPerson.face_profile}
+                            canManageFace={
+                                permissions.can_manage_face
+                            }
+                            biometricConfig={biometricConfig}
+                        />
+                    </div>
 
                     <div className="space-y-6">
                         <section className="rounded-xl border bg-card p-5 shadow-sm">
