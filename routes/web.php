@@ -73,12 +73,6 @@ Route::middleware('auth')
                     'store',
                 )->name('store');
 
-                /*
-                |--------------------------------------------------------------------------
-                | Route dengan parameter siswa
-                |--------------------------------------------------------------------------
-                */
-
                 Route::get(
                     '/{student}',
                     'show',
@@ -151,8 +145,7 @@ Route::middleware('auth')
                 | Arsip Penjemput
                 |--------------------------------------------------------------------------
                 |
-                | Route arsip harus ditempatkan sebelum route /{pickupPerson}
-                | agar kata "archive" tidak dibaca sebagai parameter ID.
+                | Route statis diletakkan sebelum /{pickupPerson}.
                 |
                 */
 
@@ -177,7 +170,27 @@ Route::middleware('auth')
 
                 /*
                 |--------------------------------------------------------------------------
-                | Route dengan Parameter Penjemput
+                | Foto Penjemput
+                |--------------------------------------------------------------------------
+                */
+
+                Route::post(
+                    '/{pickupPerson}/photo',
+                    'uploadPhoto',
+                )
+                    ->whereNumber('pickupPerson')
+                    ->name('photo.store');
+
+                Route::delete(
+                    '/{pickupPerson}/photo',
+                    'deletePhoto',
+                )
+                    ->whereNumber('pickupPerson')
+                    ->name('photo.destroy');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Detail dan Pengelolaan Penjemput
                 |--------------------------------------------------------------------------
                 */
 

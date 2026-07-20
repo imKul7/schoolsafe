@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePickupPersonRequest;
 use App\Http\Requests\UpdatePickupPersonRequest;
+use App\Http\Requests\UploadPickupPersonPhotoRequest;
 use App\Models\PickupPerson;
 use App\Models\Student;
 use App\Models\User;
@@ -13,11 +14,15 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
+use Throwable;
 
 class PickupPersonController extends Controller
 {
@@ -74,8 +79,8 @@ class PickupPersonController extends Controller
             ->with([
                 'students' => function ($query): void {
                     $query
-                        ->wherePivot(
-                            'is_active',
+                        ->where(
+                            'pickup_person_student.is_active',
                             true,
                         )
                         ->select([
@@ -452,6 +457,14 @@ class PickupPersonController extends Controller
                     'id' =>
                         $pickupPerson->id,
 
+                    'photo_path' =>
+                        $pickupPerson->photo_path,
+
+                    'photo_url' =>
+                        $this->pickupPersonPhotoUrl(
+                            $pickupPerson->photo_path,
+                        ),
+
                     'full_name' =>
                         $pickupPerson->full_name,
 
@@ -621,6 +634,127 @@ class PickupPersonController extends Controller
     }
 
     /**
+     * Mengunggah atau mengganti foto penjemput.
+     */
+    public function uploadPhoto(
+        UploadPickupPersonPhotoRequest $request,
+        PickupPerson $pickupPerson,
+    ): RedirectResponse {
+        $user = $this->authenticatedUser($request);
+
+        $this->ensureBelongsToSchool(
+            $user,
+            $pickupPerson,
+        );
+
+        $this->authorizeManage($user);
+
+        $schoolId = $this->schoolId($user);
+
+        $photo = $request->file('photo');
+
+        abort_unless(
+            $photo instanceof UploadedFile,
+            422,
+            'Foto penjemput tidak ditemukan.',
+        );
+
+        $directory = $this->pickupPersonPhotoDirectory(
+            $schoolId,
+            (int) $pickupPerson->id,
+        );
+
+        $newPhotoPath = $photo->store(
+            $directory,
+            'public',
+        );
+
+        if (
+            ! is_string($newPhotoPath)
+            || trim($newPhotoPath) === ''
+        ) {
+            throw new RuntimeException(
+                'Foto penjemput gagal disimpan.',
+            );
+        }
+
+        $oldPhotoPath = $pickupPerson->photo_path;
+
+        try {
+            $pickupPerson->update([
+                'photo_path' => $newPhotoPath,
+
+                'face_status' =>
+                    $this->faceStatusAfterPhotoChanged(
+                        $pickupPerson,
+                    ),
+            ]);
+        } catch (Throwable $exception) {
+            Storage::disk('public')
+                ->delete($newPhotoPath);
+
+            throw $exception;
+        }
+
+        if (
+            is_string($oldPhotoPath)
+            && trim($oldPhotoPath) !== ''
+            && $oldPhotoPath !== $newPhotoPath
+        ) {
+            Storage::disk('public')
+                ->delete($oldPhotoPath);
+        }
+
+        return back()->with(
+            'success',
+            'Foto penjemput berhasil disimpan.',
+        );
+    }
+
+    /**
+     * Menghapus foto penjemput.
+     */
+    public function deletePhoto(
+        Request $request,
+        PickupPerson $pickupPerson,
+    ): RedirectResponse {
+        $user = $this->authenticatedUser($request);
+
+        $this->ensureBelongsToSchool(
+            $user,
+            $pickupPerson,
+        );
+
+        $this->authorizeManage($user);
+
+        $oldPhotoPath = $pickupPerson->photo_path;
+
+        if (
+            ! is_string($oldPhotoPath)
+            || trim($oldPhotoPath) === ''
+        ) {
+            return back()->with(
+                'info',
+                'Penjemput belum memiliki foto.',
+            );
+        }
+
+        $pickupPerson->update([
+            'photo_path' => null,
+            'face_status' =>
+                PickupPerson::FACE_NOT_REGISTERED,
+        ]);
+
+        Storage::disk('public')
+            ->delete($oldPhotoPath);
+
+        return back()->with(
+            'success',
+            'Foto penjemput berhasil dihapus.',
+        );
+    }
+
+    /**
      * Mengarsipkan penjemput dengan soft delete.
      */
     public function destroy(
@@ -701,18 +835,24 @@ class PickupPersonController extends Controller
 
         $schoolId = $this->schoolId($user);
 
-        $name = DB::transaction(
+        $result = DB::transaction(
             function () use (
                 $pickupPersonId,
                 $schoolId,
-            ): string {
+            ): array {
                 $pickupPerson = PickupPerson::query()
                     ->onlyTrashed()
                     ->where('school_id', $schoolId)
                     ->lockForUpdate()
                     ->findOrFail($pickupPersonId);
 
-                $name = $pickupPerson->full_name;
+                $result = [
+                    'name' =>
+                        $pickupPerson->full_name,
+
+                    'photo_path' =>
+                        $pickupPerson->photo_path,
+                ];
 
                 $pickupPerson
                     ->students()
@@ -720,16 +860,26 @@ class PickupPersonController extends Controller
 
                 $pickupPerson->forceDelete();
 
-                return $name;
+                return $result;
             },
             3,
         );
+
+        $photoPath = $result['photo_path'];
+
+        if (
+            is_string($photoPath)
+            && trim($photoPath) !== ''
+        ) {
+            Storage::disk('public')
+                ->delete($photoPath);
+        }
 
         return redirect()
             ->route('pickup-persons.archive')
             ->with(
                 'success',
-                "Data {$name} berhasil dihapus permanen.",
+                "Data {$result['name']} berhasil dihapus permanen.",
             );
     }
 
@@ -1154,6 +1304,11 @@ class PickupPersonController extends Controller
             'photo_path' =>
                 $pickupPerson->photo_path,
 
+            'photo_url' =>
+                $this->pickupPersonPhotoUrl(
+                    $pickupPerson->photo_path,
+                ),
+
             'face_status' =>
                 $pickupPerson->face_status,
 
@@ -1229,6 +1384,11 @@ class PickupPersonController extends Controller
             'photo_path' =>
                 $pickupPerson->photo_path,
 
+            'photo_url' =>
+                $this->pickupPersonPhotoUrl(
+                    $pickupPerson->photo_path,
+                ),
+
             'face_status' =>
                 $pickupPerson->face_status,
 
@@ -1295,6 +1455,53 @@ class PickupPersonController extends Controller
                     ->values()
                     ->all(),
         ];
+    }
+
+    /**
+     * Membentuk direktori foto berdasarkan sekolah dan penjemput.
+     */
+    private function pickupPersonPhotoDirectory(
+        int $schoolId,
+        int $pickupPersonId,
+    ): string {
+        return sprintf(
+            'schools/%d/pickup-persons/%d',
+            $schoolId,
+            $pickupPersonId,
+        );
+    }
+
+    /**
+     * Menentukan status wajah setelah foto diganti.
+     */
+    private function faceStatusAfterPhotoChanged(
+        PickupPerson $pickupPerson,
+    ): string {
+        return match ($pickupPerson->face_status) {
+            PickupPerson::FACE_REGISTERED,
+            PickupPerson::FACE_NEEDS_UPDATE =>
+                PickupPerson::FACE_NEEDS_UPDATE,
+
+            default =>
+                PickupPerson::FACE_NOT_REGISTERED,
+        };
+    }
+
+    /**
+     * Membentuk URL publik foto penjemput.
+     */
+    private function pickupPersonPhotoUrl(
+        ?string $photoPath,
+    ): ?string {
+        if (
+            $photoPath === null
+            || trim($photoPath) === ''
+        ) {
+            return null;
+        }
+
+        return Storage::disk('public')
+            ->url($photoPath);
     }
 
     /**
