@@ -1,41 +1,14 @@
-import { Head, Link, router } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    BadgeCheck,
-    CalendarDays,
-    GraduationCap,
-    IdCard,
-    Mail,
-    MapPin,
-    Pencil,
-    Phone,
-    Power,
-    ScanFace,
-    ShieldAlert,
-    Trash2,
-    UserRoundCheck,
-    UsersRound,
-    type LucideIcon,
-} from 'lucide-react';
-import { useState } from 'react';
-
 import AppLayout from '@/layouts/app-layout';
+import type { BreadcrumbItem } from '@/types';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import type { ChangeEvent, FormEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-type FaceStatus =
-    | 'not_registered'
-    | 'registered'
-    | 'needs_update';
-
-type StudentStatus =
-    | 'active'
-    | 'inactive'
-    | 'graduated';
-
-interface LinkedStudent {
+interface StudentItem {
     id: number;
     full_name: string;
     student_number: string;
-    status: StudentStatus;
+    status: string;
     class_name: string | null;
     academic_year: string | null;
     relationship_type: string;
@@ -54,10 +27,11 @@ interface PickupPerson {
     email: string | null;
     address: string | null;
     photo_path: string | null;
-    face_status: FaceStatus;
+    photo_url: string | null;
+    face_status: string;
     is_active: boolean;
     notes: string | null;
-    students: LinkedStudent[];
+    students: StudentItem[];
 }
 
 interface Permissions {
@@ -65,85 +39,246 @@ interface Permissions {
     can_archive: boolean;
 }
 
-interface PickupPersonShowProps {
+interface PageProps {
     pickupPerson: PickupPerson;
     permissions: Permissions;
 }
 
-interface InfoItemProps {
-    icon: LucideIcon;
-    label: string;
-    value: string;
+interface PhotoForm {
+    [key: string]: File | null;
+    photo: File | null;
 }
 
-const faceStatusLabels: Record<FaceStatus, string> = {
-    not_registered: 'Belum terdaftar',
-    registered: 'Wajah terdaftar',
-    needs_update: 'Perlu diperbarui',
-};
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
 
-const faceStatusStyles: Record<FaceStatus, string> = {
-    not_registered:
-        'border-[#f0dfb6] bg-[#fff8e8] text-[#9a741f]',
+const allowedPhotoTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+];
 
-    registered:
-        'border-[#cfe9e3] bg-[#e8f6f3] text-[#438f86]',
+function faceStatusLabel(status: string): string {
+    switch (status) {
+        case 'registered':
+            return 'Wajah Terdaftar';
 
-    needs_update:
-        'border-[#efd1d1] bg-[#fff1f1] text-[#b85c5c]',
-};
+        case 'needs_update':
+            return 'Perlu Registrasi Ulang';
 
-const studentStatusLabels: Record<StudentStatus, string> = {
-    active: 'Aktif',
-    inactive: 'Tidak aktif',
-    graduated: 'Lulus',
-};
+        default:
+            return 'Belum Terdaftar';
+    }
+}
 
-const studentStatusStyles: Record<StudentStatus, string> = {
-    active:
-        'border-[#cfe9e3] bg-[#e8f6f3] text-[#438f86]',
+function faceStatusClass(status: string): string {
+    switch (status) {
+        case 'registered':
+            return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300';
 
-    inactive:
-        'border-[#dde5ec] bg-[#f1f5f9] text-[#627d98]',
+        case 'needs_update':
+            return 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300';
 
-    graduated:
-        'border-[#dce3f5] bg-[#eef3ff] text-[#5b73b8]',
-};
+        default:
+            return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+    }
+}
 
-const relationshipLabels: Record<string, string> = {
-    father: 'Ayah',
-    mother: 'Ibu',
-    sibling: 'Saudara',
-    relative: 'Kerabat',
-    driver: 'Pengemudi',
-    guardian: 'Wali',
-    other: 'Lainnya',
-};
+function relationshipLabel(value: string): string {
+    switch (value) {
+        case 'father':
+            return 'Ayah';
+
+        case 'mother':
+            return 'Ibu';
+
+        case 'guardian':
+            return 'Wali';
+
+        case 'sibling':
+            return 'Saudara';
+
+        case 'grandparent':
+            return 'Kakek/Nenek';
+
+        case 'driver':
+            return 'Sopir';
+
+        case 'relative':
+            return 'Kerabat';
+
+        default:
+            return 'Lainnya';
+    }
+}
+
+function studentStatusLabel(status: string): string {
+    return status === 'active' ? 'Aktif' : 'Tidak Aktif';
+}
 
 function formatDate(value: string | null): string {
     if (!value) {
-        return '-';
+        return 'Tidak dibatasi';
     }
 
-    const datePart = value.slice(0, 10);
-    const [year, month, day] = datePart.split('-');
+    const date = new Date(`${value}T00:00:00`);
 
-    if (!year || !month || !day) {
+    if (Number.isNaN(date.getTime())) {
         return value;
     }
 
-    return `${day}-${month}-${year}`;
+    return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+    }).format(date);
 }
 
 export default function PickupPersonShow({
     pickupPerson,
     permissions,
-}: PickupPersonShowProps) {
-    const [processingStatus, setProcessingStatus] =
-        useState(false);
+}: PageProps) {
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    const [processingArchive, setProcessingArchive] =
-        useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(
+        null,
+    );
+
+    const photoForm = useForm<PhotoForm>({
+        photo: null,
+    });
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Data Penjemput',
+            href: '/pickup-persons',
+        },
+        {
+            title: pickupPerson.full_name,
+            href: `/pickup-persons/${pickupPerson.id}`,
+        },
+    ];
+
+    useEffect(() => {
+        if (!photoForm.data.photo) {
+            setPreviewUrl(null);
+
+            return;
+        }
+
+        const objectUrl = URL.createObjectURL(
+            photoForm.data.photo,
+        );
+
+        setPreviewUrl(objectUrl);
+
+        return () => {
+            URL.revokeObjectURL(objectUrl);
+        };
+    }, [photoForm.data.photo]);
+
+    const displayedPhotoUrl =
+        previewUrl ?? pickupPerson.photo_url;
+
+    const handlePhotoChange = (
+        event: ChangeEvent<HTMLInputElement>,
+    ): void => {
+        const file = event.target.files?.[0] ?? null;
+
+        photoForm.clearErrors('photo');
+
+        if (!file) {
+            photoForm.setData('photo', null);
+
+            return;
+        }
+
+        if (!allowedPhotoTypes.includes(file.type)) {
+            photoForm.setError(
+                'photo',
+                'Foto harus berformat JPG, JPEG, PNG, atau WEBP.',
+            );
+
+            event.target.value = '';
+
+            photoForm.setData('photo', null);
+
+            return;
+        }
+
+        if (file.size > MAX_PHOTO_SIZE) {
+            photoForm.setError(
+                'photo',
+                'Ukuran foto maksimal 5 MB.',
+            );
+
+            event.target.value = '';
+
+            photoForm.setData('photo', null);
+
+            return;
+        }
+
+        photoForm.setData('photo', file);
+    };
+
+    const cancelSelectedPhoto = (): void => {
+        photoForm.setData('photo', null);
+        photoForm.clearErrors('photo');
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const submitPhoto = (
+        event: FormEvent<HTMLFormElement>,
+    ): void => {
+        event.preventDefault();
+
+        if (!photoForm.data.photo) {
+            photoForm.setError(
+                'photo',
+                'Pilih foto penjemput terlebih dahulu.',
+            );
+
+            return;
+        }
+
+        photoForm.post(
+            `/pickup-persons/${pickupPerson.id}/photo`,
+            {
+                forceFormData: true,
+                preserveScroll: true,
+
+                onSuccess: () => {
+                    cancelSelectedPhoto();
+                },
+            },
+        );
+    };
+
+    const deletePhoto = (): void => {
+        if (!pickupPerson.photo_url) {
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `Hapus foto ${pickupPerson.full_name}?`,
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        cancelSelectedPhoto();
+
+        router.delete(
+            `/pickup-persons/${pickupPerson.id}/photo`,
+            {
+                preserveScroll: true,
+            },
+        );
+    };
 
     const toggleStatus = (): void => {
         const action = pickupPerson.is_active
@@ -151,7 +286,7 @@ export default function PickupPersonShow({
             : 'mengaktifkan';
 
         const confirmed = window.confirm(
-            `Apakah Anda yakin ingin ${action} ${pickupPerson.full_name}?`,
+            `Yakin ingin ${action} ${pickupPerson.full_name}?`,
         );
 
         if (!confirmed) {
@@ -163,21 +298,13 @@ export default function PickupPersonShow({
             {},
             {
                 preserveScroll: true,
-
-                onStart: () => {
-                    setProcessingStatus(true);
-                },
-
-                onFinish: () => {
-                    setProcessingStatus(false);
-                },
             },
         );
     };
 
     const archivePickupPerson = (): void => {
         const confirmed = window.confirm(
-            `Pindahkan data ${pickupPerson.full_name} ke arsip?`,
+            `Pindahkan ${pickupPerson.full_name} ke arsip?`,
         );
 
         if (!confirmed) {
@@ -186,407 +313,483 @@ export default function PickupPersonShow({
 
         router.delete(
             `/pickup-persons/${pickupPerson.id}`,
-            {
-                onStart: () => {
-                    setProcessingArchive(true);
-                },
-
-                onFinish: () => {
-                    setProcessingArchive(false);
-                },
-            },
         );
     };
 
     return (
-        <AppLayout>
-            <Head title={pickupPerson.full_name} />
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head
+                title={`Detail Penjemput - ${pickupPerson.full_name}`}
+            />
 
-            <main className="min-h-full bg-[#f8fafc]">
-                <div className="mx-auto w-full max-w-6xl p-4 md:p-6">
-                    <Link
-                        href="/pickup-persons"
-                        className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#627d98] transition hover:text-[#4f7cac]"
-                    >
-                        <ArrowLeft
-                            aria-hidden="true"
-                            className="size-4"
-                        />
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <p className="text-sm text-muted-foreground">
+                            Detail Data Penjemput
+                        </p>
 
-                        Kembali ke Data Penjemput
-                    </Link>
-
-                    <section className="relative overflow-hidden rounded-[28px] border border-[#deebf5] bg-gradient-to-r from-[#edf6ff] via-[#f2faf8] to-[#fffaf0] p-6 shadow-sm md:p-8">
-                        <div className="absolute -top-20 -right-16 size-56 rounded-full bg-white/50 blur-3xl" />
-
-                        <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
-                            <div className="flex items-center gap-4">
-                                <div className="flex size-20 shrink-0 items-center justify-center rounded-[24px] bg-white text-2xl font-bold text-[#4f7cac] shadow-sm">
-                                    {pickupPerson.initials}
-                                </div>
-
-                                <div>
-                                    <div className="flex flex-wrap gap-2">
-                                        <span
-                                            className={[
-                                                'inline-flex rounded-full border px-3 py-1 text-xs font-semibold',
-                                                pickupPerson.is_active
-                                                    ? 'border-[#cfe9e3] bg-[#e8f6f3] text-[#438f86]'
-                                                    : 'border-[#dde5ec] bg-[#f1f5f9] text-[#627d98]',
-                                            ].join(' ')}
-                                        >
-                                            {pickupPerson.is_active
-                                                ? 'Aktif'
-                                                : 'Tidak aktif'}
-                                        </span>
-
-                                        <span
-                                            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${faceStatusStyles[pickupPerson.face_status]}`}
-                                        >
-                                            {pickupPerson.face_status ===
-                                            'registered' ? (
-                                                <ScanFace
-                                                    aria-hidden="true"
-                                                    className="size-3.5"
-                                                />
-                                            ) : (
-                                                <ShieldAlert
-                                                    aria-hidden="true"
-                                                    className="size-3.5"
-                                                />
-                                            )}
-
-                                            {
-                                                faceStatusLabels[
-                                                    pickupPerson.face_status
-                                                ]
-                                            }
-                                        </span>
-                                    </div>
-
-                                    <h1 className="mt-3 text-2xl font-bold text-[#243b53] md:text-3xl">
-                                        {pickupPerson.full_name}
-                                    </h1>
-
-                                    <p className="mt-1 text-sm text-[#627d98]">
-                                        Terhubung dengan{' '}
-                                        {pickupPerson.students.length}{' '}
-                                        siswa
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
-                                {permissions.can_manage && (
-                                    <>
-                                        <Link
-                                            href={`/pickup-persons/${pickupPerson.id}/edit`}
-                                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-4 text-sm font-semibold text-white shadow-md transition hover:bg-[#4c7fd9]"
-                                        >
-                                            <Pencil className="size-4" />
-                                            Edit
-                                        </Link>
-
-                                        <button
-                                            type="button"
-                                            onClick={toggleStatus}
-                                            disabled={processingStatus}
-                                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#d9e5ee] bg-white px-4 text-sm font-semibold text-[#627d98] transition hover:bg-[#f7fafc] disabled:cursor-not-allowed disabled:opacity-60"
-                                        >
-                                            <Power className="size-4" />
-
-                                            {processingStatus
-                                                ? 'Memproses...'
-                                                : pickupPerson.is_active
-                                                  ? 'Nonaktifkan'
-                                                  : 'Aktifkan'}
-                                        </button>
-                                    </>
-                                )}
-
-                                {permissions.can_archive && (
-                                    <button
-                                        type="button"
-                                        onClick={archivePickupPerson}
-                                        disabled={processingArchive}
-                                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#f0d0d0] bg-white px-4 text-sm font-semibold text-[#cf6464] transition hover:bg-[#fff2f2] disabled:cursor-not-allowed disabled:opacity-60"
-                                    >
-                                        <Trash2 className="size-4" />
-
-                                        {processingArchive
-                                            ? 'Mengarsipkan...'
-                                            : 'Arsipkan'}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </section>
-
-                    <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_0.75fr]">
-                        <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm md:p-7">
-                            <div className="mb-6 flex items-center gap-3">
-                                <div className="flex size-10 items-center justify-center rounded-xl bg-[#eef6ff] text-[#5b8def]">
-                                    <UserRoundCheck className="size-5" />
-                                </div>
-
-                                <div>
-                                    <h2 className="font-bold text-[#243b53]">
-                                        Identitas Penjemput
-                                    </h2>
-
-                                    <p className="text-sm text-[#829ab1]">
-                                        Informasi identitas dan kontak.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="grid gap-5 sm:grid-cols-2">
-                                <InfoItem
-                                    icon={IdCard}
-                                    label="Nomor Identitas"
-                                    value={
-                                        pickupPerson.identity_number ??
-                                        '-'
-                                    }
-                                />
-
-                                <InfoItem
-                                    icon={Phone}
-                                    label="Nomor Telepon"
-                                    value={pickupPerson.phone}
-                                />
-
-                                <InfoItem
-                                    icon={Mail}
-                                    label="Email"
-                                    value={
-                                        pickupPerson.email ?? '-'
-                                    }
-                                />
-
-                                <InfoItem
-                                    icon={ScanFace}
-                                    label="Status Wajah"
-                                    value={
-                                        faceStatusLabels[
-                                            pickupPerson.face_status
-                                        ]
-                                    }
-                                />
-                            </div>
-                        </section>
-
-                        <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm md:p-7">
-                            <div className="mb-6 flex items-center gap-3">
-                                <div className="flex size-10 items-center justify-center rounded-xl bg-[#eef9f6] text-[#4c9e94]">
-                                    <MapPin className="size-5" />
-                                </div>
-
-                                <div>
-                                    <h2 className="font-bold text-[#243b53]">
-                                        Alamat
-                                    </h2>
-
-                                    <p className="text-sm text-[#829ab1]">
-                                        Tempat tinggal penjemput.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <p className="whitespace-pre-wrap text-sm leading-7 text-[#627d98]">
-                                {pickupPerson.address ||
-                                    'Alamat belum diisi.'}
-                            </p>
-                        </section>
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            {pickupPerson.full_name}
+                        </h1>
                     </div>
 
-                    <section className="mt-6 overflow-hidden rounded-2xl border border-[#e6eef5] bg-white shadow-sm">
-                        <div className="flex items-center gap-3 border-b border-[#edf2f7] p-5 md:p-7">
-                            <div className="flex size-10 items-center justify-center rounded-xl bg-[#eef9f6] text-[#4c9e94]">
-                                <UsersRound className="size-5" />
-                            </div>
+                    <div className="flex flex-wrap gap-2">
+                        <Link
+                            href="/pickup-persons"
+                            className="inline-flex h-10 items-center justify-center rounded-md border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted"
+                        >
+                            Kembali
+                        </Link>
 
-                            <div>
-                                <h2 className="font-bold text-[#243b53]">
-                                    Siswa yang Boleh Dijemput
-                                </h2>
+                        {permissions.can_manage && (
+                            <>
+                                <Link
+                                    href={`/pickup-persons/${pickupPerson.id}/edit`}
+                                    className="inline-flex h-10 items-center justify-center rounded-md border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted"
+                                >
+                                    Edit Data
+                                </Link>
 
-                                <p className="text-sm text-[#829ab1]">
-                                    Hubungan dan masa berlaku izin
-                                    penjemputan.
-                                </p>
+                                <button
+                                    type="button"
+                                    onClick={toggleStatus}
+                                    className="inline-flex h-10 items-center justify-center rounded-md border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted"
+                                >
+                                    {pickupPerson.is_active
+                                        ? 'Nonaktifkan'
+                                        : 'Aktifkan'}
+                                </button>
+                            </>
+                        )}
+
+                        {permissions.can_archive && (
+                            <button
+                                type="button"
+                                onClick={archivePickupPerson}
+                                className="inline-flex h-10 items-center justify-center rounded-md bg-red-600 px-4 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                            >
+                                Arsipkan
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+                    <section className="rounded-xl border bg-card p-5 shadow-sm">
+                        <div className="mb-4">
+                            <h2 className="font-semibold">
+                                Foto Penjemput
+                            </h2>
+
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Gunakan foto wajah yang jelas dan tidak
+                                tertutup.
+                            </p>
+                        </div>
+
+                        <div className="overflow-hidden rounded-xl border bg-muted">
+                            <div className="flex aspect-square items-center justify-center">
+                                {displayedPhotoUrl ? (
+                                    <img
+                                        src={displayedPhotoUrl}
+                                        alt={`Foto ${pickupPerson.full_name}`}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="flex h-full w-full flex-col items-center justify-center gap-3">
+                                        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-background text-3xl font-bold shadow-sm">
+                                            {pickupPerson.initials}
+                                        </div>
+
+                                        <p className="text-sm text-muted-foreground">
+                                            Belum ada foto
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
-                        {pickupPerson.students.length > 0 ? (
-                            <div className="divide-y divide-[#edf2f7]">
-                                {pickupPerson.students.map(
-                                    (student) => (
-                                        <article
-                                            key={student.id}
-                                            className="p-5 transition hover:bg-[#fbfdff] md:p-6"
-                                        >
-                                            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                                                <div className="flex items-start gap-3">
-                                                    <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eef6ff] text-[#4f7cac]">
-                                                        <GraduationCap className="size-5" />
-                                                    </div>
+                        {previewUrl && (
+                            <div className="mt-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
+                                Ini adalah preview foto baru. Tekan
+                                tombol simpan untuk mengunggahnya.
+                            </div>
+                        )}
 
-                                                    <div>
-                                                        <Link
-                                                            href={`/students/${student.id}`}
-                                                            className="font-semibold text-[#334e68] transition hover:text-[#4f7cac]"
-                                                        >
-                                                            {
-                                                                student.full_name
-                                                            }
-                                                        </Link>
-
-                                                        <p className="mt-1 text-xs text-[#829ab1]">
-                                                            {
-                                                                student.student_number
-                                                            }{' '}
-                                                            · Kelas{' '}
-                                                            {student.class_name ??
-                                                                '-'}{' '}
-                                                            ·{' '}
-                                                            {student.academic_year ??
-                                                                '-'}
-                                                        </p>
-
-                                                        <div className="mt-3 flex flex-wrap gap-2">
-                                                            <span className="rounded-full border border-[#dceaf5] bg-[#eef6ff] px-3 py-1 text-xs font-semibold text-[#4f7cac]">
-                                                                {relationshipLabels[
-                                                                    student
-                                                                        .relationship_type
-                                                                ] ??
-                                                                    student.relationship_type}
-                                                            </span>
-
-                                                            <span
-                                                                className={`rounded-full border px-3 py-1 text-xs font-semibold ${studentStatusStyles[student.status]}`}
-                                                            >
-                                                                {
-                                                                    studentStatusLabels[
-                                                                        student
-                                                                            .status
-                                                                    ]
-                                                                }
-                                                            </span>
-
-                                                            {student.is_primary && (
-                                                                <span className="inline-flex items-center gap-1 rounded-full border border-[#cfe9e3] bg-[#e8f6f3] px-3 py-1 text-xs font-semibold text-[#438f86]">
-                                                                    <BadgeCheck className="size-3.5" />
-                                                                    Penjemput
-                                                                    utama
-                                                                </span>
-                                                            )}
-
-                                                            <span
-                                                                className={[
-                                                                    'rounded-full border px-3 py-1 text-xs font-semibold',
-                                                                    student.is_active
-                                                                        ? 'border-[#cfe9e3] bg-[#e8f6f3] text-[#438f86]'
-                                                                        : 'border-[#dde5ec] bg-[#f1f5f9] text-[#627d98]',
-                                                                ].join(
-                                                                    ' ',
-                                                                )}
-                                                            >
-                                                                {student.is_active
-                                                                    ? 'Izin aktif'
-                                                                    : 'Izin tidak aktif'}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid shrink-0 gap-2 text-sm sm:grid-cols-2">
-                                                    <div className="rounded-xl bg-[#f8fafc] px-4 py-3">
-                                                        <p className="text-xs text-[#9fb3c8]">
-                                                            Berlaku mulai
-                                                        </p>
-
-                                                        <p className="mt-1 inline-flex items-center gap-2 font-semibold text-[#627d98]">
-                                                            <CalendarDays className="size-4" />
-                                                            {formatDate(
-                                                                student.valid_from,
-                                                            )}
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="rounded-xl bg-[#f8fafc] px-4 py-3">
-                                                        <p className="text-xs text-[#9fb3c8]">
-                                                            Berlaku sampai
-                                                        </p>
-
-                                                        <p className="mt-1 inline-flex items-center gap-2 font-semibold text-[#627d98]">
-                                                            <CalendarDays className="size-4" />
-                                                            {formatDate(
-                                                                student.valid_until,
-                                                            )}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </article>
-                                    ),
+                        <div className="mt-4">
+                            <span
+                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${faceStatusClass(
+                                    pickupPerson.face_status,
+                                )}`}
+                            >
+                                {faceStatusLabel(
+                                    pickupPerson.face_status,
                                 )}
-                            </div>
-                        ) : (
-                            <div className="px-6 py-14 text-center">
-                                <UsersRound className="mx-auto size-10 text-[#bcccdc]" />
+                            </span>
+                        </div>
 
-                                <h3 className="mt-4 font-semibold text-[#334e68]">
-                                    Belum terhubung dengan siswa
-                                </h3>
+                        {permissions.can_manage && (
+                            <form
+                                onSubmit={submitPhoto}
+                                className="mt-5 space-y-4"
+                            >
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    name="photo"
+                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                    onChange={handlePhotoChange}
+                                    className="hidden"
+                                />
 
-                                <p className="mt-1 text-sm text-[#829ab1]">
-                                    Edit data penjemput untuk
-                                    menambahkan hubungan siswa.
-                                </p>
-                            </div>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        fileInputRef.current?.click()
+                                    }
+                                    disabled={photoForm.processing}
+                                    className="inline-flex h-10 w-full items-center justify-center rounded-md border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {pickupPerson.photo_url
+                                        ? 'Pilih Foto Pengganti'
+                                        : 'Pilih Foto'}
+                                </button>
+
+                                {photoForm.data.photo && (
+                                    <div className="rounded-md border bg-muted/40 p-3">
+                                        <p className="truncate text-sm font-medium">
+                                            {
+                                                photoForm.data.photo
+                                                    .name
+                                            }
+                                        </p>
+
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            {(
+                                                photoForm.data.photo
+                                                    .size /
+                                                1024 /
+                                                1024
+                                            ).toFixed(2)}{' '}
+                                            MB
+                                        </p>
+                                    </div>
+                                )}
+
+                                {photoForm.errors.photo && (
+                                    <p className="text-sm text-red-600">
+                                        {photoForm.errors.photo}
+                                    </p>
+                                )}
+
+                                {photoForm.progress && (
+                                    <div>
+                                        <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                                            <span>
+                                                Mengunggah foto
+                                            </span>
+
+                                            <span>
+                                                {
+                                                    photoForm.progress
+                                                        .percentage
+                                                }
+                                                %
+                                            </span>
+                                        </div>
+
+                                        <div className="h-2 overflow-hidden rounded-full bg-muted">
+                                            <div
+                                                className="h-full bg-primary transition-all"
+                                                style={{
+                                                    width: `${photoForm.progress.percentage}%`,
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {photoForm.data.photo && (
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                cancelSelectedPhoto
+                                            }
+                                            disabled={
+                                                photoForm.processing
+                                            }
+                                            className="inline-flex h-10 items-center justify-center rounded-md border bg-background px-3 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            Batalkan
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            disabled={
+                                                photoForm.processing
+                                            }
+                                            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {photoForm.processing
+                                                ? 'Menyimpan...'
+                                                : 'Simpan Foto'}
+                                        </button>
+                                    </div>
+                                )}
+
+                                {pickupPerson.photo_url &&
+                                    !photoForm.data.photo && (
+                                        <button
+                                            type="button"
+                                            onClick={deletePhoto}
+                                            disabled={
+                                                photoForm.processing
+                                            }
+                                            className="inline-flex h-10 w-full items-center justify-center rounded-md border border-red-300 bg-background px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:hover:bg-red-950"
+                                        >
+                                            Hapus Foto
+                                        </button>
+                                    )}
+                            </form>
                         )}
                     </section>
 
-                    <section className="mt-6 rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm md:p-7">
-                        <h2 className="font-bold text-[#243b53]">
-                            Catatan Penjemput
-                        </h2>
+                    <div className="space-y-6">
+                        <section className="rounded-xl border bg-card p-5 shadow-sm">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h2 className="font-semibold">
+                                        Informasi Penjemput
+                                    </h2>
 
-                        <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#627d98]">
-                            {pickupPerson.notes ||
-                                'Belum ada catatan khusus untuk penjemput ini.'}
-                        </p>
-                    </section>
+                                    <p className="mt-1 text-sm text-muted-foreground">
+                                        Identitas dan kontak penjemput.
+                                    </p>
+                                </div>
+
+                                <span
+                                    className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                                        pickupPerson.is_active
+                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                                            : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'
+                                    }`}
+                                >
+                                    {pickupPerson.is_active
+                                        ? 'Aktif'
+                                        : 'Tidak Aktif'}
+                                </span>
+                            </div>
+
+                            <dl className="mt-6 grid gap-5 sm:grid-cols-2">
+                                <div>
+                                    <dt className="text-sm text-muted-foreground">
+                                        Nama Lengkap
+                                    </dt>
+
+                                    <dd className="mt-1 font-medium">
+                                        {pickupPerson.full_name}
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dt className="text-sm text-muted-foreground">
+                                        Nomor Identitas
+                                    </dt>
+
+                                    <dd className="mt-1 font-medium">
+                                        {pickupPerson.identity_number ||
+                                            '-'}
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dt className="text-sm text-muted-foreground">
+                                        Nomor Telepon
+                                    </dt>
+
+                                    <dd className="mt-1 font-medium">
+                                        {pickupPerson.phone}
+                                    </dd>
+                                </div>
+
+                                <div>
+                                    <dt className="text-sm text-muted-foreground">
+                                        Email
+                                    </dt>
+
+                                    <dd className="mt-1 break-all font-medium">
+                                        {pickupPerson.email || '-'}
+                                    </dd>
+                                </div>
+
+                                <div className="sm:col-span-2">
+                                    <dt className="text-sm text-muted-foreground">
+                                        Alamat
+                                    </dt>
+
+                                    <dd className="mt-1 whitespace-pre-line font-medium">
+                                        {pickupPerson.address || '-'}
+                                    </dd>
+                                </div>
+
+                                <div className="sm:col-span-2">
+                                    <dt className="text-sm text-muted-foreground">
+                                        Catatan
+                                    </dt>
+
+                                    <dd className="mt-1 whitespace-pre-line font-medium">
+                                        {pickupPerson.notes || '-'}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <section className="rounded-xl border bg-card shadow-sm">
+                            <div className="border-b p-5">
+                                <h2 className="font-semibold">
+                                    Siswa yang Boleh Dijemput
+                                </h2>
+
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    {pickupPerson.students.length}{' '}
+                                    siswa terhubung dengan penjemput
+                                    ini.
+                                </p>
+                            </div>
+
+                            {pickupPerson.students.length === 0 ? (
+                                <div className="p-8 text-center text-sm text-muted-foreground">
+                                    Belum ada siswa yang terhubung.
+                                </div>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full min-w-[850px] text-sm">
+                                        <thead className="bg-muted/50">
+                                            <tr className="border-b text-left">
+                                                <th className="px-5 py-3 font-medium">
+                                                    Siswa
+                                                </th>
+
+                                                <th className="px-5 py-3 font-medium">
+                                                    Kelas
+                                                </th>
+
+                                                <th className="px-5 py-3 font-medium">
+                                                    Hubungan
+                                                </th>
+
+                                                <th className="px-5 py-3 font-medium">
+                                                    Berlaku
+                                                </th>
+
+                                                <th className="px-5 py-3 font-medium">
+                                                    Status
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {pickupPerson.students.map(
+                                                (student) => (
+                                                    <tr
+                                                        key={
+                                                            student.id
+                                                        }
+                                                        className="border-b last:border-0"
+                                                    >
+                                                        <td className="px-5 py-4">
+                                                            <p className="font-medium">
+                                                                {
+                                                                    student.full_name
+                                                                }
+                                                            </p>
+
+                                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                                NIS:{' '}
+                                                                {
+                                                                    student.student_number
+                                                                }
+                                                            </p>
+                                                        </td>
+
+                                                        <td className="px-5 py-4">
+                                                            <p>
+                                                                {student.class_name ||
+                                                                    '-'}
+                                                            </p>
+
+                                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                                {student.academic_year ||
+                                                                    '-'}
+                                                            </p>
+                                                        </td>
+
+                                                        <td className="px-5 py-4">
+                                                            <p>
+                                                                {relationshipLabel(
+                                                                    student.relationship_type,
+                                                                )}
+                                                            </p>
+
+                                                            {student.is_primary && (
+                                                                <span className="mt-1 inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                                                                    Utama
+                                                                </span>
+                                                            )}
+                                                        </td>
+
+                                                        <td className="px-5 py-4">
+                                                            <p className="text-xs">
+                                                                Mulai:{' '}
+                                                                {formatDate(
+                                                                    student.valid_from,
+                                                                )}
+                                                            </p>
+
+                                                            <p className="mt-1 text-xs">
+                                                                Sampai:{' '}
+                                                                {formatDate(
+                                                                    student.valid_until,
+                                                                )}
+                                                            </p>
+                                                        </td>
+
+                                                        <td className="px-5 py-4">
+                                                            <div className="space-y-1">
+                                                                <span
+                                                                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                                                                        student.is_active
+                                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                                                                            : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'
+                                                                    }`}
+                                                                >
+                                                                    Relasi{' '}
+                                                                    {student.is_active
+                                                                        ? 'Aktif'
+                                                                        : 'Tidak Aktif'}
+                                                                </span>
+
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    Siswa{' '}
+                                                                    {studentStatusLabel(
+                                                                        student.status,
+                                                                    )}
+                                                                </p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ),
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </section>
+                    </div>
                 </div>
-            </main>
+            </div>
         </AppLayout>
-    );
-}
-
-function InfoItem({
-    icon: Icon,
-    label,
-    value,
-}: InfoItemProps) {
-    return (
-        <div className="flex items-start gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#f5f8fb] text-[#829ab1]">
-                <Icon
-                    aria-hidden="true"
-                    className="size-4"
-                />
-            </div>
-
-            <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-wide text-[#9fb3c8]">
-                    {label}
-                </p>
-
-                <p className="mt-1 break-words text-sm font-semibold text-[#334e68]">
-                    {value}
-                </p>
-            </div>
-        </div>
     );
 }
