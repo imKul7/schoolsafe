@@ -9,12 +9,23 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PickupPerson extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
+    /**
+ * Profil biometrik wajah penjemput.
+ */
+public function faceProfile(): HasOne
+{
+    return $this->hasOne(
+        PickupPersonFaceProfile::class,
+    );
+}
+    
     public const FACE_NOT_REGISTERED = 'not_registered';
 
     public const FACE_REGISTERED = 'registered';

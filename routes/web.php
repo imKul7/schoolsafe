@@ -58,6 +58,12 @@ Route::middleware('auth')
             ->prefix('students')
             ->name('students.')
             ->group(function (): void {
+                /*
+                |--------------------------------------------------------------------------
+                | Daftar dan Tambah Siswa
+                |--------------------------------------------------------------------------
+                */
+
                 Route::get(
                     '/',
                     'index',
@@ -72,6 +78,12 @@ Route::middleware('auth')
                     '/',
                     'store',
                 )->name('store');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Detail dan Pengelolaan Siswa
+                |--------------------------------------------------------------------------
+                */
 
                 Route::get(
                     '/{student}',
@@ -145,7 +157,8 @@ Route::middleware('auth')
                 | Arsip Penjemput
                 |--------------------------------------------------------------------------
                 |
-                | Route statis diletakkan sebelum /{pickupPerson}.
+                | Route statis harus berada sebelum route /{pickupPerson}
+                | agar kata "archive" tidak dianggap sebagai ID penjemput.
                 |
                 */
 
@@ -187,6 +200,26 @@ Route::middleware('auth')
                 )
                     ->whereNumber('pickupPerson')
                     ->name('photo.destroy');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Registrasi Biometrik Wajah
+                |--------------------------------------------------------------------------
+                */
+
+                Route::post(
+                    '/{pickupPerson}/face/register',
+                    'registerFace',
+                )
+                    ->whereNumber('pickupPerson')
+                    ->name('face.register');
+
+                Route::delete(
+                    '/{pickupPerson}/face',
+                    'revokeFace',
+                )
+                    ->whereNumber('pickupPerson')
+                    ->name('face.revoke');
 
                 /*
                 |--------------------------------------------------------------------------

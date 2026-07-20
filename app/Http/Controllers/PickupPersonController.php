@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RegisterPickupPersonFaceRequest;
 use App\Http\Requests\StorePickupPersonRequest;
 use App\Http\Requests\UpdatePickupPersonRequest;
 use App\Http\Requests\UploadPickupPersonPhotoRequest;
 use App\Models\PickupPerson;
+use App\Models\PickupPersonFaceProfile;
 use App\Models\Student;
 use App\Models\User;
 use DateTimeInterface;
@@ -385,6 +387,8 @@ class PickupPersonController extends Controller
         $this->authorizeView($user);
 
         $pickupPerson->load([
+            'faceProfile',
+
             'students' => function ($query): void {
                 $query
                     ->with([
@@ -680,15 +684,39 @@ class PickupPersonController extends Controller
 
         $oldPhotoPath = $pickupPerson->photo_path;
 
-        try {
-            $pickupPerson->update([
-                'photo_path' => $newPhotoPath,
+        $newFaceStatus =
+            $this->faceStatusAfterPhotoChanged(
+                $pickupPerson,
+            );
 
-                'face_status' =>
-                    $this->faceStatusAfterPhotoChanged(
-                        $pickupPerson,
-                    ),
-            ]);
+        try {
+            DB::transaction(
+                function () use (
+                    $pickupPerson,
+                    $schoolId,
+                    $newPhotoPath,
+                    $newFaceStatus,
+                ): void {
+                    $pickupPerson->update([
+                        'photo_path' =>
+                            $newPhotoPath,
+
+                        'face_status' =>
+                            $newFaceStatus,
+                    ]);
+
+                    if (
+                        $newFaceStatus
+                        === PickupPerson::FACE_NEEDS_UPDATE
+                    ) {
+                        $this->invalidateFaceProfile(
+                            $pickupPerson,
+                            $schoolId,
+                        );
+                    }
+                },
+                3,
+            );
         } catch (Throwable $exception) {
             Storage::disk('public')
                 ->delete($newPhotoPath);
@@ -707,7 +735,10 @@ class PickupPersonController extends Controller
 
         return back()->with(
             'success',
-            'Foto penjemput berhasil disimpan.',
+            is_string($oldPhotoPath)
+                && trim($oldPhotoPath) !== ''
+                ? 'Foto penjemput berhasil diperbarui.'
+                : 'Foto penjemput berhasil disimpan.',
         );
     }
 
@@ -727,6 +758,8 @@ class PickupPersonController extends Controller
 
         $this->authorizeManage($user);
 
+        $schoolId = $this->schoolId($user);
+
         $oldPhotoPath = $pickupPerson->photo_path;
 
         if (
@@ -739,11 +772,64 @@ class PickupPersonController extends Controller
             );
         }
 
-        $pickupPerson->update([
-            'photo_path' => null,
-            'face_status' =>
-                PickupPerson::FACE_NOT_REGISTERED,
-        ]);
+        DB::transaction(
+            function () use (
+                $pickupPerson,
+                $schoolId,
+            ): void {
+                $pickupPerson->update([
+                    'photo_path' =>
+                        null,
+
+                    'face_status' =>
+                        PickupPerson::FACE_NOT_REGISTERED,
+                ]);
+
+                $profile = PickupPersonFaceProfile::query()
+                    ->where(
+                        'school_id',
+                        $schoolId,
+                    )
+                    ->where(
+                        'pickup_person_id',
+                        $pickupPerson->id,
+                    )
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($profile) {
+                    $profile->update([
+                        'embedding' =>
+                            null,
+
+                        'embedding_dimension' =>
+                            null,
+
+                        'quality_score' =>
+                            null,
+
+                        'liveness_passed' =>
+                            false,
+
+                        'photo_sha256' =>
+                            null,
+
+                        'status' =>
+                            PickupPersonFaceProfile::STATUS_REVOKED,
+
+                        'invalidated_at' =>
+                            null,
+
+                        'revoked_at' =>
+                            now(),
+
+                        'metadata' =>
+                            null,
+                    ]);
+                }
+            },
+            3,
+        );
 
         Storage::disk('public')
             ->delete($oldPhotoPath);
@@ -751,6 +837,306 @@ class PickupPersonController extends Controller
         return back()->with(
             'success',
             'Foto penjemput berhasil dihapus.',
+        );
+    }
+
+    /**
+     * Mendaftarkan profil biometrik wajah penjemput.
+     */
+    public function registerFace(
+        RegisterPickupPersonFaceRequest $request,
+        PickupPerson $pickupPerson,
+    ): RedirectResponse {
+        $user = $this->authenticatedUser($request);
+
+        $this->ensureBelongsToSchool(
+            $user,
+            $pickupPerson,
+        );
+
+        $this->authorizeBiometric($user);
+
+        $schoolId = $this->schoolId($user);
+
+        $validated = $request->validated();
+
+        $photoPath = trim(
+            (string) $pickupPerson->photo_path,
+        );
+
+        if (
+            $photoPath === ''
+            || ! Storage::disk('public')
+                ->exists($photoPath)
+        ) {
+            throw ValidationException::withMessages([
+                'face' =>
+                    'Foto penjemput belum tersedia atau tidak ditemukan.',
+            ]);
+        }
+
+        $qualityScore = (float) (
+            $validated['quality_score']
+            ?? 0
+        );
+
+        $minimumQualityScore = (float) config(
+            'biometrics.minimum_quality_score',
+            0.75,
+        );
+
+        if ($qualityScore < $minimumQualityScore) {
+            throw ValidationException::withMessages([
+                'quality_score' =>
+                    sprintf(
+                        'Kualitas wajah minimal %.0f%%. Ambil ulang foto dengan pencahayaan yang lebih baik.',
+                        $minimumQualityScore * 100,
+                    ),
+            ]);
+        }
+
+        if (
+            ! (bool) (
+                $validated['liveness_passed']
+                ?? false
+            )
+        ) {
+            throw ValidationException::withMessages([
+                'liveness_passed' =>
+                    'Pemeriksaan keaslian wajah belum berhasil.',
+            ]);
+        }
+
+        /** @var array<int, mixed> $rawEmbedding */
+        $rawEmbedding = $validated['embedding'];
+
+        $embedding = collect($rawEmbedding)
+            ->map(
+                fn (mixed $value): float =>
+                    (float) $value,
+            )
+            ->values()
+            ->all();
+
+        foreach ($embedding as $value) {
+            if (! is_finite($value)) {
+                throw ValidationException::withMessages([
+                    'embedding' =>
+                        'Data biometrik mengandung nilai yang tidak valid.',
+                ]);
+            }
+        }
+
+        $photoContents = Storage::disk('public')
+            ->get($photoPath);
+
+        $photoSha256 = hash(
+            'sha256',
+            $photoContents,
+        );
+
+        DB::transaction(
+            function () use (
+                $pickupPerson,
+                $schoolId,
+                $user,
+                $validated,
+                $embedding,
+                $qualityScore,
+                $photoSha256,
+            ): void {
+                $profile = PickupPersonFaceProfile::query()
+                    ->where(
+                        'school_id',
+                        $schoolId,
+                    )
+                    ->where(
+                        'pickup_person_id',
+                        $pickupPerson->id,
+                    )
+                    ->lockForUpdate()
+                    ->first();
+
+                $revision = $profile
+                    ? (
+                        (int) $profile
+                            ->registration_revision
+                        + 1
+                    )
+                    : 1;
+
+                $profileData = [
+                    'school_id' =>
+                        $schoolId,
+
+                    'pickup_person_id' =>
+                        $pickupPerson->id,
+
+                    'registered_by_user_id' =>
+                        $user->id,
+
+                    'embedding' =>
+                        $embedding,
+
+                    'embedding_dimension' =>
+                        count($embedding),
+
+                    'model_name' =>
+                        (string) $validated['model_name'],
+
+                    'model_version' =>
+                        (string) $validated['model_version'],
+
+                    'quality_score' =>
+                        $qualityScore,
+
+                    'liveness_passed' =>
+                        true,
+
+                    'capture_method' =>
+                        (string) $validated['capture_method'],
+
+                    'photo_sha256' =>
+                        $photoSha256,
+
+                    'status' =>
+                        PickupPersonFaceProfile::STATUS_REGISTERED,
+
+                    'registration_revision' =>
+                        $revision,
+
+                    'consent_version' =>
+                        (string) config(
+                            'biometrics.consent_version',
+                            'v1',
+                        ),
+
+                    'consented_at' =>
+                        now(),
+
+                    'registered_at' =>
+                        now(),
+
+                    'invalidated_at' =>
+                        null,
+
+                    'revoked_at' =>
+                        null,
+
+                    'metadata' =>
+                        $validated['metadata']
+                        ?? null,
+                ];
+
+                if ($profile) {
+                    $profile->update(
+                        $profileData,
+                    );
+                } else {
+                    PickupPersonFaceProfile::create(
+                        $profileData,
+                    );
+                }
+
+                $pickupPerson->update([
+                    'face_status' =>
+                        PickupPerson::FACE_REGISTERED,
+                ]);
+            },
+            3,
+        );
+
+        return back()->with(
+            'success',
+            'Wajah penjemput berhasil diregistrasikan.',
+        );
+    }
+
+    /**
+     * Mencabut registrasi biometrik wajah penjemput.
+     */
+    public function revokeFace(
+        Request $request,
+        PickupPerson $pickupPerson,
+    ): RedirectResponse {
+        $user = $this->authenticatedUser($request);
+
+        $this->ensureBelongsToSchool(
+            $user,
+            $pickupPerson,
+        );
+
+        $this->authorizeBiometric($user);
+
+        $schoolId = $this->schoolId($user);
+
+        $profileFound = DB::transaction(
+            function () use (
+                $pickupPerson,
+                $schoolId,
+            ): bool {
+                $profile = PickupPersonFaceProfile::query()
+                    ->where(
+                        'school_id',
+                        $schoolId,
+                    )
+                    ->where(
+                        'pickup_person_id',
+                        $pickupPerson->id,
+                    )
+                    ->lockForUpdate()
+                    ->first();
+
+                $pickupPerson->update([
+                    'face_status' =>
+                        PickupPerson::FACE_NOT_REGISTERED,
+                ]);
+
+                if (! $profile) {
+                    return false;
+                }
+
+                $profile->update([
+                    'embedding' =>
+                        null,
+
+                    'embedding_dimension' =>
+                        null,
+
+                    'quality_score' =>
+                        null,
+
+                    'liveness_passed' =>
+                        false,
+
+                    'photo_sha256' =>
+                        null,
+
+                    'status' =>
+                        PickupPersonFaceProfile::STATUS_REVOKED,
+
+                    'invalidated_at' =>
+                        null,
+
+                    'revoked_at' =>
+                        now(),
+
+                    'metadata' =>
+                        null,
+                ]);
+
+                return true;
+            },
+            3,
+        );
+
+        return back()->with(
+            $profileFound
+                ? 'success'
+                : 'info',
+            $profileFound
+                ? 'Registrasi wajah berhasil dicabut.'
+                : 'Penjemput belum memiliki registrasi wajah.',
         );
     }
 
@@ -847,11 +1233,11 @@ class PickupPersonController extends Controller
                     ->findOrFail($pickupPersonId);
 
                 $result = [
+                    'id' =>
+                        (int) $pickupPerson->id,
+
                     'name' =>
                         $pickupPerson->full_name,
-
-                    'photo_path' =>
-                        $pickupPerson->photo_path,
                 ];
 
                 $pickupPerson
@@ -865,15 +1251,13 @@ class PickupPersonController extends Controller
             3,
         );
 
-        $photoPath = $result['photo_path'];
-
-        if (
-            is_string($photoPath)
-            && trim($photoPath) !== ''
-        ) {
-            Storage::disk('public')
-                ->delete($photoPath);
-        }
+        Storage::disk('public')
+            ->deleteDirectory(
+                $this->pickupPersonPhotoDirectory(
+                    $schoolId,
+                    $result['id'],
+                ),
+            );
 
         return redirect()
             ->route('pickup-persons.archive')
@@ -970,11 +1354,27 @@ class PickupPersonController extends Controller
     }
 
     /**
+     * Memastikan pengguna boleh mengelola data biometrik.
+     */
+    private function authorizeBiometric(
+        User $user,
+    ): void {
+        abort_unless(
+            $user->hasRole(
+                User::ROLE_SCHOOL_ADMIN,
+            ),
+            403,
+            'Hanya administrator sekolah yang dapat mengelola registrasi wajah.',
+        );
+    }
+
+    /**
      * Membentuk permission untuk frontend.
      *
      * @return array{
      *     can_manage: bool,
-     *     can_archive: bool
+     *     can_archive: bool,
+     *     can_manage_face: bool
      * }
      */
     private function permissions(
@@ -988,6 +1388,11 @@ class PickupPersonController extends Controller
                 ),
 
             'can_archive' =>
+                $user->hasRole(
+                    User::ROLE_SCHOOL_ADMIN,
+                ),
+
+            'can_manage_face' =>
                 $user->hasRole(
                     User::ROLE_SCHOOL_ADMIN,
                 ),
@@ -1392,6 +1797,11 @@ class PickupPersonController extends Controller
             'face_status' =>
                 $pickupPerson->face_status,
 
+            'face_profile' =>
+                $this->faceProfilePayload(
+                    $pickupPerson->faceProfile,
+                ),
+
             'is_active' =>
                 (bool) $pickupPerson->is_active,
 
@@ -1455,6 +1865,119 @@ class PickupPersonController extends Controller
                     ->values()
                     ->all(),
         ];
+    }
+
+    /**
+     * Membentuk metadata profil wajah tanpa mengirim embedding.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function faceProfilePayload(
+        ?PickupPersonFaceProfile $profile,
+    ): ?array {
+        if (! $profile) {
+            return null;
+        }
+
+        return [
+            'status' =>
+                $profile->status,
+
+            'embedding_dimension' =>
+                $profile->embedding_dimension,
+
+            'model_name' =>
+                $profile->model_name,
+
+            'model_version' =>
+                $profile->model_version,
+
+            'quality_score' =>
+                $profile->quality_score !== null
+                    ? (float) $profile->quality_score
+                    : null,
+
+            'liveness_passed' =>
+                (bool) $profile->liveness_passed,
+
+            'capture_method' =>
+                $profile->capture_method,
+
+            'registration_revision' =>
+                (int) $profile->registration_revision,
+
+            'consent_version' =>
+                $profile->consent_version,
+
+            'consented_at' =>
+                $profile->consented_at
+                    ?->toISOString(),
+
+            'registered_at' =>
+                $profile->registered_at
+                    ?->toISOString(),
+
+            'invalidated_at' =>
+                $profile->invalidated_at
+                    ?->toISOString(),
+
+            'revoked_at' =>
+                $profile->revoked_at
+                    ?->toISOString(),
+        ];
+    }
+
+    /**
+     * Menonaktifkan embedding lama setelah foto berubah.
+     */
+    private function invalidateFaceProfile(
+        PickupPerson $pickupPerson,
+        int $schoolId,
+    ): void {
+        $profile = PickupPersonFaceProfile::query()
+            ->where(
+                'school_id',
+                $schoolId,
+            )
+            ->where(
+                'pickup_person_id',
+                $pickupPerson->id,
+            )
+            ->lockForUpdate()
+            ->first();
+
+        if (! $profile) {
+            return;
+        }
+
+        $profile->update([
+            'embedding' =>
+                null,
+
+            'embedding_dimension' =>
+                null,
+
+            'quality_score' =>
+                null,
+
+            'liveness_passed' =>
+                false,
+
+            'photo_sha256' =>
+                null,
+
+            'status' =>
+                PickupPersonFaceProfile::STATUS_NEEDS_UPDATE,
+
+            'invalidated_at' =>
+                now(),
+
+            'revoked_at' =>
+                null,
+
+            'metadata' =>
+                null,
+        ]);
     }
 
     /**
