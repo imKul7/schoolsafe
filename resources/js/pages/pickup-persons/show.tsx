@@ -1,8 +1,8 @@
+import PickupPersonPhotoManager from '@/components/pickup-persons/pickup-person-photo-manager';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import type { ChangeEvent, FormEvent } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 interface StudentItem {
     id: number;
@@ -42,45 +42,6 @@ interface Permissions {
 interface PageProps {
     pickupPerson: PickupPerson;
     permissions: Permissions;
-}
-
-interface PhotoForm {
-    [key: string]: File | null;
-    photo: File | null;
-}
-
-const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
-
-const allowedPhotoTypes = [
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-];
-
-function faceStatusLabel(status: string): string {
-    switch (status) {
-        case 'registered':
-            return 'Wajah Terdaftar';
-
-        case 'needs_update':
-            return 'Perlu Registrasi Ulang';
-
-        default:
-            return 'Belum Terdaftar';
-    }
-}
-
-function faceStatusClass(status: string): string {
-    switch (status) {
-        case 'registered':
-            return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300';
-
-        case 'needs_update':
-            return 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300';
-
-        default:
-            return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
-    }
 }
 
 function relationshipLabel(value: string): string {
@@ -137,15 +98,11 @@ export default function PickupPersonShow({
     pickupPerson,
     permissions,
 }: PageProps) {
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [isTogglingStatus, setIsTogglingStatus] =
+        useState(false);
 
-    const [previewUrl, setPreviewUrl] = useState<string | null>(
-        null,
-    );
-
-    const photoForm = useForm<PhotoForm>({
-        photo: null,
-    });
+    const [isArchiving, setIsArchiving] =
+        useState(false);
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -158,129 +115,11 @@ export default function PickupPersonShow({
         },
     ];
 
-    useEffect(() => {
-        if (!photoForm.data.photo) {
-            setPreviewUrl(null);
-
-            return;
-        }
-
-        const objectUrl = URL.createObjectURL(
-            photoForm.data.photo,
-        );
-
-        setPreviewUrl(objectUrl);
-
-        return () => {
-            URL.revokeObjectURL(objectUrl);
-        };
-    }, [photoForm.data.photo]);
-
-    const displayedPhotoUrl =
-        previewUrl ?? pickupPerson.photo_url;
-
-    const handlePhotoChange = (
-        event: ChangeEvent<HTMLInputElement>,
-    ): void => {
-        const file = event.target.files?.[0] ?? null;
-
-        photoForm.clearErrors('photo');
-
-        if (!file) {
-            photoForm.setData('photo', null);
-
-            return;
-        }
-
-        if (!allowedPhotoTypes.includes(file.type)) {
-            photoForm.setError(
-                'photo',
-                'Foto harus berformat JPG, JPEG, PNG, atau WEBP.',
-            );
-
-            event.target.value = '';
-
-            photoForm.setData('photo', null);
-
-            return;
-        }
-
-        if (file.size > MAX_PHOTO_SIZE) {
-            photoForm.setError(
-                'photo',
-                'Ukuran foto maksimal 5 MB.',
-            );
-
-            event.target.value = '';
-
-            photoForm.setData('photo', null);
-
-            return;
-        }
-
-        photoForm.setData('photo', file);
-    };
-
-    const cancelSelectedPhoto = (): void => {
-        photoForm.setData('photo', null);
-        photoForm.clearErrors('photo');
-
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    };
-
-    const submitPhoto = (
-        event: FormEvent<HTMLFormElement>,
-    ): void => {
-        event.preventDefault();
-
-        if (!photoForm.data.photo) {
-            photoForm.setError(
-                'photo',
-                'Pilih foto penjemput terlebih dahulu.',
-            );
-
-            return;
-        }
-
-        photoForm.post(
-            `/pickup-persons/${pickupPerson.id}/photo`,
-            {
-                forceFormData: true,
-                preserveScroll: true,
-
-                onSuccess: () => {
-                    cancelSelectedPhoto();
-                },
-            },
-        );
-    };
-
-    const deletePhoto = (): void => {
-        if (!pickupPerson.photo_url) {
-            return;
-        }
-
-        const confirmed = window.confirm(
-            `Hapus foto ${pickupPerson.full_name}?`,
-        );
-
-        if (!confirmed) {
-            return;
-        }
-
-        cancelSelectedPhoto();
-
-        router.delete(
-            `/pickup-persons/${pickupPerson.id}/photo`,
-            {
-                preserveScroll: true,
-            },
-        );
-    };
-
     const toggleStatus = (): void => {
+        if (isTogglingStatus) {
+            return;
+        }
+
         const action = pickupPerson.is_active
             ? 'menonaktifkan'
             : 'mengaktifkan';
@@ -298,11 +137,23 @@ export default function PickupPersonShow({
             {},
             {
                 preserveScroll: true,
+
+                onStart: () => {
+                    setIsTogglingStatus(true);
+                },
+
+                onFinish: () => {
+                    setIsTogglingStatus(false);
+                },
             },
         );
     };
 
     const archivePickupPerson = (): void => {
+        if (isArchiving) {
+            return;
+        }
+
         const confirmed = window.confirm(
             `Pindahkan ${pickupPerson.full_name} ke arsip?`,
         );
@@ -313,6 +164,15 @@ export default function PickupPersonShow({
 
         router.delete(
             `/pickup-persons/${pickupPerson.id}`,
+            {
+                onStart: () => {
+                    setIsArchiving(true);
+                },
+
+                onFinish: () => {
+                    setIsArchiving(false);
+                },
+            },
         );
     };
 
@@ -323,15 +183,29 @@ export default function PickupPersonShow({
             />
 
             <div className="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <p className="text-sm text-muted-foreground">
                             Detail Data Penjemput
                         </p>
 
-                        <h1 className="text-2xl font-bold tracking-tight">
-                            {pickupPerson.full_name}
-                        </h1>
+                        <div className="mt-1 flex flex-wrap items-center gap-3">
+                            <h1 className="text-2xl font-bold tracking-tight">
+                                {pickupPerson.full_name}
+                            </h1>
+
+                            <span
+                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                                    pickupPerson.is_active
+                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                                        : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'
+                                }`}
+                            >
+                                {pickupPerson.is_active
+                                    ? 'Aktif'
+                                    : 'Tidak Aktif'}
+                            </span>
+                        </div>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
@@ -354,11 +228,17 @@ export default function PickupPersonShow({
                                 <button
                                     type="button"
                                     onClick={toggleStatus}
-                                    className="inline-flex h-10 items-center justify-center rounded-md border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted"
+                                    disabled={
+                                        isTogglingStatus
+                                        || isArchiving
+                                    }
+                                    className="inline-flex h-10 items-center justify-center rounded-md border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    {pickupPerson.is_active
-                                        ? 'Nonaktifkan'
-                                        : 'Aktifkan'}
+                                    {isTogglingStatus
+                                        ? 'Memproses...'
+                                        : pickupPerson.is_active
+                                          ? 'Nonaktifkan'
+                                          : 'Aktifkan'}
                                 </button>
                             </>
                         )}
@@ -367,219 +247,40 @@ export default function PickupPersonShow({
                             <button
                                 type="button"
                                 onClick={archivePickupPerson}
-                                className="inline-flex h-10 items-center justify-center rounded-md bg-red-600 px-4 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                                disabled={
+                                    isArchiving
+                                    || isTogglingStatus
+                                }
+                                className="inline-flex h-10 items-center justify-center rounded-md bg-red-600 px-4 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                Arsipkan
+                                {isArchiving
+                                    ? 'Mengarsipkan...'
+                                    : 'Arsipkan'}
                             </button>
                         )}
                     </div>
-                </div>
+                </header>
 
                 <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-                    <section className="rounded-xl border bg-card p-5 shadow-sm">
-                        <div className="mb-4">
-                            <h2 className="font-semibold">
-                                Foto Penjemput
-                            </h2>
-
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                Gunakan foto wajah yang jelas dan tidak
-                                tertutup.
-                            </p>
-                        </div>
-
-                        <div className="overflow-hidden rounded-xl border bg-muted">
-                            <div className="flex aspect-square items-center justify-center">
-                                {displayedPhotoUrl ? (
-                                    <img
-                                        src={displayedPhotoUrl}
-                                        alt={`Foto ${pickupPerson.full_name}`}
-                                        className="h-full w-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="flex h-full w-full flex-col items-center justify-center gap-3">
-                                        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-background text-3xl font-bold shadow-sm">
-                                            {pickupPerson.initials}
-                                        </div>
-
-                                        <p className="text-sm text-muted-foreground">
-                                            Belum ada foto
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {previewUrl && (
-                            <div className="mt-3 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
-                                Ini adalah preview foto baru. Tekan
-                                tombol simpan untuk mengunggahnya.
-                            </div>
-                        )}
-
-                        <div className="mt-4">
-                            <span
-                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${faceStatusClass(
-                                    pickupPerson.face_status,
-                                )}`}
-                            >
-                                {faceStatusLabel(
-                                    pickupPerson.face_status,
-                                )}
-                            </span>
-                        </div>
-
-                        {permissions.can_manage && (
-                            <form
-                                onSubmit={submitPhoto}
-                                className="mt-5 space-y-4"
-                            >
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    name="photo"
-                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                                    onChange={handlePhotoChange}
-                                    className="hidden"
-                                />
-
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        fileInputRef.current?.click()
-                                    }
-                                    disabled={photoForm.processing}
-                                    className="inline-flex h-10 w-full items-center justify-center rounded-md border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    {pickupPerson.photo_url
-                                        ? 'Pilih Foto Pengganti'
-                                        : 'Pilih Foto'}
-                                </button>
-
-                                {photoForm.data.photo && (
-                                    <div className="rounded-md border bg-muted/40 p-3">
-                                        <p className="truncate text-sm font-medium">
-                                            {
-                                                photoForm.data.photo
-                                                    .name
-                                            }
-                                        </p>
-
-                                        <p className="mt-1 text-xs text-muted-foreground">
-                                            {(
-                                                photoForm.data.photo
-                                                    .size /
-                                                1024 /
-                                                1024
-                                            ).toFixed(2)}{' '}
-                                            MB
-                                        </p>
-                                    </div>
-                                )}
-
-                                {photoForm.errors.photo && (
-                                    <p className="text-sm text-red-600">
-                                        {photoForm.errors.photo}
-                                    </p>
-                                )}
-
-                                {photoForm.progress && (
-                                    <div>
-                                        <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-                                            <span>
-                                                Mengunggah foto
-                                            </span>
-
-                                            <span>
-                                                {
-                                                    photoForm.progress
-                                                        .percentage
-                                                }
-                                                %
-                                            </span>
-                                        </div>
-
-                                        <div className="h-2 overflow-hidden rounded-full bg-muted">
-                                            <div
-                                                className="h-full bg-primary transition-all"
-                                                style={{
-                                                    width: `${photoForm.progress.percentage}%`,
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {photoForm.data.photo && (
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={
-                                                cancelSelectedPhoto
-                                            }
-                                            disabled={
-                                                photoForm.processing
-                                            }
-                                            className="inline-flex h-10 items-center justify-center rounded-md border bg-background px-3 text-sm font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-                                        >
-                                            Batalkan
-                                        </button>
-
-                                        <button
-                                            type="submit"
-                                            disabled={
-                                                photoForm.processing
-                                            }
-                                            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
-                                        >
-                                            {photoForm.processing
-                                                ? 'Menyimpan...'
-                                                : 'Simpan Foto'}
-                                        </button>
-                                    </div>
-                                )}
-
-                                {pickupPerson.photo_url &&
-                                    !photoForm.data.photo && (
-                                        <button
-                                            type="button"
-                                            onClick={deletePhoto}
-                                            disabled={
-                                                photoForm.processing
-                                            }
-                                            className="inline-flex h-10 w-full items-center justify-center rounded-md border border-red-300 bg-background px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:hover:bg-red-950"
-                                        >
-                                            Hapus Foto
-                                        </button>
-                                    )}
-                            </form>
-                        )}
-                    </section>
+                    <PickupPersonPhotoManager
+                        pickupPersonId={pickupPerson.id}
+                        pickupPersonName={pickupPerson.full_name}
+                        initials={pickupPerson.initials}
+                        currentPhotoUrl={pickupPerson.photo_url}
+                        faceStatus={pickupPerson.face_status}
+                        canManage={permissions.can_manage}
+                    />
 
                     <div className="space-y-6">
                         <section className="rounded-xl border bg-card p-5 shadow-sm">
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <h2 className="font-semibold">
-                                        Informasi Penjemput
-                                    </h2>
+                            <div>
+                                <h2 className="font-semibold">
+                                    Informasi Penjemput
+                                </h2>
 
-                                    <p className="mt-1 text-sm text-muted-foreground">
-                                        Identitas dan kontak penjemput.
-                                    </p>
-                                </div>
-
-                                <span
-                                    className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${
-                                        pickupPerson.is_active
-                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-                                            : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'
-                                    }`}
-                                >
-                                    {pickupPerson.is_active
-                                        ? 'Aktif'
-                                        : 'Tidak Aktif'}
-                                </span>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    Identitas dan kontak penjemput.
+                                </p>
                             </div>
 
                             <dl className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -646,7 +347,7 @@ export default function PickupPersonShow({
                             </dl>
                         </section>
 
-                        <section className="rounded-xl border bg-card shadow-sm">
+                        <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
                             <div className="border-b p-5">
                                 <h2 className="font-semibold">
                                     Siswa yang Boleh Dijemput
@@ -668,23 +369,38 @@ export default function PickupPersonShow({
                                     <table className="w-full min-w-[850px] text-sm">
                                         <thead className="bg-muted/50">
                                             <tr className="border-b text-left">
-                                                <th className="px-5 py-3 font-medium">
+                                                <th
+                                                    scope="col"
+                                                    className="px-5 py-3 font-medium"
+                                                >
                                                     Siswa
                                                 </th>
 
-                                                <th className="px-5 py-3 font-medium">
+                                                <th
+                                                    scope="col"
+                                                    className="px-5 py-3 font-medium"
+                                                >
                                                     Kelas
                                                 </th>
 
-                                                <th className="px-5 py-3 font-medium">
+                                                <th
+                                                    scope="col"
+                                                    className="px-5 py-3 font-medium"
+                                                >
                                                     Hubungan
                                                 </th>
 
-                                                <th className="px-5 py-3 font-medium">
+                                                <th
+                                                    scope="col"
+                                                    className="px-5 py-3 font-medium"
+                                                >
                                                     Berlaku
                                                 </th>
 
-                                                <th className="px-5 py-3 font-medium">
+                                                <th
+                                                    scope="col"
+                                                    className="px-5 py-3 font-medium"
+                                                >
                                                     Status
                                                 </th>
                                             </tr>
@@ -699,7 +415,7 @@ export default function PickupPersonShow({
                                                         }
                                                         className="border-b last:border-0"
                                                     >
-                                                        <td className="px-5 py-4">
+                                                        <td className="px-5 py-4 align-top">
                                                             <p className="font-medium">
                                                                 {
                                                                     student.full_name
@@ -714,7 +430,7 @@ export default function PickupPersonShow({
                                                             </p>
                                                         </td>
 
-                                                        <td className="px-5 py-4">
+                                                        <td className="px-5 py-4 align-top">
                                                             <p>
                                                                 {student.class_name ||
                                                                     '-'}
@@ -726,7 +442,7 @@ export default function PickupPersonShow({
                                                             </p>
                                                         </td>
 
-                                                        <td className="px-5 py-4">
+                                                        <td className="px-5 py-4 align-top">
                                                             <p>
                                                                 {relationshipLabel(
                                                                     student.relationship_type,
@@ -740,7 +456,7 @@ export default function PickupPersonShow({
                                                             )}
                                                         </td>
 
-                                                        <td className="px-5 py-4">
+                                                        <td className="px-5 py-4 align-top">
                                                             <p className="text-xs">
                                                                 Mulai:{' '}
                                                                 {formatDate(
@@ -756,7 +472,7 @@ export default function PickupPersonShow({
                                                             </p>
                                                         </td>
 
-                                                        <td className="px-5 py-4">
+                                                        <td className="px-5 py-4 align-top">
                                                             <div className="space-y-1">
                                                                 <span
                                                                     className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
