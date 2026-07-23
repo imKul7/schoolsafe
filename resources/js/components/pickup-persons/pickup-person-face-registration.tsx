@@ -275,8 +275,9 @@ export default function PickupPersonFaceRegistration({
                 consent_confirmed:
                     consentConfirmed,
 
-                metadata:
-                    analysis.metadata,
+                metadata: {
+                    ...analysis.metadata,
+                },
             },
             {
                 preserveScroll: true,

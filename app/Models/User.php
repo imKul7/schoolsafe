@@ -6,9 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
+    public function confirmedPickupEvents(): HasMany
+{
+    return $this->hasMany(
+        PickupEvent::class,
+        'confirmed_by_user_id',
+    );
+}
     use HasFactory;
     use Notifiable;
 

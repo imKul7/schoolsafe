@@ -35,6 +35,13 @@ class School extends Model
         ];
     }
 
+    public function pickupEvents(): HasMany
+    {
+    return $this->hasMany(
+        PickupEvent::class,
+    );
+    }
+
     /**
      * Seluruh pengguna yang terhubung dengan sekolah.
      */

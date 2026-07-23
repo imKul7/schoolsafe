@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import {
     CalendarCheck2,
     LayoutDashboard,
+    History,
     ScanFace,
     ShieldCheck,
     UserRoundCheck,
@@ -27,6 +28,11 @@ import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
     {
+    title: 'Verifikasi Gerbang',
+    url: '/gate/face-verification',
+    icon: ScanFace,
+    },
+    {
         title: 'Dashboard',
         url: '/dashboard',
         icon: LayoutDashboard,
@@ -41,6 +47,16 @@ const mainNavItems: NavItem[] = [
         url: '/pickup-persons',
         icon: UserRoundCheck,
     },
+    {
+    title: 'Verifikasi Gerbang',
+    url: '/gate/face-verification',
+    icon: ScanFace,
+    },
+    {
+    title: 'Riwayat Gerbang',
+    url: '/gate/pickup-events',
+    icon: History,
+    },
 ];
 
 type ComingSoonItem = {
@@ -52,10 +68,6 @@ const comingSoonItems: ComingSoonItem[] = [
     {
         title: 'Izin Penjemputan',
         icon: CalendarCheck2,
-    },
-    {
-        title: 'Face Scanner',
-        icon: ScanFace,
     },
     {
         title: 'Riwayat',

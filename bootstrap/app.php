@@ -18,6 +18,24 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })->create();
+    ->withExceptions(function (Exceptions $exceptions): void {
+    $exceptions->render(
+        function (
+            \Illuminate\Auth\AuthenticationException $exception,
+            \Illuminate\Http\Request $request,
+        ) {
+            if (! $request->expectsJson()) {
+                return null;
+            }
+
+            return response()->json(
+                [
+                    'message' =>
+                        'Silakan masuk untuk melanjutkan.',
+                ],
+                401,
+            );
+        },
+    );
+})
+->create();

@@ -45,7 +45,8 @@ const humanConfig: Partial<Config> = {
         },
 
         iris: {
-            enabled: false,
+            enabled: true,
+            modelPath: 'iris.json',
         },
 
         emotion: {
@@ -78,7 +79,7 @@ const humanConfig: Partial<Config> = {
     },
 
     gesture: {
-        enabled: false,
+        enabled: true,
     },
 };
 

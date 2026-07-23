@@ -2,13 +2,65 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\GateFaceVerificationController;
+use App\Http\Controllers\GatePickupEventController;
 use App\Http\Controllers\PickupPersonController;
 use App\Http\Controllers\StudentController;
+use App\Http\Middleware\PreventSensitiveResponseCaching;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+
+/*
+|--------------------------------------------------------------------------
+| Batas Parameter ID
+|--------------------------------------------------------------------------
+|
+| Seluruh parameter ID dibatasi ke integer positif yang masih berada dalam
+| rentang PHP_INT_MAX pada lingkungan 64-bit. Pembatasan ini mencegah nilai
+| digit-only yang terlalu besar lolos ke controller bertipe int dan memicu
+| TypeError dengan respons 500.
+|
+*/
+
+$positiveIntegerRoutePattern =
+    '(?:'
+    .'[1-9][0-9]{0,17}'
+    .'|[1-8][0-9]{18}'
+    .'|9[01][0-9]{17}'
+    .'|92[01][0-9]{16}'
+    .'|922[0-2][0-9]{15}'
+    .'|9223[0-2][0-9]{14}'
+    .'|92233[0-6][0-9]{13}'
+    .'|922337[01][0-9]{12}'
+    .'|92233720[0-2][0-9]{10}'
+    .'|922337203[0-5][0-9]{9}'
+    .'|9223372036[0-7][0-9]{8}'
+    .'|92233720368[0-4][0-9]{7}'
+    .'|922337203685[0-3][0-9]{6}'
+    .'|9223372036854[0-6][0-9]{5}'
+    .'|92233720368547[0-6][0-9]{4}'
+    .'|922337203685477[0-4][0-9]{3}'
+    .'|9223372036854775[0-7][0-9]{2}'
+    .'|922337203685477580[0-7]'
+    .')';
+
+foreach (
+    [
+        'pickupEvent',
+        'pickupEventStudent',
+        'student',
+        'pickupPerson',
+        'pickupPersonId',
+    ] as $routeParameter
+) {
+    Route::pattern(
+        $routeParameter,
+        $positiveIntegerRoutePattern,
+    );
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -24,7 +76,9 @@ Route::get(
                 ->route('dashboard');
         }
 
-        return Inertia::render('welcome');
+        return Inertia::render(
+            'welcome',
+        );
     },
 )->name('home');
 
@@ -45,8 +99,161 @@ Route::middleware('auth')
         Route::get(
             '/dashboard',
             fn (): Response =>
-                Inertia::render('dashboard'),
+                Inertia::render(
+                    'dashboard',
+                ),
         )->name('dashboard');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Modul Gerbang
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('gate')
+            ->name('gate.')
+            ->group(function (): void {
+                /*
+                |--------------------------------------------------------------------------
+                | Verifikasi Wajah
+                |--------------------------------------------------------------------------
+                */
+
+                Route::controller(
+                    GateFaceVerificationController::class,
+                )
+                    ->prefix('face-verification')
+                    ->name('face-verification.')
+                    ->group(function (): void {
+                        /*
+                         * Halaman utama kamera verifikasi.
+                         */
+                        Route::get(
+                            '/',
+                            'index',
+                        )->name('index');
+
+                        /*
+                         * Membuat challenge liveness satu kali.
+                         */
+                        Route::post(
+                            '/challenge',
+                            'challenge',
+                        )
+                            ->middleware(
+                                'throttle:20,1',
+                            )
+                            ->name('challenge');
+
+                        /*
+                         * Memproses pencocokan wajah penjemput.
+                         */
+                        Route::post(
+                            '/',
+                            'verify',
+                        )
+                            ->middleware(
+                                'throttle:30,1',
+                            )
+                            ->name('verify');
+                    });
+
+                /*
+                |--------------------------------------------------------------------------
+                | Transaksi Penjemputan
+                |--------------------------------------------------------------------------
+                */
+
+                Route::controller(
+                    GatePickupEventController::class,
+                )
+                    ->prefix('pickup-events')
+                    ->name('pickup-events.')
+                    ->middleware(
+                        PreventSensitiveResponseCaching::class,
+                    )
+                    ->group(function (): void {
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Riwayat Gerbang
+                        |--------------------------------------------------------------------------
+                        */
+
+                        Route::get(
+                            '/',
+                            'index',
+                        )->name('index');
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Konfirmasi Penjemputan
+                        |--------------------------------------------------------------------------
+                        |
+                        | Endpoint menerima hasil verifikasi wajah yang berhasil,
+                        | daftar siswa yang dipilih, dan UUID idempotency.
+                        |
+                        */
+
+                        Route::post(
+                            '/',
+                            'store',
+                        )
+                            ->middleware(
+                                'throttle:30,1',
+                            )
+                            ->name('store');
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Pembatalan Siswa
+                        |--------------------------------------------------------------------------
+                        |
+                        | Route paling spesifik ditempatkan sebelum route detail.
+                        |
+                        */
+
+                        Route::patch(
+                            '/{pickupEvent}/students/{pickupEventStudent}/cancel',
+                            'cancelStudent',
+                        )
+                            ->middleware(
+                                'throttle:20,1',
+                            )
+                            ->name(
+                                'students.cancel',
+                            );
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Pembatalan Transaksi
+                        |--------------------------------------------------------------------------
+                        */
+
+                        Route::patch(
+                            '/{pickupEvent}/cancel',
+                            'cancel',
+                        )
+                            ->middleware(
+                                'throttle:20,1',
+                            )
+                            ->name('cancel');
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Detail Transaksi
+                        |--------------------------------------------------------------------------
+                        */
+
+                        Route::get(
+                            '/{pickupEvent}',
+                            'show',
+                        )
+                            ->middleware(
+                                'throttle:60,1',
+                            )
+                            ->name('show');
+                    });
+            });
 
         /*
         |--------------------------------------------------------------------------
@@ -54,7 +261,9 @@ Route::middleware('auth')
         |--------------------------------------------------------------------------
         */
 
-        Route::controller(StudentController::class)
+        Route::controller(
+            StudentController::class,
+        )
             ->prefix('students')
             ->name('students.')
             ->group(function (): void {
@@ -88,37 +297,29 @@ Route::middleware('auth')
                 Route::get(
                     '/{student}',
                     'show',
-                )
-                    ->whereNumber('student')
-                    ->name('show');
+                )->name('show');
 
                 Route::get(
                     '/{student}/edit',
                     'edit',
-                )
-                    ->whereNumber('student')
-                    ->name('edit');
+                )->name('edit');
 
                 Route::put(
                     '/{student}',
                     'update',
-                )
-                    ->whereNumber('student')
-                    ->name('update');
+                )->name('update');
 
                 Route::patch(
                     '/{student}/toggle-status',
                     'toggleStatus',
-                )
-                    ->whereNumber('student')
-                    ->name('toggle-status');
+                )->name(
+                    'toggle-status',
+                );
 
                 Route::delete(
                     '/{student}',
                     'destroy',
-                )
-                    ->whereNumber('student')
-                    ->name('destroy');
+                )->name('destroy');
             });
 
         /*
@@ -127,7 +328,9 @@ Route::middleware('auth')
         |--------------------------------------------------------------------------
         */
 
-        Route::controller(PickupPersonController::class)
+        Route::controller(
+            PickupPersonController::class,
+        )
             ->prefix('pickup-persons')
             ->name('pickup-persons.')
             ->group(function (): void {
@@ -157,8 +360,8 @@ Route::middleware('auth')
                 | Arsip Penjemput
                 |--------------------------------------------------------------------------
                 |
-                | Route statis harus berada sebelum route /{pickupPerson}
-                | agar kata "archive" tidak dianggap sebagai ID penjemput.
+                | Route statis ditempatkan sebelum /{pickupPerson} agar kata
+                | "archive" tidak pernah dianggap sebagai identifier penjemput.
                 |
                 */
 
@@ -170,16 +373,14 @@ Route::middleware('auth')
                 Route::patch(
                     '/archive/{pickupPersonId}/restore',
                     'restore',
-                )
-                    ->whereNumber('pickupPersonId')
-                    ->name('restore');
+                )->name('restore');
 
                 Route::delete(
                     '/archive/{pickupPersonId}/force-delete',
                     'forceDelete',
-                )
-                    ->whereNumber('pickupPersonId')
-                    ->name('force-delete');
+                )->name(
+                    'force-delete',
+                );
 
                 /*
                 |--------------------------------------------------------------------------
@@ -190,16 +391,16 @@ Route::middleware('auth')
                 Route::post(
                     '/{pickupPerson}/photo',
                     'uploadPhoto',
-                )
-                    ->whereNumber('pickupPerson')
-                    ->name('photo.store');
+                )->name(
+                    'photo.store',
+                );
 
                 Route::delete(
                     '/{pickupPerson}/photo',
                     'deletePhoto',
-                )
-                    ->whereNumber('pickupPerson')
-                    ->name('photo.destroy');
+                )->name(
+                    'photo.destroy',
+                );
 
                 /*
                 |--------------------------------------------------------------------------
@@ -210,16 +411,16 @@ Route::middleware('auth')
                 Route::post(
                     '/{pickupPerson}/face/register',
                     'registerFace',
-                )
-                    ->whereNumber('pickupPerson')
-                    ->name('face.register');
+                )->name(
+                    'face.register',
+                );
 
                 Route::delete(
                     '/{pickupPerson}/face',
                     'revokeFace',
-                )
-                    ->whereNumber('pickupPerson')
-                    ->name('face.revoke');
+                )->name(
+                    'face.revoke',
+                );
 
                 /*
                 |--------------------------------------------------------------------------
@@ -230,37 +431,29 @@ Route::middleware('auth')
                 Route::get(
                     '/{pickupPerson}',
                     'show',
-                )
-                    ->whereNumber('pickupPerson')
-                    ->name('show');
+                )->name('show');
 
                 Route::get(
                     '/{pickupPerson}/edit',
                     'edit',
-                )
-                    ->whereNumber('pickupPerson')
-                    ->name('edit');
+                )->name('edit');
 
                 Route::put(
                     '/{pickupPerson}',
                     'update',
-                )
-                    ->whereNumber('pickupPerson')
-                    ->name('update');
+                )->name('update');
 
                 Route::patch(
                     '/{pickupPerson}/toggle-status',
                     'toggleStatus',
-                )
-                    ->whereNumber('pickupPerson')
-                    ->name('toggle-status');
+                )->name(
+                    'toggle-status',
+                );
 
                 Route::delete(
                     '/{pickupPerson}',
                     'destroy',
-                )
-                    ->whereNumber('pickupPerson')
-                    ->name('destroy');
+                )->name('destroy');
             });
     });
 
