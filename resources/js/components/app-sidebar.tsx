@@ -28,11 +28,6 @@ import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
     {
-    title: 'Verifikasi Gerbang',
-    url: '/gate/face-verification',
-    icon: ScanFace,
-    },
-    {
         title: 'Dashboard',
         url: '/dashboard',
         icon: LayoutDashboard,
@@ -48,14 +43,14 @@ const mainNavItems: NavItem[] = [
         icon: UserRoundCheck,
     },
     {
-    title: 'Verifikasi Gerbang',
-    url: '/gate/face-verification',
-    icon: ScanFace,
+        title: 'Verifikasi Gerbang',
+        url: '/gate/face-verification',
+        icon: ScanFace,
     },
     {
-    title: 'Riwayat Gerbang',
-    url: '/gate/pickup-events',
-    icon: History,
+        title: 'Riwayat Gerbang',
+        url: '/gate/pickup-events',
+        icon: History,
     },
 ];
 
