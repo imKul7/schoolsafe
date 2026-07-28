@@ -15,7 +15,7 @@ class EnsureUserIsActive
     /**
      * Handle an incoming request.
      *
-     * @param Closure(Request): Response $next
+     * @param  Closure(Request): Response  $next
      */
     public function handle(
         Request $request,
@@ -31,7 +31,7 @@ class EnsureUserIsActive
         if (! (bool) $user->is_active) {
             return $this->terminateSession(
                 $request,
-                'Akun Anda telah dinonaktifkan.',
+                'Akun Anda sedang tidak aktif.',
             );
         }
 
@@ -42,7 +42,7 @@ class EnsureUserIsActive
         if ($user->school_id === null) {
             return $this->terminateSession(
                 $request,
-                'Akun Anda belum terhubung dengan sekolah.',
+                'Akun belum terhubung dengan sekolah.',
             );
         }
 
@@ -51,7 +51,7 @@ class EnsureUserIsActive
         if ($user->school === null) {
             return $this->terminateSession(
                 $request,
-                'Data sekolah untuk akun Anda tidak ditemukan.',
+                'Akun belum terhubung dengan sekolah.',
             );
         }
 
@@ -69,6 +69,24 @@ class EnsureUserIsActive
         Request $request,
         string $message,
     ): Response {
+        /*
+        * Route gerbang memiliki kontrak otorisasi 403.
+        * Session tidak dihapus di middleware agar setiap endpoint
+        * tetap memberikan respons domain yang konsisten.
+        */
+        if ($request->routeIs('gate.*')) {
+            if ($request->expectsJson()) {
+                return response()->json(
+                    [
+                        'message' => $message,
+                    ],
+                    403,
+                );
+            }
+
+            return response($message, 403);
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

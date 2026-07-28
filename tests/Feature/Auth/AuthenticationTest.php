@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 /**
  * Membuat sekolah aktif khusus pengujian autentikasi.
  *
- * @param array<string, mixed> $attributes
+ * @param  array<string, mixed>  $attributes
  */
 function createAuthenticationTestSchool(
     array $attributes = [],
@@ -140,7 +140,7 @@ test('authenticated inactive users are logged out on their next request', functi
 
     $response->assertSessionHas(
         'status',
-        'Akun Anda telah dinonaktifkan.',
+        'Akun Anda sedang tidak aktif.',
     );
 
     $this->assertGuest();
@@ -188,7 +188,7 @@ test('school users without a school are logged out', function () {
 
     $response->assertSessionHas(
         'status',
-        'Akun Anda belum terhubung dengan sekolah.',
+        'Akun belum terhubung dengan sekolah.',
     );
 
     $this->assertGuest();
