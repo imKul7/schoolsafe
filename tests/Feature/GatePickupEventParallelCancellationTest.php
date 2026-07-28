@@ -426,7 +426,7 @@ class GatePickupEventParallelCancellationTest extends TestCase
 
                     'password' =>
                         password_hash(
-                            'SchoolSafe123!',
+                            'TestPassword123!',
                             PASSWORD_BCRYPT,
                         ),
 

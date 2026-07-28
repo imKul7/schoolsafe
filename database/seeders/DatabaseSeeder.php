@@ -64,9 +64,15 @@ class DatabaseSeeder extends Seeder
 
     private function createUsers(School $school): void
     {
-        $defaultPassword = Hash::make(
-            'SchoolSafe123!',
-        );
+        $demoPassword = config('schoolsafe.demo_password');
+
+if (! is_string($demoPassword) || trim($demoPassword) === '') {
+    throw new \RuntimeException(
+        'SCHOOLSAFE_DEMO_PASSWORD belum dikonfigurasi.',
+    );
+}
+
+$defaultPassword = Hash::make($demoPassword);
 
         User::updateOrCreate(
             [

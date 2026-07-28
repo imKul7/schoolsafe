@@ -14138,7 +14138,7 @@ private function confirmationPayload(
 
                     'password' =>
                         Hash::make(
-                            'SchoolSafe123!',
+                            'TestPassword123!',
                         ),
 
                     'role' =>
@@ -15668,7 +15668,7 @@ private function assertExactArrayKeys(
             )
         ) {
             return Hash::make(
-                'SchoolSafe123!',
+                'TestPassword123!',
             );
         }
 

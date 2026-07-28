@@ -204,7 +204,7 @@ class GatePickupEventParallelConfirmationTest extends TestCase
             'school_id' => $schoolId,
             'name' => 'Parallel Officer '.$this->token,
             'email' => $this->token.'@officer.test',
-            'password' => password_hash('SchoolSafe123!', PASSWORD_BCRYPT),
+            'password' => password_hash('TestPassword123!', PASSWORD_BCRYPT),
             'role' => User::ROLE_GATE_OFFICER,
             'roles' => [User::ROLE_GATE_OFFICER],
             'is_active' => true,
