@@ -16,8 +16,16 @@ use Illuminate\Support\Facades\Hash;
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
-    {
-        DB::transaction(function (): void {
+{
+    if (app()->environment('production')) {
+        $this->command?->warn(
+            'Demo seeder tidak dijalankan pada environment production.',
+        );
+
+        return;
+    }
+
+    DB::transaction(function (): void {
             $school = $this->createSchool();
 
             $this->createUsers($school);
