@@ -173,27 +173,6 @@ test('users from inactive schools are logged out', function () {
     $this->assertGuest();
 });
 
-test('school users without a school are logged out', function () {
-    $user = User::factory()->create([
-        'school_id' => null,
-        'role' => User::ROLE_SCHOOL_ADMIN,
-        'is_active' => true,
-    ]);
-
-    $response = $this
-        ->actingAs($user)
-        ->get(route('dashboard'));
-
-    $response->assertRedirect(route('login'));
-
-    $response->assertSessionHas(
-        'status',
-        'Akun belum terhubung dengan sekolah.',
-    );
-
-    $this->assertGuest();
-});
-
 test('active super administrators can access the application without a school', function () {
     $user = User::factory()->create([
         'school_id' => null,

@@ -24,6 +24,32 @@ use Tests\TestCase;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\TestResponse;
 
+/**
+ * Menonaktifkan CHECK constraint hanya untuk membuat kondisi
+ * data rusak yang diperlukan dalam pengujian defense-in-depth.
+ *
+ * Constraint selalu diaktifkan kembali melalui blok finally.
+ */
+function runWithUserSchoolRoleCheckDisabledForGateSecurityTest(
+    callable $callback,
+): mixed {
+    if (DB::connection()->getDriverName() !== 'mysql') {
+        return $callback();
+    }
+
+    DB::statement(
+        'SET SESSION check_constraint_checks = 0',
+    );
+
+    try {
+        return $callback();
+    } finally {
+        DB::statement(
+            'SET SESSION check_constraint_checks = 1',
+        );
+    }
+}
+
 class GatePickupEventSecurityTest extends TestCase
 {
     use DatabaseTransactions;
@@ -8163,10 +8189,14 @@ public function test_school_admin_without_school_cannot_access_history_detail_or
      * Role administrator tetap valid, tetapi school binding
      * dilepas sebelum request dilakukan.
      */
-    $this->adminA->forceFill([
-        'school_id' =>
-            null,
-    ])->save();
+    runWithUserSchoolRoleCheckDisabledForGateSecurityTest(
+        function (): void {
+            $this->adminA->forceFill([
+                'school_id' =>
+                    null,
+            ])->save();
+        },
+    );
 
     $this->adminA->refresh();
 
@@ -8323,10 +8353,14 @@ public function test_student_cancellation_rechecks_school_binding_after_detail_w
      * School binding dilepas setelah response detail diterima,
      * tetapi sebelum endpoint mutasi dipanggil.
      */
-    $this->officerA->forceFill([
-        'school_id' =>
-            null,
-    ])->save();
+    runWithUserSchoolRoleCheckDisabledForGateSecurityTest(
+        function (): void {
+            $this->officerA->forceFill([
+                'school_id' =>
+                    null,
+            ])->save();
+        },
+    );
 
     $this->officerA->refresh();
 
@@ -8437,13 +8471,17 @@ public function test_inactive_account_error_takes_precedence_over_missing_school
      * Dua kondisi invalid terjadi bersamaan.
      * Status inactive harus diperiksa lebih dahulu.
      */
-    $this->officerA->forceFill([
-        'is_active' =>
-            false,
+    runWithUserSchoolRoleCheckDisabledForGateSecurityTest(
+        function (): void {
+            $this->officerA->forceFill([
+                'is_active' =>
+                    false,
 
-        'school_id' =>
-            null,
-    ])->save();
+                'school_id' =>
+                    null,
+            ])->save();
+        },
+    );
 
     $this->officerA->refresh();
 
@@ -8559,16 +8597,20 @@ public function test_missing_school_error_takes_precedence_over_invalid_role_on_
      * Akun tetap aktif, tetapi role dan school binding
      * sama-sama tidak valid.
      */
-    $this->officerA->forceFill([
-        'is_active' =>
-            true,
+    runWithUserSchoolRoleCheckDisabledForGateSecurityTest(
+        function (): void {
+            $this->officerA->forceFill([
+                'is_active' =>
+                    true,
 
-        'school_id' =>
-            null,
+                'school_id' =>
+                    null,
 
-        'role' =>
-            'teacher',
-    ])->save();
+                'role' =>
+                    User::ROLE_TEACHER,
+            ])->save();
+        },
+    );
 
     $this->officerA->refresh();
 
