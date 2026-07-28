@@ -30,6 +30,17 @@ class User extends Authenticatable
 
     public const ROLE_PARENT = 'parent';
 
+    /**
+ * @var list<string>
+ */
+public const ROLES = [
+    self::ROLE_SUPER_ADMIN,
+    self::ROLE_SCHOOL_ADMIN,
+    self::ROLE_GATE_OFFICER,
+    self::ROLE_TEACHER,
+    self::ROLE_PARENT,
+];
+
     protected $fillable = [
         'school_id',
         'name',
