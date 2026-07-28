@@ -32,7 +32,9 @@ test('users can not authenticate with invalid password', function () {
 });
 
 test('users can logout', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'is_active' => true,
+    ]);
 
     $response = $this->actingAs($user)->post('/logout');
 
@@ -51,6 +53,29 @@ test('inactive users cannot authenticate', function () {
     ]);
 
     $response->assertSessionHasErrors('email');
+
+    $this->assertGuest();
+});
+
+test('authenticated inactive users are logged out on their next request', function () {
+    $user = User::factory()->create([
+        'is_active' => true,
+    ]);
+
+    $this->actingAs($user);
+
+    $user->update([
+        'is_active' => false,
+    ]);
+
+    $response = $this->get(route('dashboard'));
+
+    $response->assertRedirect(route('login'));
+
+    $response->assertSessionHas(
+        'status',
+        'Akun Anda telah dinonaktifkan.',
+    );
 
     $this->assertGuest();
 });
