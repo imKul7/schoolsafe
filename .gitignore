@@ -24,3 +24,16 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+
+
+# Local environment variants
+.env.local
+.env.*.local
+
+# Local databases
+/database/*.sqlite
+/database/*.sqlite-*
+/database/*.db
+
+# Runtime logs
+/storage/logs/*.log
