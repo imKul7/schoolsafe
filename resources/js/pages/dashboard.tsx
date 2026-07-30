@@ -26,6 +26,7 @@ interface DashboardActivity {
 
 interface DashboardData {
     has_school: boolean;
+    timezone: string;
     statistics: DashboardStatistics;
     recent_activities: DashboardActivity[];
 }
@@ -125,7 +126,7 @@ function verificationMethodLabel(method: string): string {
     return 'Metode lainnya';
 }
 
-function formatActivityTime(value: string | null): string {
+function formatActivityTime(value: string | null, timezone: string): string {
     if (!value) {
         return 'Waktu tidak tersedia';
     }
@@ -136,12 +137,23 @@ function formatActivityTime(value: string | null): string {
         return 'Waktu tidak tersedia';
     }
 
-    return new Intl.DateTimeFormat('id-ID', {
-        day: '2-digit',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-    }).format(date);
+    try {
+        return new Intl.DateTimeFormat('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: timezone,
+        }).format(date);
+    } catch {
+        return new Intl.DateTimeFormat('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'UTC',
+        }).format(date);
+    }
 }
 
 function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps) {
@@ -421,7 +433,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                                 </span>
 
                                                 <time dateTime={activity.confirmed_at ?? undefined} className="text-sm font-medium text-[#829ab1]">
-                                                    {formatActivityTime(activity.confirmed_at)}
+                                                    {formatActivityTime(activity.confirmed_at, dashboard.timezone)}
                                                 </time>
                                             </div>
                                         </article>

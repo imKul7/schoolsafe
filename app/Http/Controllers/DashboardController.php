@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PickupEvent;
 use App\Models\PickupPerson;
+use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -35,17 +36,52 @@ final class DashboardController extends Controller
             );
         }
 
-        $timezone = (string) config(
-            'app.timezone',
-            'UTC',
-        );
+        $school =
+    School::query()
+        ->select([
+            'id',
+            'timezone',
+        ])
+        ->find($schoolId);
 
-        $todayStart =
+        if (! $school instanceof School) {
+            return Inertia::render(
+                'dashboard',
+                [
+                    'dashboard' => $this->emptyDashboard(),
+                ],
+            );
+        }
+
+        $timezone =
+            $this->resolveTimezone(
+                $school->timezone,
+            );
+
+        $storageTimezone =
+            $this->resolveTimezone(
+                (string) config(
+                    'app.timezone',
+                    'UTC',
+                ),
+            );
+
+        $todayStartLocal =
             CarbonImmutable::now($timezone)
                 ->startOfDay();
 
+        $todayStart =
+            $todayStartLocal
+                ->setTimezone(
+                    $storageTimezone,
+                );
+
         $tomorrowStart =
-            $todayStart->addDay();
+            $todayStartLocal
+                ->addDay()
+                ->setTimezone(
+                    $storageTimezone,
+                );
 
         $activePickupPeopleQuery =
             PickupPerson::query()
@@ -80,6 +116,8 @@ final class DashboardController extends Controller
             [
                 'dashboard' => [
                     'has_school' => true,
+
+                    'timezone' => $timezone,
 
                     'statistics' => [
                         'active_students' => Student::query()
@@ -193,9 +231,54 @@ final class DashboardController extends Controller
             ->all();
     }
 
+    private function resolveTimezone(
+        ?string $timezone,
+    ): string {
+        $identifiers =
+            timezone_identifiers_list();
+
+        $candidate =
+            trim(
+                (string) $timezone,
+            );
+
+        if (
+            $candidate !== ''
+            && in_array(
+                $candidate,
+                $identifiers,
+                true,
+            )
+        ) {
+            return $candidate;
+        }
+
+        $fallback =
+            trim(
+                (string) config(
+                    'app.timezone',
+                    'UTC',
+                ),
+            );
+
+        if (
+            $fallback !== ''
+            && in_array(
+                $fallback,
+                $identifiers,
+                true,
+            )
+        ) {
+            return $fallback;
+        }
+
+        return 'UTC';
+    }
+
     /**
      * @return array{
      *     has_school: bool,
+     *     timezone: string,
      *     statistics: array{
      *         active_students: int,
      *         active_pickup_persons: int,
@@ -212,13 +295,20 @@ final class DashboardController extends Controller
         return [
             'has_school' => false,
 
+            'timezone' => $this->resolveTimezone(
+                (string) config(
+                    'app.timezone',
+                    'UTC',
+                ),
+            ),
+
             'statistics' => [
-                'active_students' => 0,
-                'active_pickup_persons' => 0,
-                'registered_faces' => 0,
-                'pickup_events_today' => 0,
-                'confirmed_today' => 0,
-                'cancelled_today' => 0,
+            'active_students' => 0,
+            'active_pickup_persons' => 0,
+            'registered_faces' => 0,
+            'pickup_events_today' => 0,
+            'confirmed_today' => 0,
+            'cancelled_today' => 0,
             ],
 
             'recent_activities' => [],

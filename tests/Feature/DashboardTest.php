@@ -439,6 +439,119 @@ test(
 );
 
 test(
+    'dashboard today statistics use school timezone boundaries',
+    function (): void {
+        config()->set(
+            'app.timezone',
+            'UTC',
+        );
+
+        CarbonImmutable::setTestNow(
+            CarbonImmutable::parse(
+                '2026-07-20 17:30:00',
+                'UTC',
+            ),
+        );
+
+        $school =
+            School::factory()->create([
+                'timezone' => 'Asia/Jakarta',
+            ]);
+
+        $admin =
+            User::factory()
+                ->schoolAdmin()
+                ->create([
+                    'school_id' => $school->id,
+                ]);
+
+        /*
+         * 20 Juli 2026 16:59:59 UTC
+         * = 20 Juli 2026 23:59:59 WIB.
+         *
+         * Belum masuk tanggal 21 Juli di sekolah.
+         */
+        createDashboardPickupEvent(
+            $school,
+            $admin,
+            CarbonImmutable::parse(
+                '2026-07-20 16:59:59',
+                'UTC',
+            ),
+            PickupEvent::STATUS_CONFIRMED,
+        );
+
+        /*
+         * Tepat awal tanggal 21 Juli WIB.
+         */
+        createDashboardPickupEvent(
+            $school,
+            $admin,
+            CarbonImmutable::parse(
+                '2026-07-20 17:00:00',
+                'UTC',
+            ),
+            PickupEvent::STATUS_CONFIRMED,
+        );
+
+        /*
+         * Tepat satu detik sebelum tanggal 22 Juli WIB.
+         */
+        createDashboardPickupEvent(
+            $school,
+            $admin,
+            CarbonImmutable::parse(
+                '2026-07-21 16:59:59',
+                'UTC',
+            ),
+            PickupEvent::STATUS_CANCELLED,
+        );
+
+        /*
+         * Tepat awal tanggal 22 Juli WIB.
+         */
+        createDashboardPickupEvent(
+            $school,
+            $admin,
+            CarbonImmutable::parse(
+                '2026-07-21 17:00:00',
+                'UTC',
+            ),
+            PickupEvent::STATUS_CONFIRMED,
+        );
+
+        $this
+            ->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertInertia(
+                fn (Assert $page): Assert => $page
+                    ->component('dashboard')
+                    ->where(
+                        'dashboard.has_school',
+                        true,
+                    )
+                    ->where(
+                        'dashboard.timezone',
+                        'Asia/Jakarta',
+                    )
+                    ->where(
+                        'dashboard.statistics.pickup_events_today',
+                        2,
+                    )
+                    ->where(
+                        'dashboard.statistics.confirmed_today',
+                        1,
+                    )
+                    ->where(
+                        'dashboard.statistics.cancelled_today',
+                        1,
+                    ),
+            );
+    },
+);
+
+test(
     'super admin dashboard does not aggregate every school',
     function (): void {
         $school =
@@ -465,6 +578,10 @@ test(
                     ->where(
                         'dashboard.has_school',
                         false,
+                    )
+                    ->where(
+                        'dashboard.timezone',
+                        config('app.timezone'),
                     )
                     ->where(
                         'dashboard.statistics',
