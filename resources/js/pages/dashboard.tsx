@@ -1,7 +1,8 @@
-import { Head } from '@inertiajs/react';
-import { Activity, CheckCircle2, Clock3, ScanFace, ShieldAlert, ShieldCheck, UserCheck, Users, type LucideIcon } from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { Activity, ArrowRight, CheckCircle2, Clock3, ScanFace, ShieldAlert, ShieldCheck, UserCheck, Users, type LucideIcon } from 'lucide-react';
 
 import AppLayout from '@/layouts/app-layout';
+import type { SharedData } from '@/types';
 
 type StatTone = 'blue' | 'green' | 'yellow' | 'red';
 
@@ -170,7 +171,11 @@ function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps
 }
 
 export default function Dashboard({ dashboard }: DashboardPageProps) {
+    const { auth } = usePage<SharedData>().props;
+
     const statistics = dashboard.statistics;
+
+    const canAccessGate = auth.user.role === 'school_admin' || auth.user.role === 'gate_officer';
 
     const registeredFacePercentage = percentage(statistics.registered_faces, statistics.active_pickup_persons);
 
@@ -211,15 +216,16 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                             </div>
 
                             <div className="flex flex-col gap-3 sm:flex-row">
-                                <button
-                                    type="button"
-                                    disabled
-                                    title="Akses scanner tersedia melalui menu sesuai hak pengguna"
-                                    className="inline-flex h-12 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-5 text-sm font-semibold text-white opacity-80 shadow-lg shadow-blue-200/60"
-                                >
-                                    <ScanFace className="size-5" aria-hidden="true" />
-                                    Face Scanner
-                                </button>
+                                {canAccessGate && (
+                                    <Link
+                                        href="/gate/face-verification"
+                                        prefetch
+                                        className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-5 text-sm font-semibold text-white shadow-lg shadow-blue-200/60 transition hover:bg-[#4f7fd8] focus-visible:ring-2 focus-visible:ring-[#5b8def] focus-visible:ring-offset-2 focus-visible:outline-none"
+                                    >
+                                        <ScanFace className="size-5" aria-hidden="true" />
+                                        Face Scanner
+                                    </Link>
+                                )}
 
                                 <div className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white bg-white/70 px-4 text-sm font-medium text-[#627d98] shadow-sm backdrop-blur">
                                     <Clock3 className="size-4 text-[#4f7cac]" aria-hidden="true" />
@@ -350,10 +356,23 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                     </section>
 
                     <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm md:p-6">
-                        <div>
-                            <h2 className="font-bold text-[#243b53]">Aktivitas Terbaru</h2>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                                <h2 className="font-bold text-[#243b53]">Aktivitas Terbaru</h2>
 
-                            <p className="mt-1 text-sm text-[#829ab1]">Lima transaksi penjemputan terakhir dari sekolah yang terhubung.</p>
+                                <p className="mt-1 text-sm text-[#829ab1]">Lima transaksi penjemputan terakhir dari sekolah yang terhubung.</p>
+                            </div>
+
+                            {canAccessGate && (
+                                <Link
+                                    href="/gate/pickup-events"
+                                    prefetch
+                                    className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-xl border border-[#dceaf5] bg-[#f8fbff] px-3.5 py-2 text-sm font-semibold text-[#4f7cac] transition hover:border-[#bfd7ec] hover:bg-[#eef6ff]"
+                                >
+                                    Lihat seluruh riwayat
+                                    <ArrowRight className="size-4" aria-hidden="true" />
+                                </Link>
+                            )}
                         </div>
 
                         {dashboard.recent_activities.length === 0 ? (
