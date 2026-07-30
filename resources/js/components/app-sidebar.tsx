@@ -47,19 +47,23 @@ const mainNavItems: RoleAwareNavItem[] = [
         title: 'Data Siswa',
         url: '/students',
         icon: UsersRound,
-        roles: ['school_admin'],
+        roles: ['school_admin', 'teacher'],
     },
     {
         title: 'Data Penjemput',
         url: '/pickup-persons',
         icon: UserRoundCheck,
-        roles: ['school_admin'],
+        roles: [
+            'school_admin',
+            'gate_officer',
+            'teacher',
+        ],
     },
     {
         title: 'Verifikasi Gerbang',
         url: '/gate/face-verification',
         icon: ScanFace,
-        roles: ['gate_officer'],
+        roles: ['school_admin', 'gate_officer'],
     },
     {
         title: 'Riwayat Gerbang',
