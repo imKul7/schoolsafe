@@ -14,9 +14,19 @@ interface DashboardStatistics {
     cancelled_today: number;
 }
 
+interface DashboardActivity {
+    id: number;
+    pickup_person_name: string;
+    status: string;
+    verification_method: string;
+    confirmed_at: string | null;
+    student_count: number;
+}
+
 interface DashboardData {
     has_school: boolean;
     statistics: DashboardStatistics;
+    recent_activities: DashboardActivity[];
 }
 
 interface DashboardPageProps {
@@ -76,6 +86,61 @@ function percentage(value: number, total: number): number {
     }
 
     return Math.min(100, Math.round((value / total) * 100));
+}
+
+function activityInitials(name: string): string {
+    const initials = name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0))
+        .join('')
+        .toUpperCase();
+
+    return initials || 'PJ';
+}
+
+function activityStatusLabel(status: string): string {
+    if (status === 'confirmed') {
+        return 'Terkonfirmasi';
+    }
+
+    if (status === 'cancelled') {
+        return 'Dibatalkan';
+    }
+
+    return 'Tidak diketahui';
+}
+
+function verificationMethodLabel(method: string): string {
+    if (method === 'face') {
+        return 'Verifikasi wajah';
+    }
+
+    if (method === 'manual') {
+        return 'Verifikasi manual';
+    }
+
+    return 'Metode lainnya';
+}
+
+function formatActivityTime(value: string | null): string {
+    if (!value) {
+        return 'Waktu tidak tersedia';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return 'Waktu tidak tersedia';
+    }
+
+    return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(date);
 }
 
 function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps) {
@@ -284,6 +349,68 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                         </article>
                     </section>
 
+                    <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm md:p-6">
+                        <div>
+                            <h2 className="font-bold text-[#243b53]">Aktivitas Terbaru</h2>
+
+                            <p className="mt-1 text-sm text-[#829ab1]">Lima transaksi penjemputan terakhir dari sekolah yang terhubung.</p>
+                        </div>
+
+                        {dashboard.recent_activities.length === 0 ? (
+                            <div className="mt-6 rounded-2xl border border-dashed border-[#d9e2ec] bg-[#f8fafc] px-5 py-10 text-center">
+                                <Clock3 className="mx-auto size-8 text-[#9fb3c8]" aria-hidden="true" />
+
+                                <p className="mt-3 font-semibold text-[#486581]">Belum ada aktivitas penjemputan</p>
+
+                                <p className="mt-1 text-sm text-[#829ab1]">Transaksi terbaru akan muncul di bagian ini.</p>
+                            </div>
+                        ) : (
+                            <div className="mt-5 divide-y divide-[#edf2f7]">
+                                {dashboard.recent_activities.map((activity) => {
+                                    const isCancelled = activity.status === 'cancelled';
+
+                                    return (
+                                        <article
+                                            key={activity.id}
+                                            className="flex flex-col gap-4 py-4 first:pt-1 last:pb-0 sm:flex-row sm:items-center"
+                                        >
+                                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf3fa] text-sm font-bold text-[#4f7cac]">
+                                                    {activityInitials(activity.pickup_person_name)}
+                                                </div>
+
+                                                <div className="min-w-0">
+                                                    <p className="truncate font-semibold text-[#334e68]">{activity.pickup_person_name}</p>
+
+                                                    <p className="mt-0.5 text-sm text-[#829ab1]">
+                                                        {verificationMethodLabel(activity.verification_method)}
+                                                        {' · '}
+                                                        {formatNumber(activity.student_count)} siswa
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center justify-between gap-3 pl-14 sm:justify-end sm:pl-0">
+                                                <span
+                                                    className={
+                                                        isCancelled
+                                                            ? 'rounded-full bg-[#fff0f0] px-3 py-1.5 text-xs font-semibold text-[#cf6464]'
+                                                            : 'rounded-full bg-[#e8f6f3] px-3 py-1.5 text-xs font-semibold text-[#4c9e94]'
+                                                    }
+                                                >
+                                                    {activityStatusLabel(activity.status)}
+                                                </span>
+
+                                                <time dateTime={activity.confirmed_at ?? undefined} className="text-sm font-medium text-[#829ab1]">
+                                                    {formatActivityTime(activity.confirmed_at)}
+                                                </time>
+                                            </div>
+                                        </article>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </section>
                     <section className="flex flex-col gap-4 rounded-2xl border border-[#d7ebe6] bg-[#eef9f6] p-5 sm:flex-row sm:items-center">
                         <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#4c9e94] shadow-sm">
                             <ShieldCheck className="size-5" aria-hidden="true" />
