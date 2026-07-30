@@ -1,10 +1,15 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Activity, ArrowRight, CheckCircle2, Clock3, ScanFace, ShieldAlert, ShieldCheck, UserCheck, Users, type LucideIcon } from 'lucide-react';
 
 import AppLayout from '@/layouts/app-layout';
-import type { SharedData } from '@/types';
 
 type StatTone = 'blue' | 'green' | 'yellow' | 'red';
+
+interface DashboardPermissions {
+    can_open_face_scanner: boolean;
+    can_view_pickup_history: boolean;
+    can_view_gate_activity: boolean;
+}
 
 interface DashboardStatistics {
     active_students: number;
@@ -27,6 +32,7 @@ interface DashboardActivity {
 interface DashboardData {
     has_school: boolean;
     timezone: string;
+    permissions: DashboardPermissions;
     statistics: DashboardStatistics;
     recent_activities: DashboardActivity[];
 }
@@ -79,21 +85,22 @@ const toneStyles: Record<
 const numberFormatter = new Intl.NumberFormat('id-ID');
 
 function formatNumber(value: number): string {
-    return numberFormatter.format(value);
+    return numberFormatter.format(Number.isFinite(value) ? value : 0);
 }
 
 function percentage(value: number, total: number): number {
-    if (total <= 0) {
+    if (!Number.isFinite(value) || !Number.isFinite(total) || total <= 0) {
         return 0;
     }
 
-    return Math.min(100, Math.round((value / total) * 100));
+    return Math.min(100, Math.max(0, Math.round((value / total) * 100)));
 }
 
 function activityInitials(name: string): string {
     const initials = name
         .trim()
         .split(/\s+/)
+        .filter(Boolean)
         .slice(0, 2)
         .map((part) => part.charAt(0))
         .join('')
@@ -111,7 +118,19 @@ function activityStatusLabel(status: string): string {
         return 'Dibatalkan';
     }
 
-    return 'Tidak diketahui';
+    return 'Status lainnya';
+}
+
+function activityStatusStyle(status: string): string {
+    if (status === 'confirmed') {
+        return ['bg-[#e8f6f3]', 'text-[#4c9e94]'].join(' ');
+    }
+
+    if (status === 'cancelled') {
+        return ['bg-[#fff0f0]', 'text-[#cf6464]'].join(' ');
+    }
+
+    return ['bg-[#fff9e9]', 'text-[#a77b18]'].join(' ');
 }
 
 function verificationMethodLabel(method: string): string {
@@ -123,7 +142,9 @@ function verificationMethodLabel(method: string): string {
         return 'Verifikasi manual';
     }
 
-    return 'Metode lainnya';
+    const normalizedMethod = method.trim().replaceAll('_', ' ');
+
+    return normalizedMethod !== '' ? normalizedMethod : 'Metode tidak diketahui';
 }
 
 function formatActivityTime(value: string | null, timezone: string): string {
@@ -137,20 +158,21 @@ function formatActivityTime(value: string | null, timezone: string): string {
         return 'Waktu tidak tersedia';
     }
 
+    const options: Intl.DateTimeFormatOptions = {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: timezone,
+    };
+
     try {
-        return new Intl.DateTimeFormat('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZone: timezone,
-        }).format(date);
+        return new Intl.DateTimeFormat('id-ID', options).format(date);
     } catch {
         return new Intl.DateTimeFormat('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
+            ...options,
             timeZone: 'UTC',
         }).format(date);
     }
@@ -160,20 +182,32 @@ function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps
     const styles = toneStyles[tone];
 
     return (
-        <article className={`rounded-2xl border p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}>
+        <article
+            className={[
+                'rounded-2xl',
+                'border',
+                'p-5',
+                'shadow-sm',
+                'transition',
+                'duration-200',
+                'hover:-translate-y-0.5',
+                'hover:shadow-md',
+                styles.card,
+            ].join(' ')}
+        >
             <div className="flex items-start justify-between gap-4">
-                <div>
+                <div className="min-w-0">
                     <p className="text-sm font-medium text-[#627d98]">{title}</p>
 
                     <p className="mt-3 text-3xl font-bold tracking-tight text-[#243b53]">{value}</p>
                 </div>
 
-                <div className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${styles.icon}`}>
+                <div className={['flex', 'size-11', 'shrink-0', 'items-center', 'justify-center', 'rounded-xl', styles.icon].join(' ')}>
                     <Icon className="size-5" aria-hidden="true" />
                 </div>
             </div>
 
-            <p className={`mt-4 flex items-center gap-1.5 text-xs font-medium ${styles.indicator}`}>
+            <p className={['mt-4', 'flex', 'items-center', 'gap-1.5', 'text-xs', 'font-medium', styles.indicator].join(' ')}>
                 <Activity className="size-3.5" aria-hidden="true" />
 
                 {description}
@@ -183,11 +217,9 @@ function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps
 }
 
 export default function Dashboard({ dashboard }: DashboardPageProps) {
-    const { auth } = usePage<SharedData>().props;
-
     const statistics = dashboard.statistics;
 
-    const canAccessGate = auth.user.role === 'school_admin' || auth.user.role === 'gate_officer';
+    const permissions = dashboard.permissions;
 
     const registeredFacePercentage = percentage(statistics.registered_faces, statistics.active_pickup_persons);
 
@@ -202,9 +234,9 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
             <main className="min-h-full bg-[#f8fafc]">
                 <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 p-4 md:p-6">
                     <section className="relative overflow-hidden rounded-[28px] border border-[#deebf5] bg-gradient-to-r from-[#eaf4ff] via-[#eef9f6] to-[#fff9eb] p-6 shadow-sm md:p-8">
-                        <div className="absolute -top-20 -right-10 size-60 rounded-full bg-white/50 blur-3xl" />
+                        <div className="absolute -top-20 -right-10 size-60 rounded-full bg-white/50 blur-3xl" aria-hidden="true" />
 
-                        <div className="absolute -bottom-28 left-1/3 size-52 rounded-full bg-[#ccece5]/40 blur-3xl" />
+                        <div className="absolute -bottom-28 left-1/3 size-52 rounded-full bg-[#ccece5]/40 blur-3xl" aria-hidden="true" />
 
                         <div className="relative z-10 flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
                             <div>
@@ -228,7 +260,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                             </div>
 
                             <div className="flex flex-col gap-3 sm:flex-row">
-                                {canAccessGate && (
+                                {permissions.can_open_face_scanner && (
                                     <Link
                                         href="/gate/face-verification"
                                         prefetch
@@ -290,6 +322,11 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                             <div className="mt-7 flex justify-center">
                                 <div
                                     className="relative flex size-44 items-center justify-center rounded-full shadow-inner"
+                                    role="progressbar"
+                                    aria-label="Persentase wajah penjemput terdaftar"
+                                    aria-valuemin={0}
+                                    aria-valuemax={100}
+                                    aria-valuenow={registeredFacePercentage}
                                     style={{
                                         background:
                                             `conic-gradient(` +
@@ -309,13 +346,13 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                             </div>
 
                             <div className="mt-7 space-y-3">
-                                <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center justify-between gap-4 text-sm">
                                     <span className="text-[#627d98]">Wajah terdaftar</span>
 
                                     <strong className="text-[#334e68]">{formatNumber(statistics.registered_faces)}</strong>
                                 </div>
 
-                                <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center justify-between gap-4 text-sm">
                                     <span className="text-[#627d98]">Penjemput aktif</span>
 
                                     <strong className="text-[#334e68]">{formatNumber(statistics.active_pickup_persons)}</strong>
@@ -330,15 +367,22 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
 
                             <div className="mt-7 space-y-5">
                                 <div>
-                                    <div className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center justify-between gap-4 text-sm">
                                         <span className="font-medium text-[#627d98]">Terkonfirmasi</span>
 
                                         <strong className="text-[#4c9e94]">{formatNumber(statistics.confirmed_today)}</strong>
                                     </div>
 
-                                    <div className="mt-2 h-3 overflow-hidden rounded-full bg-[#edf2f7]">
+                                    <div
+                                        className="mt-2 h-3 overflow-hidden rounded-full bg-[#edf2f7]"
+                                        role="progressbar"
+                                        aria-label="Persentase transaksi terkonfirmasi"
+                                        aria-valuemin={0}
+                                        aria-valuemax={100}
+                                        aria-valuenow={confirmedPercentage}
+                                    >
                                         <div
-                                            className="h-full rounded-full bg-[#64b6ac]"
+                                            className="h-full rounded-full bg-[#64b6ac] transition-[width] duration-300"
                                             style={{
                                                 width: `${confirmedPercentage}%`,
                                             }}
@@ -346,7 +390,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between rounded-xl bg-[#fff2f2] px-4 py-4">
+                                <div className="flex items-center justify-between gap-4 rounded-xl bg-[#fff2f2] px-4 py-4">
                                     <span className="flex items-center gap-2 text-sm font-medium text-[#627d98]">
                                         <ShieldAlert className="size-4 text-[#cf6464]" aria-hidden="true" />
                                         Dibatalkan
@@ -355,7 +399,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                     <strong className="text-[#cf6464]">{formatNumber(statistics.cancelled_today)}</strong>
                                 </div>
 
-                                <div className="flex items-center justify-between rounded-xl bg-[#eef6ff] px-4 py-4">
+                                <div className="flex items-center justify-between gap-4 rounded-xl bg-[#eef6ff] px-4 py-4">
                                     <span className="flex items-center gap-2 text-sm font-medium text-[#627d98]">
                                         <Clock3 className="size-4 text-[#4f7cac]" aria-hidden="true" />
                                         Total transaksi
@@ -367,46 +411,50 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                         </article>
                     </section>
 
-                    <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm md:p-6">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div>
-                                <h2 className="font-bold text-[#243b53]">Aktivitas Terbaru</h2>
+                    {permissions.can_view_gate_activity && (
+                        <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm md:p-6">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                <div>
+                                    <h2 className="font-bold text-[#243b53]">Aktivitas Terbaru</h2>
 
-                                <p className="mt-1 text-sm text-[#829ab1]">Lima transaksi penjemputan terakhir dari sekolah yang terhubung.</p>
+                                    <p className="mt-1 text-sm text-[#829ab1]">
+                                        Lima transaksi penjemputan terakhir berdasarkan zona waktu{' '}
+                                        <span className="font-medium text-[#627d98]">{dashboard.timezone}</span>.
+                                    </p>
+                                </div>
+
+                                {permissions.can_view_pickup_history && (
+                                    <Link
+                                        href="/gate/pickup-events"
+                                        prefetch
+                                        className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-xl border border-[#dceaf5] bg-[#f8fbff] px-3.5 py-2 text-sm font-semibold text-[#4f7cac] transition hover:border-[#bfd7ec] hover:bg-[#eef6ff] focus-visible:ring-2 focus-visible:ring-[#5b8def] focus-visible:ring-offset-2 focus-visible:outline-none"
+                                    >
+                                        Lihat seluruh riwayat
+                                        <ArrowRight className="size-4" aria-hidden="true" />
+                                    </Link>
+                                )}
                             </div>
 
-                            {canAccessGate && (
-                                <Link
-                                    href="/gate/pickup-events"
-                                    prefetch
-                                    className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-xl border border-[#dceaf5] bg-[#f8fbff] px-3.5 py-2 text-sm font-semibold text-[#4f7cac] transition hover:border-[#bfd7ec] hover:bg-[#eef6ff]"
-                                >
-                                    Lihat seluruh riwayat
-                                    <ArrowRight className="size-4" aria-hidden="true" />
-                                </Link>
-                            )}
-                        </div>
+                            {dashboard.recent_activities.length === 0 ? (
+                                <div className="mt-6 rounded-2xl border border-dashed border-[#d9e2ec] bg-[#f8fafc] px-5 py-10 text-center">
+                                    <Clock3 className="mx-auto size-8 text-[#9fb3c8]" aria-hidden="true" />
 
-                        {dashboard.recent_activities.length === 0 ? (
-                            <div className="mt-6 rounded-2xl border border-dashed border-[#d9e2ec] bg-[#f8fafc] px-5 py-10 text-center">
-                                <Clock3 className="mx-auto size-8 text-[#9fb3c8]" aria-hidden="true" />
+                                    <p className="mt-3 font-semibold text-[#486581]">Belum ada aktivitas penjemputan</p>
 
-                                <p className="mt-3 font-semibold text-[#486581]">Belum ada aktivitas penjemputan</p>
-
-                                <p className="mt-1 text-sm text-[#829ab1]">Transaksi terbaru akan muncul di bagian ini.</p>
-                            </div>
-                        ) : (
-                            <div className="mt-5 divide-y divide-[#edf2f7]">
-                                {dashboard.recent_activities.map((activity) => {
-                                    const isCancelled = activity.status === 'cancelled';
-
-                                    return (
+                                    <p className="mt-1 text-sm text-[#829ab1]">Transaksi terbaru akan muncul di bagian ini.</p>
+                                </div>
+                            ) : (
+                                <div className="mt-5 divide-y divide-[#edf2f7]">
+                                    {dashboard.recent_activities.map((activity) => (
                                         <article
                                             key={activity.id}
                                             className="flex flex-col gap-4 py-4 first:pt-1 last:pb-0 sm:flex-row sm:items-center"
                                         >
                                             <div className="flex min-w-0 flex-1 items-center gap-3">
-                                                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf3fa] text-sm font-bold text-[#4f7cac]">
+                                                <div
+                                                    className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf3fa] text-sm font-bold text-[#4f7cac]"
+                                                    aria-hidden="true"
+                                                >
                                                     {activityInitials(activity.pickup_person_name)}
                                                 </div>
 
@@ -423,11 +471,14 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
 
                                             <div className="flex flex-wrap items-center justify-between gap-3 pl-14 sm:justify-end sm:pl-0">
                                                 <span
-                                                    className={
-                                                        isCancelled
-                                                            ? 'rounded-full bg-[#fff0f0] px-3 py-1.5 text-xs font-semibold text-[#cf6464]'
-                                                            : 'rounded-full bg-[#e8f6f3] px-3 py-1.5 text-xs font-semibold text-[#4c9e94]'
-                                                    }
+                                                    className={[
+                                                        'rounded-full',
+                                                        'px-3',
+                                                        'py-1.5',
+                                                        'text-xs',
+                                                        'font-semibold',
+                                                        activityStatusStyle(activity.status),
+                                                    ].join(' ')}
                                                 >
                                                     {activityStatusLabel(activity.status)}
                                                 </span>
@@ -437,11 +488,12 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                                 </time>
                                             </div>
                                         </article>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </section>
+                                    ))}
+                                </div>
+                            )}
+                        </section>
+                    )}
+
                     <section className="flex flex-col gap-4 rounded-2xl border border-[#d7ebe6] bg-[#eef9f6] p-5 sm:flex-row sm:items-center">
                         <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#4c9e94] shadow-sm">
                             <ShieldCheck className="size-5" aria-hidden="true" />

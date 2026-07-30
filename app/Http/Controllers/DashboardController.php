@@ -10,9 +10,11 @@ use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use DateTimeZone;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 final class DashboardController extends Controller
 {
@@ -25,9 +27,7 @@ final class DashboardController extends Controller
             abort(401);
         }
 
-        $schoolId = $user->school_id;
-
-        if ($schoolId === null) {
+        if ($user->school_id === null) {
             return Inertia::render(
                 'dashboard',
                 [
@@ -36,13 +36,16 @@ final class DashboardController extends Controller
             );
         }
 
+        $schoolId =
+            (int) $user->school_id;
+
         $school =
-    School::query()
-        ->select([
-            'id',
-            'timezone',
-        ])
-        ->find($schoolId);
+            School::query()
+                ->select([
+                    'id',
+                    'timezone',
+                ])
+                ->find($schoolId);
 
         if (! $school instanceof School) {
             return Inertia::render(
@@ -53,11 +56,22 @@ final class DashboardController extends Controller
             );
         }
 
+        $canAccessGate =
+            $user->hasRole(
+                User::ROLE_SCHOOL_ADMIN,
+                User::ROLE_GATE_OFFICER,
+            );
+
         $timezone =
             $this->resolveTimezone(
                 $school->timezone,
             );
 
+        /*
+         * Waktu penyimpanan database mengikuti timezone aplikasi.
+         * Batas awal dan akhir hari dihitung menggunakan timezone
+         * sekolah, lalu dikonversi ke timezone penyimpanan.
+         */
         $storageTimezone =
             $this->resolveTimezone(
                 (string) config(
@@ -67,14 +81,14 @@ final class DashboardController extends Controller
             );
 
         $todayStartLocal =
-            CarbonImmutable::now($timezone)
-                ->startOfDay();
+            CarbonImmutable::now(
+                $timezone,
+            )->startOfDay();
 
         $todayStart =
-            $todayStartLocal
-                ->setTimezone(
-                    $storageTimezone,
-                );
+            $todayStartLocal->setTimezone(
+                $storageTimezone,
+            );
 
         $tomorrowStart =
             $todayStartLocal
@@ -119,6 +133,14 @@ final class DashboardController extends Controller
 
                     'timezone' => $timezone,
 
+                    'permissions' => [
+                        'can_open_face_scanner' => $canAccessGate,
+
+                        'can_view_pickup_history' => $canAccessGate,
+
+                        'can_view_gate_activity' => $canAccessGate,
+                    ],
+
                     'statistics' => [
                         'active_students' => Student::query()
                             ->where(
@@ -159,9 +181,16 @@ final class DashboardController extends Controller
                             ->count(),
                     ],
 
-                    'recent_activities' => $this->recentActivities(
-                        $schoolId,
-                    ),
+                    /*
+                     * Nama penjemput dan aktivitas gerbang hanya
+                     * diberikan kepada role yang memiliki akses
+                     * terhadap modul gerbang.
+                     */
+                    'recent_activities' => $canAccessGate
+                            ? $this->recentActivities(
+                                $schoolId,
+                            )
+                            : [],
                 ],
             ],
         );
@@ -234,20 +263,14 @@ final class DashboardController extends Controller
     private function resolveTimezone(
         ?string $timezone,
     ): string {
-        $identifiers =
-            timezone_identifiers_list();
-
         $candidate =
             trim(
                 (string) $timezone,
             );
 
         if (
-            $candidate !== ''
-            && in_array(
+            $this->isValidTimezone(
                 $candidate,
-                $identifiers,
-                true,
             )
         ) {
             return $candidate;
@@ -262,11 +285,8 @@ final class DashboardController extends Controller
             );
 
         if (
-            $fallback !== ''
-            && in_array(
+            $this->isValidTimezone(
                 $fallback,
-                $identifiers,
-                true,
             )
         ) {
             return $fallback;
@@ -275,10 +295,33 @@ final class DashboardController extends Controller
         return 'UTC';
     }
 
+    private function isValidTimezone(
+        string $timezone,
+    ): bool {
+        if ($timezone === '') {
+            return false;
+        }
+
+        try {
+            new DateTimeZone(
+                $timezone,
+            );
+
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
     /**
      * @return array{
      *     has_school: bool,
      *     timezone: string,
+     *     permissions: array{
+     *         can_open_face_scanner: bool,
+     *         can_view_pickup_history: bool,
+     *         can_view_gate_activity: bool
+     *     },
      *     statistics: array{
      *         active_students: int,
      *         active_pickup_persons: int,
@@ -287,7 +330,14 @@ final class DashboardController extends Controller
      *         confirmed_today: int,
      *         cancelled_today: int
      *     },
-     *     recent_activities: list<array<string, mixed>>
+     *     recent_activities: list<array{
+     *         id: int,
+     *         pickup_person_name: string,
+     *         status: string,
+     *         verification_method: string,
+     *         confirmed_at: string|null,
+     *         student_count: int
+     *     }>
      * }
      */
     private function emptyDashboard(): array
@@ -301,6 +351,12 @@ final class DashboardController extends Controller
                     'UTC',
                 ),
             ),
+
+            'permissions' => [
+            'can_open_face_scanner' => false,
+            'can_view_pickup_history' => false,
+            'can_view_gate_activity' => false,
+            ],
 
             'statistics' => [
             'active_students' => 0,

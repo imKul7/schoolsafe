@@ -253,6 +253,37 @@ function createDashboardPickupEvent(
     return $event->refresh();
 }
 
+function createDashboardUserForRole(
+    School $school,
+    string $role,
+): User {
+    $factory =
+        match ($role) {
+            User::ROLE_SCHOOL_ADMIN => User::factory()
+                ->schoolAdmin(),
+
+            User::ROLE_GATE_OFFICER => User::factory()
+                ->gateOfficer(),
+
+            User::ROLE_TEACHER => User::factory()
+                ->teacher(),
+
+            User::ROLE_PARENT => User::factory()
+                ->parent(),
+
+            default => throw new InvalidArgumentException(
+                sprintf(
+                    'Role dashboard [%s] tidak didukung.',
+                    $role,
+                ),
+            ),
+        };
+
+    return $factory->create([
+        'school_id' => $school->id,
+    ]);
+}
+
 beforeEach(function (): void {
     CarbonImmutable::setTestNow(
         CarbonImmutable::parse(
@@ -714,6 +745,135 @@ test(
 );
 
 test(
+    'dashboard gate capabilities follow authenticated user role',
+    function (
+        string $role,
+        bool $canAccessGate,
+    ): void {
+        $schoolA =
+            School::factory()->create([
+                'timezone' => 'Asia/Jakarta',
+            ]);
+
+        $schoolB =
+            School::factory()->create([
+                'timezone' => 'Asia/Jakarta',
+            ]);
+
+        $confirmingAdminA =
+            User::factory()
+                ->schoolAdmin()
+                ->create([
+                    'school_id' => $schoolA->id,
+                ]);
+
+        $confirmingAdminB =
+            User::factory()
+                ->schoolAdmin()
+                ->create([
+                    'school_id' => $schoolB->id,
+                ]);
+
+        $viewer =
+            createDashboardUserForRole(
+                $schoolA,
+                $role,
+            );
+
+        $ownEvent =
+            createDashboardPickupEvent(
+                $schoolA,
+                $confirmingAdminA,
+                CarbonImmutable::now(
+                    'Asia/Jakarta',
+                )->subMinute(),
+                PickupEvent::STATUS_CONFIRMED,
+            );
+
+        createDashboardPickupEvent(
+            $schoolB,
+            $confirmingAdminB,
+            CarbonImmutable::now(
+                'Asia/Jakarta',
+            )->subSeconds(30),
+            PickupEvent::STATUS_CONFIRMED,
+        );
+
+        $response =
+            $this
+                ->actingAs($viewer)
+                ->get(route('dashboard'));
+
+        $response
+            ->assertOk()
+            ->assertInertia(
+                function (
+                    Assert $page,
+                ) use (
+                    $canAccessGate,
+                    $ownEvent,
+                ): Assert {
+                    $page
+                        ->component('dashboard')
+                        ->where(
+                            'dashboard.has_school',
+                            true,
+                        )
+                        ->where(
+                            'dashboard.permissions.can_open_face_scanner',
+                            $canAccessGate,
+                        )
+                        ->where(
+                            'dashboard.permissions.can_view_pickup_history',
+                            $canAccessGate,
+                        )
+                        ->where(
+                            'dashboard.permissions.can_view_gate_activity',
+                            $canAccessGate,
+                        );
+
+                    if ($canAccessGate) {
+                        return $page
+                            ->has(
+                                'dashboard.recent_activities',
+                                1,
+                            )
+                            ->where(
+                                'dashboard.recent_activities.0.id',
+                                (int) $ownEvent->id,
+                            );
+                    }
+
+                    return $page->where(
+                        'dashboard.recent_activities',
+                        [],
+                    );
+                },
+            );
+    },
+)->with([
+    'school administrator' => [
+        User::ROLE_SCHOOL_ADMIN,
+        true,
+    ],
+
+    'gate officer' => [
+        User::ROLE_GATE_OFFICER,
+        true,
+    ],
+
+    'teacher' => [
+        User::ROLE_TEACHER,
+        false,
+    ],
+
+    'parent' => [
+        User::ROLE_PARENT,
+        false,
+    ],
+]);
+
+test(
     'super admin dashboard does not aggregate every school',
     function (): void {
         $school =
@@ -744,6 +904,14 @@ test(
                     ->where(
                         'dashboard.timezone',
                         config('app.timezone'),
+                    )
+                    ->where(
+                        'dashboard.permissions',
+                        [
+                            'can_open_face_scanner' => false,
+                            'can_view_pickup_history' => false,
+                            'can_view_gate_activity' => false,
+                        ],
                     )
                     ->where(
                         'dashboard.statistics',
