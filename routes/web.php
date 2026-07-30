@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GateFaceVerificationController;
 use App\Http\Controllers\GatePickupEventController;
 use App\Http\Controllers\PickupPersonController;
@@ -99,9 +100,7 @@ Route::middleware('auth')
 
         Route::get(
             '/dashboard',
-            fn (): Response => Inertia::render(
-                'dashboard',
-            ),
+            DashboardController::class,
         )->name('dashboard');
 
         /*
