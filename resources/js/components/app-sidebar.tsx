@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     CalendarCheck2,
     LayoutDashboard,
@@ -24,33 +24,48 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import type { NavItem } from '@/types';
+import type { NavItem, SharedData, UserRole } from '@/types';
 
-const mainNavItems: NavItem[] = [
+type RoleAwareNavItem = NavItem & {
+    roles: UserRole[];
+};
+
+const mainNavItems: RoleAwareNavItem[] = [
     {
         title: 'Dashboard',
         url: '/dashboard',
         icon: LayoutDashboard,
+        roles: [
+            'super_admin',
+            'school_admin',
+            'gate_officer',
+            'teacher',
+            'parent',
+        ],
     },
     {
         title: 'Data Siswa',
         url: '/students',
         icon: UsersRound,
+        roles: ['school_admin'],
     },
     {
         title: 'Data Penjemput',
         url: '/pickup-persons',
         icon: UserRoundCheck,
+        roles: ['school_admin'],
     },
     {
         title: 'Verifikasi Gerbang',
         url: '/gate/face-verification',
         icon: ScanFace,
+        roles: ['gate_officer'],
     },
     {
         title: 'Riwayat Gerbang',
         url: '/gate/pickup-events',
         icon: History,
+        roles: ['school_admin', 'gate_officer'],
     },
 ];
 
@@ -71,6 +86,15 @@ const comingSoonItems: ComingSoonItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+
+    const visibleMainNavItems = mainNavItems.filter((item) =>
+        item.roles.includes(auth.user.role),
+    );
+
+    const canViewSchoolManagement =
+        auth.user.role === 'school_admin';
+
     return (
         <Sidebar
             collapsible="icon"
@@ -94,38 +118,40 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent className="px-2 py-3">
-                <NavMain items={mainNavItems} />
+                <NavMain items={visibleMainNavItems} />
 
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-[#9fb3c8]">
-                        Manajemen Sekolah
-                    </SidebarGroupLabel>
+                {canViewSchoolManagement && (
+    <SidebarGroup>
+        <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-[#9fb3c8]">
+            Manajemen Sekolah
+        </SidebarGroupLabel>
 
-                    <SidebarMenu className="gap-1">
-                        {comingSoonItems.map((item) => {
-                            const Icon = item.icon;
+        <SidebarMenu className="gap-1">
+            {comingSoonItems.map((item) => {
+                const Icon = item.icon;
 
-                            return (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        type="button"
-                                        disabled
-                                        aria-disabled="true"
-                                        className="cursor-not-allowed rounded-xl text-[#829ab1] opacity-75"
-                                    >
-                                        <Icon className="size-4" />
+                return (
+                    <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                            type="button"
+                            disabled
+                            aria-disabled="true"
+                            className="cursor-not-allowed rounded-xl text-[#829ab1] opacity-75"
+                        >
+                            <Icon className="size-4" />
 
-                                        <span>{item.title}</span>
+                            <span>{item.title}</span>
 
-                                        <span className="ml-auto rounded-full bg-[#f1f5f9] px-2 py-0.5 text-[10px] font-semibold text-[#829ab1] group-data-[collapsible=icon]:hidden">
-                                            Segera
-                                        </span>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            );
-                        })}
-                    </SidebarMenu>
-                </SidebarGroup>
+                            <span className="ml-auto rounded-full bg-[#f1f5f9] px-2 py-0.5 text-[10px] font-semibold text-[#829ab1] group-data-[collapsible=icon]:hidden">
+                                Segera
+                            </span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                );
+            })}
+        </SidebarMenu>
+    </SidebarGroup>
+)}
             </SidebarContent>
 
             <SidebarFooter className="border-t border-[#edf2f7] p-2">
