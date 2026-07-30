@@ -7,6 +7,7 @@ use App\Http\Controllers\GatePickupEventController;
 use App\Http\Controllers\PickupPersonController;
 use App\Http\Controllers\StudentController;
 use App\Http\Middleware\PreventSensitiveResponseCaching;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -98,10 +99,9 @@ Route::middleware('auth')
 
         Route::get(
             '/dashboard',
-            fn (): Response =>
-                Inertia::render(
-                    'dashboard',
-                ),
+            fn (): Response => Inertia::render(
+                'dashboard',
+            ),
         )->name('dashboard');
 
         /*
@@ -112,6 +112,12 @@ Route::middleware('auth')
 
         Route::prefix('gate')
             ->name('gate.')
+            ->middleware(
+                'role:gate,'
+                    .User::ROLE_SCHOOL_ADMIN
+                    .','
+                    .User::ROLE_GATE_OFFICER,
+            )
             ->group(function (): void {
                 /*
                 |--------------------------------------------------------------------------
@@ -266,6 +272,12 @@ Route::middleware('auth')
         )
             ->prefix('students')
             ->name('students.')
+            ->middleware(
+                'role:students,'
+                    .User::ROLE_SCHOOL_ADMIN
+                    .','
+                    .User::ROLE_TEACHER,
+            )
             ->group(function (): void {
                 /*
                 |--------------------------------------------------------------------------
@@ -333,6 +345,14 @@ Route::middleware('auth')
         )
             ->prefix('pickup-persons')
             ->name('pickup-persons.')
+            ->middleware(
+                'role:pickup-persons,'
+                    .User::ROLE_SCHOOL_ADMIN
+                    .','
+                    .User::ROLE_GATE_OFFICER
+                    .','
+                    .User::ROLE_TEACHER,
+            )
             ->group(function (): void {
                 /*
                 |--------------------------------------------------------------------------
