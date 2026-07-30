@@ -3,6 +3,7 @@ import {
     Activity,
     ArrowRight,
     CheckCircle2,
+    CircleAlert,
     Clock3,
     RefreshCw,
     ScanFace,
@@ -10,13 +11,19 @@ import {
     ShieldCheck,
     UserCheck,
     Users,
+    X,
     type LucideIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import AppLayout from '@/layouts/app-layout';
 
 type StatTone = 'blue' | 'green' | 'yellow' | 'red';
+
+type RefreshFeedback = {
+    type: 'success' | 'error';
+    message: string;
+} | null;
 
 interface DashboardPermissions {
     can_open_face_scanner: boolean;
@@ -123,6 +130,12 @@ function activityInitials(name: string): string {
     return initials || 'PJ';
 }
 
+function activityDisplayName(name: string): string {
+    const normalizedName = name.trim();
+
+    return normalizedName !== '' ? normalizedName : 'Penjemput tidak diketahui';
+}
+
 function activityStatusLabel(status: string): string {
     if (status === 'confirmed') {
         return 'Terkonfirmasi';
@@ -148,7 +161,7 @@ function activityStatusStyle(status: string): string {
 }
 
 function verificationMethodLabel(method: string): string {
-    if (method === 'face') {
+    if (method === 'face' || method === 'face_recognition') {
         return 'Verifikasi wajah';
     }
 
@@ -249,6 +262,8 @@ function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps
 export default function Dashboard({ dashboard }: DashboardPageProps) {
     const [isRefreshing, setIsRefreshing] = useState(false);
 
+    const [refreshFeedback, setRefreshFeedback] = useState<RefreshFeedback>(null);
+
     const statistics = dashboard.statistics;
 
     const permissions = dashboard.permissions;
@@ -259,20 +274,63 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
 
     const faceProgressDegrees = registeredFacePercentage * 3.6;
 
+    useEffect(() => {
+        if (refreshFeedback?.type !== 'success') {
+            return;
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            setRefreshFeedback(null);
+        }, 5000);
+
+        return () => {
+            window.clearTimeout(timeoutId);
+        };
+    }, [refreshFeedback]);
+
     const refreshDashboard = (): void => {
         if (isRefreshing) {
             return;
         }
+
+        let requestHandled = false;
 
         router.reload({
             only: ['dashboard'],
 
             onStart: () => {
                 setIsRefreshing(true);
+
+                setRefreshFeedback(null);
+            },
+
+            onSuccess: () => {
+                requestHandled = true;
+
+                setRefreshFeedback({
+                    type: 'success',
+                    message: 'Data dashboard berhasil diperbarui.',
+                });
+            },
+
+            onError: () => {
+                requestHandled = true;
+
+                setRefreshFeedback({
+                    type: 'error',
+                    message: 'Data dashboard gagal diperbarui. Silakan coba kembali.',
+                });
             },
 
             onFinish: () => {
                 setIsRefreshing(false);
+
+                if (!requestHandled) {
+                    setRefreshFeedback({
+                        type: 'error',
+                        message: 'Pembaruan dashboard tidak selesai. Periksa koneksi lalu coba kembali.',
+                    });
+                }
             },
         });
     };
@@ -330,7 +388,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                 >
                                     <RefreshCw className={`size-4 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
 
-                                    <span aria-live="polite">{isRefreshing ? 'Memperbarui...' : 'Perbarui'}</span>
+                                    <span>{isRefreshing ? 'Memperbarui...' : 'Perbarui'}</span>
                                 </button>
 
                                 <div className="flex min-h-12 flex-col justify-center rounded-xl border border-white bg-white/70 px-4 py-2 text-[#627d98] shadow-sm backdrop-blur">
@@ -346,6 +404,37 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                             </div>
                         </div>
                     </section>
+
+                    {refreshFeedback && (
+                        <div
+                            role={refreshFeedback.type === 'error' ? 'alert' : 'status'}
+                            aria-live={refreshFeedback.type === 'error' ? 'assertive' : 'polite'}
+                            className={`flex items-start gap-3 rounded-2xl border px-4 py-3 shadow-sm ${
+                                refreshFeedback.type === 'success'
+                                    ? 'border-[#cce9e2] bg-[#eef9f6] text-[#3f8178]'
+                                    : 'border-[#f0cccc] bg-[#fff2f2] text-[#b84f4f]'
+                            }`}
+                        >
+                            {refreshFeedback.type === 'success' ? (
+                                <CheckCircle2 className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+                            ) : (
+                                <CircleAlert className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+                            )}
+
+                            <p className="min-w-0 flex-1 text-sm leading-6 font-medium">{refreshFeedback.message}</p>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setRefreshFeedback(null);
+                                }}
+                                aria-label="Tutup notifikasi pembaruan"
+                                className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-current focus-visible:outline-none"
+                            >
+                                <X className="size-4" aria-hidden="true" />
+                            </button>
+                        </div>
+                    )}
 
                     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Statistik sekolah">
                         <StatCard
@@ -513,45 +602,52 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                 </div>
                             ) : (
                                 <div className="mt-5 divide-y divide-[#edf2f7]">
-                                    {dashboard.recent_activities.map((activity) => (
-                                        <article
-                                            key={activity.id}
-                                            className="flex flex-col gap-4 py-4 first:pt-1 last:pb-0 sm:flex-row sm:items-center"
-                                        >
-                                            <div className="flex min-w-0 flex-1 items-center gap-3">
-                                                <div
-                                                    className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf3fa] text-sm font-bold text-[#4f7cac]"
-                                                    aria-hidden="true"
-                                                >
-                                                    {activityInitials(activity.pickup_person_name)}
+                                    {dashboard.recent_activities.map((activity) => {
+                                        const displayName = activityDisplayName(activity.pickup_person_name);
+
+                                        return (
+                                            <article
+                                                key={activity.id}
+                                                className="flex flex-col gap-4 py-4 first:pt-1 last:pb-0 sm:flex-row sm:items-center"
+                                            >
+                                                <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                    <div
+                                                        className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf3fa] text-sm font-bold text-[#4f7cac]"
+                                                        aria-hidden="true"
+                                                    >
+                                                        {activityInitials(displayName)}
+                                                    </div>
+
+                                                    <div className="min-w-0">
+                                                        <p className="truncate font-semibold text-[#334e68]">{displayName}</p>
+
+                                                        <p className="mt-0.5 text-sm text-[#829ab1]">
+                                                            {verificationMethodLabel(activity.verification_method)}
+                                                            {' · '}
+                                                            {formatNumber(activity.student_count)} siswa
+                                                        </p>
+                                                    </div>
                                                 </div>
 
-                                                <div className="min-w-0">
-                                                    <p className="truncate font-semibold text-[#334e68]">{activity.pickup_person_name}</p>
+                                                <div className="flex flex-wrap items-center justify-between gap-3 pl-14 sm:justify-end sm:pl-0">
+                                                    <span
+                                                        className={`rounded-full px-3 py-1.5 text-xs font-semibold ${activityStatusStyle(
+                                                            activity.status,
+                                                        )}`}
+                                                    >
+                                                        {activityStatusLabel(activity.status)}
+                                                    </span>
 
-                                                    <p className="mt-0.5 text-sm text-[#829ab1]">
-                                                        {verificationMethodLabel(activity.verification_method)}
-                                                        {' · '}
-                                                        {formatNumber(activity.student_count)} siswa
-                                                    </p>
+                                                    <time
+                                                        dateTime={activity.confirmed_at ?? undefined}
+                                                        className="text-sm font-medium text-[#829ab1]"
+                                                    >
+                                                        {formatActivityTime(activity.confirmed_at, dashboard.timezone)}
+                                                    </time>
                                                 </div>
-                                            </div>
-
-                                            <div className="flex flex-wrap items-center justify-between gap-3 pl-14 sm:justify-end sm:pl-0">
-                                                <span
-                                                    className={`rounded-full px-3 py-1.5 text-xs font-semibold ${activityStatusStyle(
-                                                        activity.status,
-                                                    )}`}
-                                                >
-                                                    {activityStatusLabel(activity.status)}
-                                                </span>
-
-                                                <time dateTime={activity.confirmed_at ?? undefined} className="text-sm font-medium text-[#829ab1]">
-                                                    {formatActivityTime(activity.confirmed_at, dashboard.timezone)}
-                                                </time>
-                                            </div>
-                                        </article>
-                                    ))}
+                                            </article>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </section>
