@@ -337,19 +337,21 @@ test(
                 'Asia/Jakarta',
             );
 
-        createDashboardPickupEvent(
-            $schoolA,
-            $adminA,
-            $now->subHour(),
-            PickupEvent::STATUS_CONFIRMED,
-        );
+        $confirmedToday =
+            createDashboardPickupEvent(
+                $schoolA,
+                $adminA,
+                $now->subHour(),
+                PickupEvent::STATUS_CONFIRMED,
+            );
 
-        createDashboardPickupEvent(
-            $schoolA,
-            $adminA,
-            $now->subHours(2),
-            PickupEvent::STATUS_CANCELLED,
-        );
+        $cancelledToday =
+            createDashboardPickupEvent(
+                $schoolA,
+                $adminA,
+                $now->subHours(2),
+                PickupEvent::STATUS_CANCELLED,
+            );
 
         createDashboardPickupEvent(
             $schoolA,
@@ -399,7 +401,39 @@ test(
                     ->where(
                         'dashboard.statistics.cancelled_today',
                         1,
-                    ),
+                    )
+                    ->has(
+                        'dashboard.recent_activities',
+                        3,
+                    )
+                    ->where(
+                        'dashboard.recent_activities.0.id',
+                        (int) $confirmedToday->id,
+                    )
+                    ->where(
+                        'dashboard.recent_activities.0.pickup_person_name',
+                        'Penjemput Dashboard',
+                    )
+                    ->where(
+                        'dashboard.recent_activities.0.status',
+                        PickupEvent::STATUS_CONFIRMED,
+                    )
+                    ->where(
+                        'dashboard.recent_activities.0.verification_method',
+                        PickupEvent::VERIFICATION_METHOD_MANUAL,
+                    )
+                    ->where(
+                        'dashboard.recent_activities.0.student_count',
+                        0,
+                    )
+                    ->where(
+                        'dashboard.recent_activities.1.id',
+                        (int) $cancelledToday->id,
+                    )
+                    ->where(
+                        'dashboard.recent_activities.1.status',
+                        PickupEvent::STATUS_CANCELLED,
+                    )
             );
     },
 );
@@ -442,6 +476,10 @@ test(
                             'confirmed_today' => 0,
                             'cancelled_today' => 0,
                         ],
+                    )
+                    ->where(
+                        'dashboard.recent_activities',
+                        [],
                     ),
             );
     },

@@ -120,9 +120,77 @@ final class DashboardController extends Controller
                             )
                             ->count(),
                     ],
+
+                    'recent_activities' => $this->recentActivities(
+                        $schoolId,
+                    ),
                 ],
             ],
         );
+    }
+
+    /**
+     * @return list<array{
+     *     id: int,
+     *     pickup_person_name: string,
+     *     status: string,
+     *     verification_method: string,
+     *     confirmed_at: string|null,
+     *     student_count: int
+     * }>
+     */
+    private function recentActivities(
+        int $schoolId,
+    ): array {
+        return PickupEvent::query()
+            ->select([
+                'id',
+                'school_id',
+                'pickup_person_name',
+                'status',
+                'verification_method',
+                'confirmed_at',
+            ])
+            ->withCount(
+                'eventStudents',
+            )
+            ->where(
+                'school_id',
+                $schoolId,
+            )
+            ->orderByDesc(
+                'confirmed_at',
+            )
+            ->orderByDesc(
+                'id',
+            )
+            ->limit(5)
+            ->get()
+            ->map(
+                static fn (
+                    PickupEvent $event,
+                ): array => [
+                    'id' => (int) $event->id,
+
+                    'pickup_person_name' => (string) $event
+                        ->pickup_person_name,
+
+                    'status' => (string) $event->status,
+
+                    'verification_method' => (string) $event
+                        ->verification_method,
+
+                    'confirmed_at' => $event
+                        ->confirmed_at
+                        ?->toIso8601String(),
+
+                    'student_count' => (int) $event->getAttribute(
+                        'event_students_count',
+                    ),
+                ],
+            )
+            ->values()
+            ->all();
     }
 
     /**
@@ -135,7 +203,8 @@ final class DashboardController extends Controller
      *         pickup_events_today: int,
      *         confirmed_today: int,
      *         cancelled_today: int
-     *     }
+     *     },
+     *     recent_activities: list<array<string, mixed>>
      * }
      */
     private function emptyDashboard(): array
@@ -151,6 +220,8 @@ final class DashboardController extends Controller
                 'confirmed_today' => 0,
                 'cancelled_today' => 0,
             ],
+
+            'recent_activities' => [],
         ];
     }
 }
