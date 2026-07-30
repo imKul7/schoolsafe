@@ -1,6 +1,7 @@
 import { router, useForm } from '@inertiajs/react';
 import type { ChangeEvent, FormEvent } from 'react';
 import {
+    useCallback,
     useEffect,
     useRef,
     useState,
@@ -174,94 +175,94 @@ export default function PickupPersonPhotoManager({
         };
     }, [photoForm.data.photo]);
 
-    useEffect(() => {
-        if (!cameraOpen) {
-            stopCamera();
+    const stopCamera = useCallback((): void => {
+    cameraStreamRef.current
+        ?.getTracks()
+        .forEach((track) => {
+            track.stop();
+        });
 
-            return;
-        }
+    cameraStreamRef.current = null;
 
-        void startCamera();
+    if (videoRef.current) {
+        videoRef.current.srcObject = null;
+    }
 
-        return () => {
-            stopCamera();
-        };
-    }, [cameraOpen, cameraFacingMode]);
+    setCameraReady(false);
+}, []);
 
-    function stopCamera(): void {
-        cameraStreamRef.current
-            ?.getTracks()
-            .forEach((track) => {
-                track.stop();
+const startCamera = useCallback(async (): Promise<void> => {
+    setCameraError(null);
+    setCameraReady(false);
+
+    if (
+        !navigator.mediaDevices
+        || !navigator.mediaDevices.getUserMedia
+    ) {
+        setCameraError(
+            'Browser ini tidak mendukung akses kamera.',
+        );
+
+        return;
+    }
+
+    stopCamera();
+
+    try {
+        const stream =
+            await navigator.mediaDevices.getUserMedia({
+                audio: false,
+
+                video: {
+                    facingMode: {
+                        ideal: cameraFacingMode,
+                    },
+
+                    width: {
+                        ideal: 1280,
+                    },
+
+                    height: {
+                        ideal: 1280,
+                    },
+                },
             });
 
-        cameraStreamRef.current = null;
+        cameraStreamRef.current = stream;
 
-        if (videoRef.current) {
-            videoRef.current.srcObject = null;
-        }
+        const video = videoRef.current;
 
-        setCameraReady(false);
-    }
-
-    async function startCamera(): Promise<void> {
-        setCameraError(null);
-        setCameraReady(false);
-
-        if (
-            !navigator.mediaDevices
-            || !navigator.mediaDevices.getUserMedia
-        ) {
-            setCameraError(
-                'Browser ini tidak mendukung akses kamera.',
-            );
+        if (!video) {
+            stopCamera();
 
             return;
         }
 
+        video.srcObject = stream;
+
+        await video.play();
+    } catch (error) {
         stopCamera();
 
-        try {
-            const stream =
-                await navigator.mediaDevices.getUserMedia({
-                    audio: false,
-
-                    video: {
-                        facingMode: {
-                            ideal: cameraFacingMode,
-                        },
-
-                        width: {
-                            ideal: 1280,
-                        },
-
-                        height: {
-                            ideal: 1280,
-                        },
-                    },
-                });
-
-            cameraStreamRef.current = stream;
-
-            const video = videoRef.current;
-
-            if (!video) {
-                stopCamera();
-
-                return;
-            }
-
-            video.srcObject = stream;
-
-            await video.play();
-        } catch (error) {
-            stopCamera();
-
-            setCameraError(
-                cameraErrorMessage(error),
-            );
-        }
+        setCameraError(
+            cameraErrorMessage(error),
+        );
     }
+}, [cameraFacingMode, stopCamera]);
+
+useEffect(() => {
+    if (!cameraOpen) {
+        stopCamera();
+
+        return;
+    }
+
+    void startCamera();
+
+    return () => {
+        stopCamera();
+    };
+}, [cameraOpen, startCamera, stopCamera]);
 
     function validatePhotoFile(
         file: File,
