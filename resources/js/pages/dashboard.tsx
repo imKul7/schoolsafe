@@ -45,6 +45,7 @@ interface DashboardActivity {
 interface DashboardData {
     has_school: boolean;
     timezone: string;
+    generated_at: string;
     permissions: DashboardPermissions;
     statistics: DashboardStatistics;
     recent_activities: DashboardActivity[];
@@ -191,6 +192,34 @@ function formatActivityTime(value: string | null, timezone: string): string {
     }
 }
 
+function formatLastUpdated(value: string, timezone: string): string {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return 'Waktu pembaruan tidak tersedia';
+    }
+
+    const options: Intl.DateTimeFormatOptions = {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: timezone,
+    };
+
+    try {
+        return new Intl.DateTimeFormat('id-ID', options).format(date);
+    } catch {
+        return new Intl.DateTimeFormat('id-ID', {
+            ...options,
+            timeZone: 'UTC',
+        }).format(date);
+    }
+}
+
 function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps) {
     const styles = toneStyles[tone];
 
@@ -304,9 +333,15 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                     <span aria-live="polite">{isRefreshing ? 'Memperbarui...' : 'Perbarui'}</span>
                                 </button>
 
-                                <div className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white bg-white/70 px-4 text-sm font-medium text-[#627d98] shadow-sm backdrop-blur">
-                                    <Clock3 className="size-4 text-[#4f7cac]" aria-hidden="true" />
-                                    {formatNumber(statistics.pickup_events_today)} transaksi hari ini
+                                <div className="flex min-h-12 flex-col justify-center rounded-xl border border-white bg-white/70 px-4 py-2 text-[#627d98] shadow-sm backdrop-blur">
+                                    <span className="inline-flex items-center gap-2 text-sm font-medium">
+                                        <Clock3 className="size-4 text-[#4f7cac]" aria-hidden="true" />
+                                        {formatNumber(statistics.pickup_events_today)} transaksi hari ini
+                                    </span>
+
+                                    <time dateTime={dashboard.generated_at} className="mt-0.5 pl-6 text-xs text-[#829ab1]">
+                                        Diperbarui {formatLastUpdated(dashboard.generated_at, dashboard.timezone)}
+                                    </time>
                                 </div>
                             </div>
                         </div>

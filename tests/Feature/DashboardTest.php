@@ -874,6 +874,56 @@ test(
 ]);
 
 test(
+    'dashboard exposes server generated timestamp',
+    function (): void {
+        config()->set(
+            'app.timezone',
+            'UTC',
+        );
+
+        $fixedNow =
+            CarbonImmutable::parse(
+                '2026-07-30 12:34:56',
+                'UTC',
+            );
+
+        CarbonImmutable::setTestNow(
+            $fixedNow,
+        );
+
+        $school =
+            School::factory()->create([
+                'timezone' => 'Asia/Jakarta',
+            ]);
+
+        $admin =
+            User::factory()
+                ->schoolAdmin()
+                ->create([
+                    'school_id' => $school->id,
+                ]);
+
+        $this
+            ->actingAs($admin)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertInertia(
+                fn (Assert $page): Assert => $page
+                    ->component('dashboard')
+                    ->where(
+                        'dashboard.timezone',
+                        'Asia/Jakarta',
+                    )
+                    ->where(
+                        'dashboard.generated_at',
+                        $fixedNow
+                            ->toIso8601String(),
+                    ),
+            );
+    },
+);
+
+test(
     'super admin dashboard does not aggregate every school',
     function (): void {
         $school =
@@ -904,6 +954,11 @@ test(
                     ->where(
                         'dashboard.timezone',
                         config('app.timezone'),
+                    )
+                    ->where(
+                        'dashboard.generated_at',
+                        fn (mixed $value): bool => is_string($value)
+                            && $value !== '',
                     )
                     ->where(
                         'dashboard.permissions',
