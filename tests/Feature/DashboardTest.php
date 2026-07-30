@@ -9,6 +9,7 @@ use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -548,6 +549,167 @@ test(
                         1,
                     ),
             );
+    },
+);
+
+test(
+    'dashboard recent activities expose strict safe contract',
+    function (): void {
+        $school =
+            School::factory()->create([
+                'timezone' => 'Asia/Jakarta',
+            ]);
+
+        $admin =
+            User::factory()
+                ->schoolAdmin()
+                ->create([
+                    'school_id' => $school->id,
+                ]);
+
+        $event =
+            createDashboardPickupEvent(
+                $school,
+                $admin,
+                CarbonImmutable::now(
+                    'Asia/Jakarta',
+                )->subMinute(),
+                PickupEvent::STATUS_CONFIRMED,
+            );
+
+        $secretValues = [
+            '089999999991',
+            'dashboard-secret-notes-7qf9',
+            '203.0.113.91',
+            'dashboard-secret-agent-7qf9',
+            'dashboard-secret-metadata-7qf9',
+        ];
+
+        $event->forceFill([
+            'pickup_person_phone' => $secretValues[0],
+
+            'notes' => $secretValues[1],
+
+            'ip_address' => $secretValues[2],
+
+            'user_agent' => $secretValues[3],
+
+            'metadata' => [
+                'private_audit_value' => $secretValues[4],
+            ],
+        ])->save();
+
+        $response =
+            $this
+                ->actingAs($admin)
+                ->get(route('dashboard'));
+
+        $response
+            ->assertOk()
+            ->assertInertia(
+                fn (Assert $page): Assert => $page
+                    ->component('dashboard')
+                    ->has(
+                        'dashboard.recent_activities',
+                        1,
+                    )
+                    ->where(
+                        'dashboard.recent_activities.0',
+                        function (
+                            mixed $activity,
+                        ) use (
+                            $event,
+                        ): bool {
+                            if (
+                                $activity
+                                instanceof Collection
+                            ) {
+                                $activity =
+                                    $activity->all();
+                            }
+
+                            $this->assertIsArray(
+                                $activity,
+                            );
+
+                            $expectedKeys = [
+                                'id',
+                                'pickup_person_name',
+                                'status',
+                                'verification_method',
+                                'confirmed_at',
+                                'student_count',
+                            ];
+
+                            $actualKeys =
+                                array_keys(
+                                    $activity,
+                                );
+
+                            sort($expectedKeys);
+                            sort($actualKeys);
+
+                            $this->assertSame(
+                                $expectedKeys,
+                                $actualKeys,
+                                'Payload aktivitas dashboard memiliki field yang tidak diizinkan.',
+                            );
+
+                            $this->assertSame(
+                                (int) $event->id,
+                                (int) $activity[
+                                    'id'
+                                ],
+                            );
+
+                            $this->assertSame(
+                                'Penjemput Dashboard',
+                                (string) $activity[
+                                    'pickup_person_name'
+                                ],
+                            );
+
+                            $this->assertSame(
+                                PickupEvent::STATUS_CONFIRMED,
+                                (string) $activity[
+                                    'status'
+                                ],
+                            );
+
+                            $this->assertSame(
+                                PickupEvent::VERIFICATION_METHOD_MANUAL,
+                                (string) $activity[
+                                    'verification_method'
+                                ],
+                            );
+
+                            $this->assertSame(
+                                0,
+                                (int) $activity[
+                                    'student_count'
+                                ],
+                            );
+
+                            return true;
+                        },
+                    ),
+            );
+
+        $encodedResponse =
+            (string) $response->getContent();
+
+        foreach (
+            $secretValues as $secretValue
+        ) {
+            $this->assertStringNotContainsString(
+                $secretValue,
+                $encodedResponse,
+                sprintf(
+                    'Nilai sensitif [%s] tidak boleh terkirim melalui dashboard.',
+                    $secretValue,
+                ),
+            );
+        }
     },
 );
 
