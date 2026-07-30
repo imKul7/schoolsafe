@@ -988,6 +988,91 @@ test(
 );
 
 test(
+    'authenticated dashboard response is not cacheable',
+    function (): void {
+        $school =
+            School::factory()->create([
+                'timezone' => 'Asia/Jakarta',
+            ]);
+
+        $admin =
+            User::factory()
+                ->schoolAdmin()
+                ->create([
+                    'school_id' => $school->id,
+                ]);
+
+        $response =
+            $this
+                ->actingAs($admin)
+                ->get(route('dashboard'));
+
+        $response->assertOk();
+
+        $cacheControl =
+            strtolower(
+                trim(
+                    (string) $response
+                        ->headers
+                        ->get(
+                            'Cache-Control',
+                        ),
+                ),
+            );
+
+        $this->assertNotSame(
+            '',
+            $cacheControl,
+            'Dashboard wajib memiliki header Cache-Control.',
+        );
+
+        foreach (
+            [
+                'private',
+                'no-store',
+                'no-cache',
+                'max-age=0',
+                'must-revalidate',
+            ] as $directive
+        ) {
+            $this->assertStringContainsString(
+                $directive,
+                $cacheControl,
+                sprintf(
+                    'Cache-Control dashboard wajib memuat directive [%s]. Nilai aktual: [%s].',
+                    $directive,
+                    $cacheControl,
+                ),
+            );
+        }
+
+        $this->assertSame(
+            'no-cache',
+            strtolower(
+                trim(
+                    (string) $response
+                        ->headers
+                        ->get(
+                            'Pragma',
+                        ),
+                ),
+            ),
+        );
+
+        $this->assertSame(
+            '0',
+            trim(
+                (string) $response
+                    ->headers
+                    ->get(
+                        'Expires',
+                    ),
+            ),
+        );
+    },
+);
+
+test(
     'guest is redirected before dashboard statistics are loaded',
     function (): void {
         $this

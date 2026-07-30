@@ -101,7 +101,11 @@ Route::middleware('auth')
         Route::get(
             '/dashboard',
             DashboardController::class,
-        )->name('dashboard');
+        )
+            ->middleware(
+                PreventSensitiveResponseCaching::class,
+            )
+            ->name('dashboard');
 
         /*
         |--------------------------------------------------------------------------
