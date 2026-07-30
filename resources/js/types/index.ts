@@ -4,6 +4,13 @@ export interface Auth {
     user: User;
 }
 
+export type UserRole =
+    | 'super_admin'
+    | 'school_admin'
+    | 'gate_officer'
+    | 'teacher'
+    | 'parent';
+
 export interface BreadcrumbItem {
     title: string;
     href: string;
@@ -30,11 +37,16 @@ export interface SharedData {
 
 export interface User {
     id: number;
+    school_id: number | null;
     name: string;
     email: string;
+    role: UserRole;
+    phone: string | null;
+    is_active: boolean;
     avatar?: string;
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
-    [key: string]: unknown; // This allows for additional properties...
+    [key: string]: unknown;
 }
+
