@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 beforeEach(function (): void {
     Route::middleware(
-        'role:'
+        'role:default,'
             .User::ROLE_SCHOOL_ADMIN
             .','
             .User::ROLE_GATE_OFFICER,
@@ -26,6 +26,33 @@ beforeEach(function (): void {
                 'message' => 'Diizinkan.',
             ]),
         );
+
+    Route::middleware(
+        'role:gate,'
+            .User::ROLE_SCHOOL_ADMIN
+            .','
+            .User::ROLE_GATE_OFFICER,
+    )
+        ->get(
+            '/_tests/gate-role-protected',
+            fn () => response()->json([
+                'message' => 'Diizinkan.',
+            ]),
+        );
+});
+
+test('scoped middleware returns gate authorization message', function () {
+    $user = User::factory()
+        ->teacher()
+        ->create();
+
+    $this
+        ->actingAs($user)
+        ->getJson('/_tests/gate-role-protected')
+        ->assertForbidden()
+        ->assertExactJson([
+            'message' => 'Akun tidak memiliki izin mengelola transaksi gerbang.',
+        ]);
 });
 
 test('guest cannot access a role protected route', function () {
