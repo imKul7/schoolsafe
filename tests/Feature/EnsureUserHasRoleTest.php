@@ -2,15 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Http\Middleware\EnsureUserHasRole;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
-
 beforeEach(function (): void {
     Route::middleware(
-        EnsureUserHasRole::class
-            .':'
+        'role:'
             .User::ROLE_SCHOOL_ADMIN
             .','
             .User::ROLE_GATE_OFFICER,
@@ -22,9 +19,7 @@ beforeEach(function (): void {
             ]),
         );
 
-    Route::middleware(
-        EnsureUserHasRole::class,
-    )
+    Route::middleware('role')
         ->get(
             '/_tests/role-protected-without-roles',
             fn () => response()->json([
