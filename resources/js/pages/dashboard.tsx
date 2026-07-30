@@ -1,5 +1,18 @@
-import { Head, Link } from '@inertiajs/react';
-import { Activity, ArrowRight, CheckCircle2, Clock3, ScanFace, ShieldAlert, ShieldCheck, UserCheck, Users, type LucideIcon } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import {
+    Activity,
+    ArrowRight,
+    CheckCircle2,
+    Clock3,
+    RefreshCw,
+    ScanFace,
+    ShieldAlert,
+    ShieldCheck,
+    UserCheck,
+    Users,
+    type LucideIcon,
+} from 'lucide-react';
+import { useState } from 'react';
 
 import AppLayout from '@/layouts/app-layout';
 
@@ -123,14 +136,14 @@ function activityStatusLabel(status: string): string {
 
 function activityStatusStyle(status: string): string {
     if (status === 'confirmed') {
-        return ['bg-[#e8f6f3]', 'text-[#4c9e94]'].join(' ');
+        return 'bg-[#e8f6f3] text-[#4c9e94]';
     }
 
     if (status === 'cancelled') {
-        return ['bg-[#fff0f0]', 'text-[#cf6464]'].join(' ');
+        return 'bg-[#fff0f0] text-[#cf6464]';
     }
 
-    return ['bg-[#fff9e9]', 'text-[#a77b18]'].join(' ');
+    return 'bg-[#fff9e9] text-[#a77b18]';
 }
 
 function verificationMethodLabel(method: string): string {
@@ -182,19 +195,7 @@ function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps
     const styles = toneStyles[tone];
 
     return (
-        <article
-            className={[
-                'rounded-2xl',
-                'border',
-                'p-5',
-                'shadow-sm',
-                'transition',
-                'duration-200',
-                'hover:-translate-y-0.5',
-                'hover:shadow-md',
-                styles.card,
-            ].join(' ')}
-        >
+        <article className={`rounded-2xl border p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}>
             <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                     <p className="text-sm font-medium text-[#627d98]">{title}</p>
@@ -202,12 +203,12 @@ function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps
                     <p className="mt-3 text-3xl font-bold tracking-tight text-[#243b53]">{value}</p>
                 </div>
 
-                <div className={['flex', 'size-11', 'shrink-0', 'items-center', 'justify-center', 'rounded-xl', styles.icon].join(' ')}>
+                <div className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${styles.icon}`}>
                     <Icon className="size-5" aria-hidden="true" />
                 </div>
             </div>
 
-            <p className={['mt-4', 'flex', 'items-center', 'gap-1.5', 'text-xs', 'font-medium', styles.indicator].join(' ')}>
+            <p className={`mt-4 flex items-center gap-1.5 text-xs font-medium ${styles.indicator}`}>
                 <Activity className="size-3.5" aria-hidden="true" />
 
                 {description}
@@ -217,6 +218,8 @@ function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps
 }
 
 export default function Dashboard({ dashboard }: DashboardPageProps) {
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
     const statistics = dashboard.statistics;
 
     const permissions = dashboard.permissions;
@@ -227,11 +230,29 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
 
     const faceProgressDegrees = registeredFacePercentage * 3.6;
 
+    const refreshDashboard = (): void => {
+        if (isRefreshing) {
+            return;
+        }
+
+        router.reload({
+            only: ['dashboard'],
+
+            onStart: () => {
+                setIsRefreshing(true);
+            },
+
+            onFinish: () => {
+                setIsRefreshing(false);
+            },
+        });
+    };
+
     return (
         <AppLayout>
             <Head title="Dashboard" />
 
-            <main className="min-h-full bg-[#f8fafc]">
+            <main className="min-h-full bg-[#f8fafc]" aria-busy={isRefreshing}>
                 <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 p-4 md:p-6">
                     <section className="relative overflow-hidden rounded-[28px] border border-[#deebf5] bg-gradient-to-r from-[#eaf4ff] via-[#eef9f6] to-[#fff9eb] p-6 shadow-sm md:p-8">
                         <div className="absolute -top-20 -right-10 size-60 rounded-full bg-white/50 blur-3xl" aria-hidden="true" />
@@ -259,7 +280,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                 </p>
                             </div>
 
-                            <div className="flex flex-col gap-3 sm:flex-row">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
                                 {permissions.can_open_face_scanner && (
                                     <Link
                                         href="/gate/face-verification"
@@ -270,6 +291,18 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                         Face Scanner
                                     </Link>
                                 )}
+
+                                <button
+                                    type="button"
+                                    onClick={refreshDashboard}
+                                    disabled={isRefreshing}
+                                    aria-label={isRefreshing ? 'Memperbarui data dashboard' : 'Perbarui data dashboard'}
+                                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#dceaf5] bg-white/80 px-4 text-sm font-semibold text-[#4f7cac] shadow-sm backdrop-blur transition hover:border-[#bfd7ec] hover:bg-white focus-visible:ring-2 focus-visible:ring-[#5b8def] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    <RefreshCw className={`size-4 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
+
+                                    <span aria-live="polite">{isRefreshing ? 'Memperbarui...' : 'Perbarui'}</span>
+                                </button>
 
                                 <div className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white bg-white/70 px-4 text-sm font-medium text-[#627d98] shadow-sm backdrop-blur">
                                     <Clock3 className="size-4 text-[#4f7cac]" aria-hidden="true" />
@@ -471,14 +504,9 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
 
                                             <div className="flex flex-wrap items-center justify-between gap-3 pl-14 sm:justify-end sm:pl-0">
                                                 <span
-                                                    className={[
-                                                        'rounded-full',
-                                                        'px-3',
-                                                        'py-1.5',
-                                                        'text-xs',
-                                                        'font-semibold',
-                                                        activityStatusStyle(activity.status),
-                                                    ].join(' ')}
+                                                    className={`rounded-full px-3 py-1.5 text-xs font-semibold ${activityStatusStyle(
+                                                        activity.status,
+                                                    )}`}
                                                 >
                                                     {activityStatusLabel(activity.status)}
                                                 </span>
