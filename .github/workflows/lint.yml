@@ -1,4 +1,4 @@
-name: linter
+﻿name: Lint
 
 on:
   push:
@@ -9,37 +9,219 @@ on:
     branches:
       - develop
       - main
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: lint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
 
-      - name: Install Dependencies
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Validate Composer
+        run: composer validate --strict
+
+      - name: Install PHP Dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Check Changed PHP Files
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
         run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-          npm install
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            comparison_base="$PR_BASE_SHA"
+          elif [[ "$EVENT_NAME" == "push" ]]; then
+            comparison_base="$BEFORE_SHA"
+          else
+            comparison_base="$(git rev-parse HEAD^ 2>/dev/null || true)"
+          fi
 
-      - name: Run Pint
-        run: vendor/bin/pint
+          if [[ -z "$comparison_base" || "$comparison_base" =~ ^0+$ ]]; then
+            mapfile -t changed_files < <(
+              git diff-tree \
+                --no-commit-id \
+                --name-only \
+                --diff-filter=ACMRT \
+                -r "$CURRENT_SHA"
+            )
+          else
+            mapfile -t changed_files < <(
+              git diff \
+                --name-only \
+                --diff-filter=ACMRT \
+                "$comparison_base" \
+                "$CURRENT_SHA"
+            )
+          fi
 
-      - name: Format Frontend
-        run: npm run format
+          php_files=()
 
-      - name: Lint Frontend
-        run: npm run lint
+          for file in "${changed_files[@]}"; do
+            if [[ -f "$file" && "$file" == *.php ]]; then
+              php_files+=("$file")
+            fi
+          done
 
-      # - name: Commit Changes
-      #   uses: stefanzweifel/git-auto-commit-action@v5
-      #   with:
-      #     commit_message: fix code style
-      #     commit_options: '--no-verify'
+          if [[ ${#php_files[@]} -eq 0 ]]; then
+            echo "No changed PHP files to check."
+            exit 0
+          fi
+
+          echo "Checking PHP formatting:"
+          printf ' - %s\n' "${php_files[@]}"
+
+          vendor/bin/pint --test "${php_files[@]}"
+
+      - name: Check Changed Files With Prettier
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            comparison_base="$PR_BASE_SHA"
+          elif [[ "$EVENT_NAME" == "push" ]]; then
+            comparison_base="$BEFORE_SHA"
+          else
+            comparison_base="$(git rev-parse HEAD^ 2>/dev/null || true)"
+          fi
+
+          if [[ -z "$comparison_base" || "$comparison_base" =~ ^0+$ ]]; then
+            mapfile -t changed_files < <(
+              git diff-tree \
+                --no-commit-id \
+                --name-only \
+                --diff-filter=ACMRT \
+                -r "$CURRENT_SHA"
+            )
+          else
+            mapfile -t changed_files < <(
+              git diff \
+                --name-only \
+                --diff-filter=ACMRT \
+                "$comparison_base" \
+                "$CURRENT_SHA"
+            )
+          fi
+
+          prettier_files=()
+
+          for file in "${changed_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              continue
+            fi
+
+            if [[ "$file" == "package-lock.json" ]]; then
+              continue
+            fi
+
+            case "$file" in
+              *.js|*.jsx|*.ts|*.tsx|*.css|*.json|*.yml|*.yaml)
+                prettier_files+=("$file")
+                ;;
+            esac
+          done
+
+          if [[ ${#prettier_files[@]} -eq 0 ]]; then
+            echo "No changed Prettier-supported files to check."
+            exit 0
+          fi
+
+          echo "Checking formatting with Prettier:"
+          printf ' - %s\n' "${prettier_files[@]}"
+
+          npx prettier --check "${prettier_files[@]}"
+
+      - name: Lint Changed Frontend Files
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            comparison_base="$PR_BASE_SHA"
+          elif [[ "$EVENT_NAME" == "push" ]]; then
+            comparison_base="$BEFORE_SHA"
+          else
+            comparison_base="$(git rev-parse HEAD^ 2>/dev/null || true)"
+          fi
+
+          if [[ -z "$comparison_base" || "$comparison_base" =~ ^0+$ ]]; then
+            mapfile -t changed_files < <(
+              git diff-tree \
+                --no-commit-id \
+                --name-only \
+                --diff-filter=ACMRT \
+                -r "$CURRENT_SHA"
+            )
+          else
+            mapfile -t changed_files < <(
+              git diff \
+                --name-only \
+                --diff-filter=ACMRT \
+                "$comparison_base" \
+                "$CURRENT_SHA"
+            )
+          fi
+
+          eslint_files=()
+
+          for file in "${changed_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              continue
+            fi
+
+            case "$file" in
+              *.js|*.jsx|*.ts|*.tsx)
+                eslint_files+=("$file")
+                ;;
+            esac
+          done
+
+          if [[ ${#eslint_files[@]} -eq 0 ]]; then
+            echo "No changed JavaScript or TypeScript files to lint."
+            exit 0
+          fi
+
+          echo "Linting changed frontend files:"
+          printf ' - %s\n' "${eslint_files[@]}"
+
+          npx eslint "${eslint_files[@]}"
+
+      - name: Check TypeScript
+        run: npm run types:check

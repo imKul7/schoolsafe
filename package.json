@@ -10,7 +10,8 @@
         "lint": "eslint . --fix",
         "types:check": "tsc --noEmit",
         "test:frontend": "vitest run",
-        "test:frontend:watch": "vitest"
+        "test:frontend:watch": "vitest",
+        "lint:check": "eslint ."
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
