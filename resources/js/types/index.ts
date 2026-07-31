@@ -4,12 +4,7 @@ export interface Auth {
     user: User;
 }
 
-export type UserRole =
-    | 'super_admin'
-    | 'school_admin'
-    | 'gate_officer'
-    | 'teacher'
-    | 'parent';
+export type UserRole = 'super_admin' | 'school_admin' | 'gate_officer' | 'teacher' | 'parent';
 
 export interface BreadcrumbItem {
     title: string;
@@ -49,4 +44,3 @@ export interface User {
     updated_at: string;
     [key: string]: unknown;
 }
-

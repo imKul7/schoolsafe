@@ -1,30 +1,12 @@
 import { Head, Link, router } from '@inertiajs/react';
-import {
-    ArrowRight,
-    Eye,
-    Filter,
-    GraduationCap,
-    Plus,
-    Search,
-    UserRound,
-    UsersRound,
-    X,
-    type LucideIcon,
-} from 'lucide-react';
-import {
-    type FormEventHandler,
-    useMemo,
-    useState,
-} from 'react';
+import { ArrowRight, Eye, Filter, GraduationCap, Plus, Search, UserRound, UsersRound, X, type LucideIcon } from 'lucide-react';
+import { useMemo, useState, type FormEventHandler } from 'react';
 
 import AppLayout from '@/layouts/app-layout';
 
 type Gender = 'male' | 'female';
 
-type StudentStatus =
-    | 'active'
-    | 'inactive'
-    | 'graduated';
+type StudentStatus = 'active' | 'inactive' | 'graduated';
 
 interface SchoolClass {
     id: number;
@@ -82,12 +64,9 @@ interface SummaryCardProps {
 }
 
 const statusStyles: Record<StudentStatus, string> = {
-    active:
-        'border-[#cfe9e3] bg-[#e8f6f3] text-[#438f86]',
-    inactive:
-        'border-[#dde5ec] bg-[#f1f5f9] text-[#627d98]',
-    graduated:
-        'border-[#dce3f5] bg-[#eef3ff] text-[#5b73b8]',
+    active: 'border-[#cfe9e3] bg-[#e8f6f3] text-[#438f86]',
+    inactive: 'border-[#dde5ec] bg-[#f1f5f9] text-[#627d98]',
+    graduated: 'border-[#dce3f5] bg-[#eef3ff] text-[#5b73b8]',
 };
 
 const statusLabels: Record<StudentStatus, string> = {
@@ -123,41 +102,19 @@ const summaryToneStyles: Record<
 };
 
 function formatPaginationLabel(label: string): string {
-    return label
-        .replace('&laquo; Previous', 'Sebelumnya')
-        .replace('Next &raquo;', 'Berikutnya')
-        .replace('&laquo;', '‹')
-        .replace('&raquo;', '›');
+    return label.replace('&laquo; Previous', 'Sebelumnya').replace('Next &raquo;', 'Berikutnya').replace('&laquo;', '‹').replace('&raquo;', '›');
 }
 
-export default function StudentsIndex({
-    students,
-    classes,
-    filters,
-}: StudentsIndexProps) {
-    const [search, setSearch] = useState(
-        filters.search ?? '',
-    );
+export default function StudentsIndex({ students, classes, filters }: StudentsIndexProps) {
+    const [search, setSearch] = useState(filters.search ?? '');
 
-    const [classId, setClassId] = useState(
-        String(filters.class_id ?? ''),
-    );
+    const [classId, setClassId] = useState(String(filters.class_id ?? ''));
 
-    const [status, setStatus] = useState(
-        filters.status ?? '',
-    );
+    const [status, setStatus] = useState(filters.status ?? '');
 
-    const hasActiveFilters = useMemo(
-        () =>
-            search.trim() !== '' ||
-            classId !== '' ||
-            status !== '',
-        [search, classId, status],
-    );
+    const hasActiveFilters = useMemo(() => search.trim() !== '' || classId !== '' || status !== '', [search, classId, status]);
 
-    const submitFilters: FormEventHandler<
-        HTMLFormElement
-    > = (event) => {
+    const submitFilters: FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
 
         router.get(
@@ -204,44 +161,30 @@ export default function StudentsIndex({
                         <div className="relative flex flex-col justify-between gap-5 md:flex-row md:items-center">
                             <div className="flex items-start gap-4">
                                 <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#5b8def] shadow-sm">
-                                    <UsersRound
-                                        aria-hidden="true"
-                                        className="size-6"
-                                    />
+                                    <UsersRound aria-hidden="true" className="size-6" />
                                 </div>
 
                                 <div>
-                                    <h1 className="text-2xl font-bold tracking-tight text-[#243b53] md:text-3xl">
-                                        Data Siswa
-                                    </h1>
+                                    <h1 className="text-2xl font-bold tracking-tight text-[#243b53] md:text-3xl">Data Siswa</h1>
 
                                     <p className="mt-2 max-w-xl text-sm leading-6 text-[#627d98]">
-                                        Kelola identitas, kelas,
-                                        status, dan informasi siswa
-                                        yang terdaftar di SchoolSafe.
+                                        Kelola identitas, kelas, status, dan informasi siswa yang terdaftar di SchoolSafe.
                                     </p>
                                 </div>
                             </div>
 
                             <Link
                                 href="/students/create"
-                                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-5 text-sm font-semibold text-white shadow-md shadow-blue-200/60 transition hover:-translate-y-0.5 hover:bg-[#4c7fd9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#bdd7f3]"
+                                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-5 text-sm font-semibold text-white shadow-md shadow-blue-200/60 transition hover:-translate-y-0.5 hover:bg-[#4c7fd9] focus-visible:ring-2 focus-visible:ring-[#bdd7f3] focus-visible:outline-none"
                             >
-                                <Plus
-                                    aria-hidden="true"
-                                    className="size-4"
-                                />
-
+                                <Plus aria-hidden="true" className="size-4" />
                                 Tambah Siswa
                             </Link>
                         </div>
                     </section>
 
                     {/* Ringkasan */}
-                    <section
-                        aria-label="Ringkasan data siswa"
-                        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
-                    >
+                    <section aria-label="Ringkasan data siswa" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         <SummaryCard
                             title="Total Siswa"
                             value={students.total}
@@ -271,15 +214,9 @@ export default function StudentsIndex({
                     <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm">
                         <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                             <div>
-                                <h2 className="font-bold text-[#243b53]">
-                                    Cari dan Filter
-                                </h2>
+                                <h2 className="font-bold text-[#243b53]">Cari dan Filter</h2>
 
-                                <p className="mt-1 text-sm text-[#829ab1]">
-                                    Temukan siswa berdasarkan nama,
-                                    nomor siswa, NISN, kelas, atau
-                                    status.
-                                </p>
+                                <p className="mt-1 text-sm text-[#829ab1]">Temukan siswa berdasarkan nama, nomor siswa, NISN, kelas, atau status.</p>
                             </div>
 
                             {hasActiveFilters && (
@@ -289,11 +226,7 @@ export default function StudentsIndex({
                             )}
                         </div>
 
-                        <form
-                            onSubmit={submitFilters}
-                            className="grid gap-3 lg:grid-cols-[minmax(260px,1fr)_210px_190px_auto]"
-                            role="search"
-                        >
+                        <form onSubmit={submitFilters} className="grid gap-3 lg:grid-cols-[minmax(260px,1fr)_210px_190px_auto]" role="search">
                             <div className="relative">
                                 <Search
                                     aria-hidden="true"
@@ -303,93 +236,50 @@ export default function StudentsIndex({
                                 <input
                                     type="search"
                                     value={search}
-                                    onChange={(event) =>
-                                        setSearch(
-                                            event.currentTarget
-                                                .value,
-                                        )
-                                    }
+                                    onChange={(event) => setSearch(event.currentTarget.value)}
                                     autoComplete="off"
                                     placeholder="Cari nama, nomor siswa, atau NISN..."
                                     aria-label="Cari siswa"
-                                    className="h-11 w-full rounded-xl border border-[#d9e5ee] bg-[#fbfdff] pr-4 pl-10 text-sm text-[#334e68] outline-none transition placeholder:text-[#bcccdc] focus:border-[#7fa9d8] focus:ring-2 focus:ring-[#dcebf8]"
+                                    className="h-11 w-full rounded-xl border border-[#d9e5ee] bg-[#fbfdff] pr-4 pl-10 text-sm text-[#334e68] transition outline-none placeholder:text-[#bcccdc] focus:border-[#7fa9d8] focus:ring-2 focus:ring-[#dcebf8]"
                                 />
                             </div>
 
                             <select
                                 value={classId}
-                                onChange={(event) =>
-                                    setClassId(
-                                        event.currentTarget.value,
-                                    )
-                                }
+                                onChange={(event) => setClassId(event.currentTarget.value)}
                                 aria-label="Filter kelas"
-                                className="h-11 rounded-xl border border-[#d9e5ee] bg-[#fbfdff] px-3 text-sm text-[#486581] outline-none transition focus:border-[#7fa9d8] focus:ring-2 focus:ring-[#dcebf8]"
+                                className="h-11 rounded-xl border border-[#d9e5ee] bg-[#fbfdff] px-3 text-sm text-[#486581] transition outline-none focus:border-[#7fa9d8] focus:ring-2 focus:ring-[#dcebf8]"
                             >
-                                <option value="">
-                                    Semua kelas
-                                </option>
+                                <option value="">Semua kelas</option>
 
-                                {classes.map(
-                                    (schoolClass) => (
-                                        <option
-                                            key={
-                                                schoolClass.id
-                                            }
-                                            value={
-                                                schoolClass.id
-                                            }
-                                        >
-                                            Kelas{' '}
-                                            {
-                                                schoolClass.name
-                                            }{' '}
-                                            ·{' '}
-                                            {
-                                                schoolClass.academic_year
-                                            }
-                                        </option>
-                                    ),
-                                )}
+                                {classes.map((schoolClass) => (
+                                    <option key={schoolClass.id} value={schoolClass.id}>
+                                        Kelas {schoolClass.name} · {schoolClass.academic_year}
+                                    </option>
+                                ))}
                             </select>
 
                             <select
                                 value={status}
-                                onChange={(event) =>
-                                    setStatus(
-                                        event.currentTarget.value,
-                                    )
-                                }
+                                onChange={(event) => setStatus(event.currentTarget.value)}
                                 aria-label="Filter status"
-                                className="h-11 rounded-xl border border-[#d9e5ee] bg-[#fbfdff] px-3 text-sm text-[#486581] outline-none transition focus:border-[#7fa9d8] focus:ring-2 focus:ring-[#dcebf8]"
+                                className="h-11 rounded-xl border border-[#d9e5ee] bg-[#fbfdff] px-3 text-sm text-[#486581] transition outline-none focus:border-[#7fa9d8] focus:ring-2 focus:ring-[#dcebf8]"
                             >
-                                <option value="">
-                                    Semua status
-                                </option>
+                                <option value="">Semua status</option>
 
-                                <option value="active">
-                                    Aktif
-                                </option>
+                                <option value="active">Aktif</option>
 
-                                <option value="inactive">
-                                    Tidak aktif
-                                </option>
+                                <option value="inactive">Tidak aktif</option>
 
-                                <option value="graduated">
-                                    Lulus
-                                </option>
+                                <option value="graduated">Lulus</option>
                             </select>
 
                             <div className="flex gap-2">
                                 <button
                                     type="submit"
-                                    className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-4 text-sm font-semibold text-white transition hover:bg-[#4c7fd9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#bdd7f3]"
+                                    className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-4 text-sm font-semibold text-white transition hover:bg-[#4c7fd9] focus-visible:ring-2 focus-visible:ring-[#bdd7f3] focus-visible:outline-none"
                                 >
-                                    <Filter
-                                        aria-hidden="true"
-                                        className="size-4"
-                                    />
-
+                                    <Filter aria-hidden="true" className="size-4" />
                                     Terapkan
                                 </button>
 
@@ -399,12 +289,9 @@ export default function StudentsIndex({
                                     disabled={!hasActiveFilters}
                                     aria-label="Reset filter"
                                     title="Reset filter"
-                                    className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-[#d9e5ee] bg-white text-[#627d98] transition hover:bg-[#f7fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dcebf8] disabled:cursor-not-allowed disabled:opacity-40"
+                                    className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-[#d9e5ee] bg-white text-[#627d98] transition hover:bg-[#f7fafc] focus-visible:ring-2 focus-visible:ring-[#dcebf8] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
                                 >
-                                    <X
-                                        aria-hidden="true"
-                                        className="size-4"
-                                    />
+                                    <X aria-hidden="true" className="size-4" />
                                 </button>
                             </div>
                         </form>
@@ -414,19 +301,12 @@ export default function StudentsIndex({
                     <section className="overflow-hidden rounded-2xl border border-[#e6eef5] bg-white shadow-sm">
                         <div className="flex flex-col justify-between gap-2 border-b border-[#edf2f7] px-5 py-4 sm:flex-row sm:items-center">
                             <div>
-                                <h2 className="font-bold text-[#243b53]">
-                                    Daftar Siswa
-                                </h2>
+                                <h2 className="font-bold text-[#243b53]">Daftar Siswa</h2>
 
-                                <p className="mt-1 text-sm text-[#829ab1]">
-                                    Menampilkan data siswa yang
-                                    sesuai pencarian dan filter.
-                                </p>
+                                <p className="mt-1 text-sm text-[#829ab1]">Menampilkan data siswa yang sesuai pencarian dan filter.</p>
                             </div>
 
-                            <p className="text-sm font-medium text-[#627d98]">
-                                {students.total} data
-                            </p>
+                            <p className="text-sm font-medium text-[#627d98]">{students.total} data</p>
                         </div>
 
                         {students.data.length > 0 ? (
@@ -437,42 +317,42 @@ export default function StudentsIndex({
                                             <tr className="border-b border-[#e6eef5]">
                                                 <th
                                                     scope="col"
-                                                    className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-[#829ab1]"
+                                                    className="px-5 py-4 text-left text-xs font-semibold tracking-wide text-[#829ab1] uppercase"
                                                 >
                                                     Siswa
                                                 </th>
 
                                                 <th
                                                     scope="col"
-                                                    className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-[#829ab1]"
+                                                    className="px-5 py-4 text-left text-xs font-semibold tracking-wide text-[#829ab1] uppercase"
                                                 >
                                                     Nomor Siswa
                                                 </th>
 
                                                 <th
                                                     scope="col"
-                                                    className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-[#829ab1]"
+                                                    className="px-5 py-4 text-left text-xs font-semibold tracking-wide text-[#829ab1] uppercase"
                                                 >
                                                     Kelas
                                                 </th>
 
                                                 <th
                                                     scope="col"
-                                                    className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-[#829ab1]"
+                                                    className="px-5 py-4 text-left text-xs font-semibold tracking-wide text-[#829ab1] uppercase"
                                                 >
                                                     Jenis Kelamin
                                                 </th>
 
                                                 <th
                                                     scope="col"
-                                                    className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-[#829ab1]"
+                                                    className="px-5 py-4 text-left text-xs font-semibold tracking-wide text-[#829ab1] uppercase"
                                                 >
                                                     Status
                                                 </th>
 
                                                 <th
                                                     scope="col"
-                                                    className="px-5 py-4 text-right text-xs font-semibold uppercase tracking-wide text-[#829ab1]"
+                                                    className="px-5 py-4 text-right text-xs font-semibold tracking-wide text-[#829ab1] uppercase"
                                                 >
                                                     Aksi
                                                 </th>
@@ -480,115 +360,67 @@ export default function StudentsIndex({
                                         </thead>
 
                                         <tbody className="divide-y divide-[#edf2f7]">
-                                            {students.data.map(
-                                                (student) => (
-                                                    <tr
-                                                        key={
-                                                            student.id
-                                                        }
-                                                        className="group transition-colors hover:bg-[#fbfdff]"
-                                                    >
-                                                        <td className="px-5 py-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf3fa] text-sm font-bold text-[#4f7cac] transition group-hover:bg-[#dcecff]">
-                                                                    {
-                                                                        student.initials
-                                                                    }
-                                                                </div>
-
-                                                                <div className="min-w-0">
-                                                                    <Link
-                                                                        href={`/students/${student.id}`}
-                                                                        className="block truncate font-semibold text-[#334e68] transition hover:text-[#4f7cac]"
-                                                                    >
-                                                                        {
-                                                                            student.full_name
-                                                                        }
-                                                                    </Link>
-
-                                                                    <p className="mt-0.5 truncate text-xs text-[#829ab1]">
-                                                                        NISN:{' '}
-                                                                        {student.nisn ??
-                                                                            '-'}
-                                                                    </p>
-                                                                </div>
+                                            {students.data.map((student) => (
+                                                <tr key={student.id} className="group transition-colors hover:bg-[#fbfdff]">
+                                                    <td className="px-5 py-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf3fa] text-sm font-bold text-[#4f7cac] transition group-hover:bg-[#dcecff]">
+                                                                {student.initials}
                                                             </div>
-                                                        </td>
 
-                                                        <td className="px-5 py-4">
-                                                            <span className="font-mono text-sm font-medium text-[#627d98]">
-                                                                {
-                                                                    student.student_number
-                                                                }
-                                                            </span>
-                                                        </td>
+                                                            <div className="min-w-0">
+                                                                <Link
+                                                                    href={`/students/${student.id}`}
+                                                                    className="block truncate font-semibold text-[#334e68] transition hover:text-[#4f7cac]"
+                                                                >
+                                                                    {student.full_name}
+                                                                </Link>
 
-                                                        <td className="px-5 py-4">
-                                                            <div className="inline-flex flex-col rounded-xl bg-[#eef6ff] px-3 py-2">
-                                                                <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#4f7cac]">
-                                                                    <GraduationCap
-                                                                        aria-hidden="true"
-                                                                        className="size-4"
-                                                                    />
-
-                                                                    Kelas{' '}
-                                                                    {
-                                                                        student
-                                                                            .class
-                                                                            .name
-                                                                    }
-                                                                </span>
-
-                                                                <span className="mt-0.5 pl-6 text-[11px] text-[#829ab1]">
-                                                                    {
-                                                                        student
-                                                                            .class
-                                                                            .academic_year
-                                                                    }
-                                                                </span>
+                                                                <p className="mt-0.5 truncate text-xs text-[#829ab1]">NISN: {student.nisn ?? '-'}</p>
                                                             </div>
-                                                        </td>
+                                                        </div>
+                                                    </td>
 
-                                                        <td className="px-5 py-4 text-sm text-[#627d98]">
-                                                            {
-                                                                genderLabels[
-                                                                    student
-                                                                        .gender
-                                                                ]
-                                                            }
-                                                        </td>
+                                                    <td className="px-5 py-4">
+                                                        <span className="font-mono text-sm font-medium text-[#627d98]">{student.student_number}</span>
+                                                    </td>
 
-                                                        <td className="px-5 py-4">
-                                                            <span
-                                                                className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${statusStyles[student.status]}`}
-                                                            >
-                                                                {
-                                                                    statusLabels[
-                                                                        student
-                                                                            .status
-                                                                    ]
-                                                                }
+                                                    <td className="px-5 py-4">
+                                                        <div className="inline-flex flex-col rounded-xl bg-[#eef6ff] px-3 py-2">
+                                                            <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#4f7cac]">
+                                                                <GraduationCap aria-hidden="true" className="size-4" />
+                                                                Kelas {student.class.name}
                                                             </span>
-                                                        </td>
 
-                                                        <td className="px-5 py-4 text-right">
-                                                            <Link
-                                                                href={`/students/${student.id}`}
-                                                                title={`Lihat detail ${student.full_name}`}
-                                                                aria-label={`Lihat detail ${student.full_name}`}
-                                                                className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-[#dce6ee] bg-white px-3 text-xs font-semibold text-[#627d98] transition hover:border-[#bdd7f0] hover:bg-[#eef6ff] hover:text-[#4f7cac] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dcebf8]"
-                                                            >
-                                                                <Eye
-                                                                    aria-hidden="true"
-                                                                    className="size-4"
-                                                                />
+                                                            <span className="mt-0.5 pl-6 text-[11px] text-[#829ab1]">
+                                                                {student.class.academic_year}
+                                                            </span>
+                                                        </div>
+                                                    </td>
 
-                                                                Detail
-                                                            </Link>
-                                                        </td>
-                                                    </tr>
-                                                ),
-                                            )}
+                                                    <td className="px-5 py-4 text-sm text-[#627d98]">{genderLabels[student.gender]}</td>
+
+                                                    <td className="px-5 py-4">
+                                                        <span
+                                                            className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${statusStyles[student.status]}`}
+                                                        >
+                                                            {statusLabels[student.status]}
+                                                        </span>
+                                                    </td>
+
+                                                    <td className="px-5 py-4 text-right">
+                                                        <Link
+                                                            href={`/students/${student.id}`}
+                                                            title={`Lihat detail ${student.full_name}`}
+                                                            aria-label={`Lihat detail ${student.full_name}`}
+                                                            className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-[#dce6ee] bg-white px-3 text-xs font-semibold text-[#627d98] transition hover:border-[#bdd7f0] hover:bg-[#eef6ff] hover:text-[#4f7cac] focus-visible:ring-2 focus-visible:ring-[#dcebf8] focus-visible:outline-none"
+                                                        >
+                                                            <Eye aria-hidden="true" className="size-4" />
+                                                            Detail
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
                                 </div>
@@ -596,88 +428,55 @@ export default function StudentsIndex({
                                 {/* Pagination */}
                                 <div className="flex flex-col justify-between gap-4 border-t border-[#edf2f7] px-5 py-4 sm:flex-row sm:items-center">
                                     <p className="text-sm text-[#829ab1]">
-                                        Menampilkan{' '}
-                                        {students.from ?? 0}–
-                                        {students.to ?? 0} dari{' '}
-                                        {students.total} siswa
+                                        Menampilkan {students.from ?? 0}–{students.to ?? 0} dari {students.total} siswa
                                     </p>
 
-                                    <nav
-                                        aria-label="Navigasi halaman siswa"
-                                        className="flex flex-wrap gap-1"
-                                    >
-                                        {students.links.map(
-                                            (link, index) => {
-                                                const label =
-                                                    formatPaginationLabel(
-                                                        link.label,
-                                                    );
+                                    <nav aria-label="Navigasi halaman siswa" className="flex flex-wrap gap-1">
+                                        {students.links.map((link, index) => {
+                                            const label = formatPaginationLabel(link.label);
 
-                                                if (
-                                                    link.url ===
-                                                    null
-                                                ) {
-                                                    return (
-                                                        <span
-                                                            key={`${link.label}-${index}`}
-                                                            aria-disabled="true"
-                                                            className="inline-flex min-h-9 min-w-9 cursor-not-allowed items-center justify-center rounded-lg border border-[#edf2f7] px-3 text-sm text-[#bcccdc]"
-                                                        >
-                                                            {
-                                                                label
-                                                            }
-                                                        </span>
-                                                    );
-                                                }
-
+                                            if (link.url === null) {
                                                 return (
-                                                    <Link
+                                                    <span
                                                         key={`${link.label}-${index}`}
-                                                        href={
-                                                            link.url
-                                                        }
-                                                        preserveScroll
-                                                        aria-current={
-                                                            link.active
-                                                                ? 'page'
-                                                                : undefined
-                                                        }
-                                                        className={[
-                                                            'inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg px-3 text-sm font-medium transition',
-                                                            link.active
-                                                                ? 'bg-[#5b8def] text-white shadow-sm'
-                                                                : 'border border-[#e6eef5] bg-white text-[#627d98] hover:bg-[#f7fafc]',
-                                                        ].join(
-                                                            ' ',
-                                                        )}
+                                                        aria-disabled="true"
+                                                        className="inline-flex min-h-9 min-w-9 cursor-not-allowed items-center justify-center rounded-lg border border-[#edf2f7] px-3 text-sm text-[#bcccdc]"
                                                     >
-                                                        {
-                                                            label
-                                                        }
-                                                    </Link>
+                                                        {label}
+                                                    </span>
                                                 );
-                                            },
-                                        )}
+                                            }
+
+                                            return (
+                                                <Link
+                                                    key={`${link.label}-${index}`}
+                                                    href={link.url}
+                                                    preserveScroll
+                                                    aria-current={link.active ? 'page' : undefined}
+                                                    className={[
+                                                        'inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg px-3 text-sm font-medium transition',
+                                                        link.active
+                                                            ? 'bg-[#5b8def] text-white shadow-sm'
+                                                            : 'border border-[#e6eef5] bg-white text-[#627d98] hover:bg-[#f7fafc]',
+                                                    ].join(' ')}
+                                                >
+                                                    {label}
+                                                </Link>
+                                            );
+                                        })}
                                     </nav>
                                 </div>
                             </>
                         ) : (
                             <div className="px-6 py-16 text-center">
                                 <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-[#f1f6fa] text-[#9fb3c8]">
-                                    <UsersRound
-                                        aria-hidden="true"
-                                        className="size-8"
-                                    />
+                                    <UsersRound aria-hidden="true" className="size-8" />
                                 </div>
 
-                                <h3 className="mt-5 font-semibold text-[#334e68]">
-                                    Data siswa tidak ditemukan
-                                </h3>
+                                <h3 className="mt-5 font-semibold text-[#334e68]">Data siswa tidak ditemukan</h3>
 
                                 <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#829ab1]">
-                                    Tidak ada siswa yang sesuai
-                                    dengan pencarian atau filter yang
-                                    digunakan.
+                                    Tidak ada siswa yang sesuai dengan pencarian atau filter yang digunakan.
                                 </p>
 
                                 {hasActiveFilters ? (
@@ -710,15 +509,10 @@ export default function StudentsIndex({
                             </div>
 
                             <div>
-                                <h2 className="font-semibold text-[#334e68]">
-                                    Lihat informasi lengkap siswa
-                                </h2>
+                                <h2 className="font-semibold text-[#334e68]">Lihat informasi lengkap siswa</h2>
 
                                 <p className="mt-1 text-sm leading-6 text-[#627d98]">
-                                    Gunakan tombol Detail untuk
-                                    melihat, mengedit, mengaktifkan,
-                                    menonaktifkan, atau mengarsipkan
-                                    siswa.
+                                    Gunakan tombol Detail untuk melihat, mengedit, mengaktifkan, menonaktifkan, atau mengarsipkan siswa.
                                 </p>
                             </div>
                         </div>
@@ -739,43 +533,24 @@ export default function StudentsIndex({
     );
 }
 
-function SummaryCard({
-    title,
-    value,
-    description,
-    icon: Icon,
-    tone,
-}: SummaryCardProps) {
+function SummaryCard({ title, value, description, icon: Icon, tone }: SummaryCardProps) {
     const styles = summaryToneStyles[tone];
 
     return (
-        <article
-            className={`rounded-2xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}
-        >
+        <article className={`rounded-2xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}>
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p className="text-sm font-medium text-[#627d98]">
-                        {title}
-                    </p>
+                    <p className="text-sm font-medium text-[#627d98]">{title}</p>
 
-                    <p className="mt-2 text-3xl font-bold tracking-tight text-[#243b53]">
-                        {value}
-                    </p>
+                    <p className="mt-2 text-3xl font-bold tracking-tight text-[#243b53]">{value}</p>
                 </div>
 
-                <div
-                    className={`flex size-11 shrink-0 items-center justify-center rounded-xl shadow-sm ${styles.icon}`}
-                >
-                    <Icon
-                        aria-hidden="true"
-                        className="size-5"
-                    />
+                <div className={`flex size-11 shrink-0 items-center justify-center rounded-xl shadow-sm ${styles.icon}`}>
+                    <Icon aria-hidden="true" className="size-5" />
                 </div>
             </div>
 
-            <p className="mt-4 text-xs leading-5 text-[#829ab1]">
-                {description}
-            </p>
+            <p className="mt-4 text-xs leading-5 text-[#829ab1]">{description}</p>
         </article>
     );
 }

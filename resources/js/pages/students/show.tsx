@@ -1,16 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    BookOpen,
-    CalendarDays,
-    GraduationCap,
-    Hash,
-    Pencil,
-    Power,
-    ShieldCheck,
-    Trash2,
-    UserRound,
-} from 'lucide-react';
+import { ArrowLeft, BookOpen, CalendarDays, GraduationCap, Hash, Pencil, Power, ShieldCheck, Trash2, UserRound } from 'lucide-react';
 import { useState } from 'react';
 
 import AppLayout from '@/layouts/app-layout';
@@ -53,24 +42,15 @@ const statusLabels: Record<Student['status'], string> = {
     graduated: 'Lulus',
 };
 
-export default function StudentShow({
-    student,
-}: StudentShowProps) {
-    const [processingStatus, setProcessingStatus] =
-        useState(false);
+export default function StudentShow({ student }: StudentShowProps) {
+    const [processingStatus, setProcessingStatus] = useState(false);
 
-    const [processingDelete, setProcessingDelete] =
-        useState(false);
+    const [processingDelete, setProcessingDelete] = useState(false);
 
     const toggleStatus = () => {
-        const action =
-            student.status === 'active'
-                ? 'menonaktifkan'
-                : 'mengaktifkan';
+        const action = student.status === 'active' ? 'menonaktifkan' : 'mengaktifkan';
 
-        const confirmed = window.confirm(
-            `Apakah Anda yakin ingin ${action} ${student.full_name}?`,
-        );
+        const confirmed = window.confirm(`Apakah Anda yakin ingin ${action} ${student.full_name}?`);
 
         if (!confirmed) {
             return;
@@ -88,9 +68,7 @@ export default function StudentShow({
     };
 
     const deleteStudent = () => {
-        const confirmed = window.confirm(
-            `Pindahkan data ${student.full_name} ke arsip?`,
-        );
+        const confirmed = window.confirm(`Pindahkan data ${student.full_name} ke arsip?`);
 
         if (!confirmed) {
             return;
@@ -124,19 +102,14 @@ export default function StudentShow({
                                 </div>
 
                                 <div>
-                                    <span
-                                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[student.status]}`}
-                                    >
+                                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[student.status]}`}>
                                         {statusLabels[student.status]}
                                     </span>
 
-                                    <h1 className="mt-3 text-2xl font-bold text-[#243b53] md:text-3xl">
-                                        {student.full_name}
-                                    </h1>
+                                    <h1 className="mt-3 text-2xl font-bold text-[#243b53] md:text-3xl">{student.full_name}</h1>
 
                                     <p className="mt-1 text-sm text-[#627d98]">
-                                        Kelas {student.class.name} ·{' '}
-                                        {student.student_number}
+                                        Kelas {student.class.name} · {student.student_number}
                                     </p>
                                 </div>
                             </div>
@@ -159,11 +132,7 @@ export default function StudentShow({
                                     >
                                         <Power className="size-4" />
 
-                                        {processingStatus
-                                            ? 'Memproses...'
-                                            : student.status === 'active'
-                                              ? 'Nonaktifkan'
-                                              : 'Aktifkan'}
+                                        {processingStatus ? 'Memproses...' : student.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
                                     </button>
                                 )}
 
@@ -175,9 +144,7 @@ export default function StudentShow({
                                 >
                                     <Trash2 className="size-4" />
 
-                                    {processingDelete
-                                        ? 'Menghapus...'
-                                        : 'Arsipkan'}
+                                    {processingDelete ? 'Menghapus...' : 'Arsipkan'}
                                 </button>
                             </div>
                         </div>
@@ -191,46 +158,20 @@ export default function StudentShow({
                                 </div>
 
                                 <div>
-                                    <h2 className="font-bold text-[#243b53]">
-                                        Identitas Siswa
-                                    </h2>
+                                    <h2 className="font-bold text-[#243b53]">Identitas Siswa</h2>
 
-                                    <p className="text-sm text-[#829ab1]">
-                                        Informasi pribadi siswa.
-                                    </p>
+                                    <p className="text-sm text-[#829ab1]">Informasi pribadi siswa.</p>
                                 </div>
                             </div>
 
                             <div className="grid gap-5 sm:grid-cols-2">
-                                <InfoItem
-                                    icon={Hash}
-                                    label="Nomor Siswa"
-                                    value={student.student_number}
-                                />
+                                <InfoItem icon={Hash} label="Nomor Siswa" value={student.student_number} />
 
-                                <InfoItem
-                                    icon={ShieldCheck}
-                                    label="NISN"
-                                    value={student.nisn ?? '-'}
-                                />
+                                <InfoItem icon={ShieldCheck} label="NISN" value={student.nisn ?? '-'} />
 
-                                <InfoItem
-                                    icon={UserRound}
-                                    label="Jenis Kelamin"
-                                    value={
-                                        student.gender === 'male'
-                                            ? 'Laki-laki'
-                                            : 'Perempuan'
-                                    }
-                                />
+                                <InfoItem icon={UserRound} label="Jenis Kelamin" value={student.gender === 'male' ? 'Laki-laki' : 'Perempuan'} />
 
-                                <InfoItem
-                                    icon={CalendarDays}
-                                    label="Tanggal Lahir"
-                                    value={
-                                        student.date_of_birth ?? '-'
-                                    }
-                                />
+                                <InfoItem icon={CalendarDays} label="Tanggal Lahir" value={student.date_of_birth ?? '-'} />
                             </div>
                         </section>
 
@@ -241,49 +182,27 @@ export default function StudentShow({
                                 </div>
 
                                 <div>
-                                    <h2 className="font-bold text-[#243b53]">
-                                        Informasi Akademik
-                                    </h2>
+                                    <h2 className="font-bold text-[#243b53]">Informasi Akademik</h2>
 
-                                    <p className="text-sm text-[#829ab1]">
-                                        Kelas dan tahun ajaran.
-                                    </p>
+                                    <p className="text-sm text-[#829ab1]">Kelas dan tahun ajaran.</p>
                                 </div>
                             </div>
 
                             <div className="space-y-5">
-                                <InfoItem
-                                    icon={BookOpen}
-                                    label="Kelas"
-                                    value={`Kelas ${student.class.name}`}
-                                />
+                                <InfoItem icon={BookOpen} label="Kelas" value={`Kelas ${student.class.name}`} />
 
-                                <InfoItem
-                                    icon={CalendarDays}
-                                    label="Tahun Ajaran"
-                                    value={student.class.academic_year}
-                                />
+                                <InfoItem icon={CalendarDays} label="Tahun Ajaran" value={student.class.academic_year} />
 
-                                <InfoItem
-                                    icon={UserRound}
-                                    label="Wali Kelas"
-                                    value={
-                                        student.class
-                                            .homeroom_teacher ?? '-'
-                                    }
-                                />
+                                <InfoItem icon={UserRound} label="Wali Kelas" value={student.class.homeroom_teacher ?? '-'} />
                             </div>
                         </section>
                     </div>
 
                     <section className="mt-6 rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm md:p-7">
-                        <h2 className="font-bold text-[#243b53]">
-                            Catatan Siswa
-                        </h2>
+                        <h2 className="font-bold text-[#243b53]">Catatan Siswa</h2>
 
-                        <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#627d98]">
-                            {student.notes ||
-                                'Belum ada catatan khusus untuk siswa ini.'}
+                        <p className="mt-3 text-sm leading-7 whitespace-pre-wrap text-[#627d98]">
+                            {student.notes || 'Belum ada catatan khusus untuk siswa ini.'}
                         </p>
                     </section>
                 </div>
@@ -298,11 +217,7 @@ interface InfoItemProps {
     value: string;
 }
 
-function InfoItem({
-    icon: Icon,
-    label,
-    value,
-}: InfoItemProps) {
+function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
     return (
         <div className="flex items-start gap-3">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#f5f8fb] text-[#829ab1]">
@@ -310,13 +225,9 @@ function InfoItem({
             </div>
 
             <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[#9fb3c8]">
-                    {label}
-                </p>
+                <p className="text-xs font-medium tracking-wide text-[#9fb3c8] uppercase">{label}</p>
 
-                <p className="mt-1 text-sm font-semibold text-[#334e68]">
-                    {value}
-                </p>
+                <p className="mt-1 text-sm font-semibold text-[#334e68]">{value}</p>
             </div>
         </div>
     );

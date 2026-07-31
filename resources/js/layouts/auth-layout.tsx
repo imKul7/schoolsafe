@@ -1,9 +1,4 @@
-import {
-    BellRing,
-    ScanFace,
-    ShieldCheck,
-    UserRoundCheck,
-} from 'lucide-react';
+import { BellRing, ScanFace, ShieldCheck, UserRoundCheck } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 interface AuthLayoutProps {
@@ -30,16 +25,12 @@ const features = [
     },
 ];
 
-export default function AuthLayout({
-    title = 'Selamat datang',
-    description = 'Masuk untuk mengelola SchoolSafe.',
-    children,
-}: AuthLayoutProps) {
+export default function AuthLayout({ title = 'Selamat datang', description = 'Masuk untuk mengelola SchoolSafe.', children }: AuthLayoutProps) {
     return (
         <main className="min-h-screen bg-[#f7fafc]">
             <div className="grid min-h-screen lg:grid-cols-[1.08fr_0.92fr]">
                 <section className="relative hidden overflow-hidden bg-gradient-to-br from-[#edf7ff] via-[#f2fbfa] to-[#fffaf0] p-10 lg:flex lg:flex-col xl:p-14">
-                    <div className="absolute -left-24 top-24 size-72 rounded-full bg-[#b8d9f3]/35 blur-3xl" />
+                    <div className="absolute top-24 -left-24 size-72 rounded-full bg-[#b8d9f3]/35 blur-3xl" />
                     <div className="absolute -right-20 bottom-10 size-80 rounded-full bg-[#bce8df]/40 blur-3xl" />
 
                     <div className="relative z-10 flex items-center gap-3">
@@ -48,12 +39,8 @@ export default function AuthLayout({
                         </div>
 
                         <div>
-                            <h1 className="text-xl font-bold text-[#243b53]">
-                                SchoolSafe
-                            </h1>
-                            <p className="text-sm text-[#627d98]">
-                                Smart Student Pickup System
-                            </p>
+                            <h1 className="text-xl font-bold text-[#243b53]">SchoolSafe</h1>
+                            <p className="text-sm text-[#627d98]">Smart Student Pickup System</p>
                         </div>
                     </div>
 
@@ -63,15 +50,13 @@ export default function AuthLayout({
                             Penjemputan aman setiap hari
                         </div>
 
-                        <h2 className="max-w-lg text-4xl font-bold leading-tight tracking-tight text-[#243b53] xl:text-5xl">
-                            Pastikan setiap siswa pulang bersama orang yang
-                            tepat.
+                        <h2 className="max-w-lg text-4xl leading-tight font-bold tracking-tight text-[#243b53] xl:text-5xl">
+                            Pastikan setiap siswa pulang bersama orang yang tepat.
                         </h2>
 
                         <p className="mt-5 max-w-lg text-base leading-7 text-[#627d98]">
-                            Verifikasi identitas penjemput, kelola izin orang
-                            tua, dan pantau aktivitas penjemputan dalam satu
-                            sistem yang nyaman digunakan.
+                            Verifikasi identitas penjemput, kelola izin orang tua, dan pantau aktivitas penjemputan dalam satu sistem yang nyaman
+                            digunakan.
                         </p>
 
                         <div className="mt-9 grid gap-3">
@@ -88,12 +73,8 @@ export default function AuthLayout({
                                         </div>
 
                                         <div>
-                                            <h3 className="font-semibold text-[#334e68]">
-                                                {feature.title}
-                                            </h3>
-                                            <p className="mt-1 text-sm leading-5 text-[#829ab1]">
-                                                {feature.description}
-                                            </p>
+                                            <h3 className="font-semibold text-[#334e68]">{feature.title}</h3>
+                                            <p className="mt-1 text-sm leading-5 text-[#829ab1]">{feature.description}</p>
                                         </div>
                                     </div>
                                 );
@@ -101,9 +82,7 @@ export default function AuthLayout({
                         </div>
                     </div>
 
-                    <p className="relative z-10 text-sm text-[#829ab1]">
-                        © 2026 SchoolSafe. Keamanan siswa adalah prioritas.
-                    </p>
+                    <p className="relative z-10 text-sm text-[#829ab1]">© 2026 SchoolSafe. Keamanan siswa adalah prioritas.</p>
                 </section>
 
                 <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
@@ -114,12 +93,8 @@ export default function AuthLayout({
                             </div>
 
                             <div>
-                                <div className="font-bold text-[#243b53]">
-                                    SchoolSafe
-                                </div>
-                                <div className="text-xs text-[#829ab1]">
-                                    Smart Pickup System
-                                </div>
+                                <div className="font-bold text-[#243b53]">SchoolSafe</div>
+                                <div className="text-xs text-[#829ab1]">Smart Pickup System</div>
                             </div>
                         </div>
 
@@ -129,21 +104,16 @@ export default function AuthLayout({
                                     <ShieldCheck className="size-6" />
                                 </div>
 
-                                <h2 className="text-2xl font-bold tracking-tight text-[#243b53]">
-                                    {title}
-                                </h2>
+                                <h2 className="text-2xl font-bold tracking-tight text-[#243b53]">{title}</h2>
 
-                                <p className="mt-2 text-sm leading-6 text-[#829ab1]">
-                                    {description}
-                                </p>
+                                <p className="mt-2 text-sm leading-6 text-[#829ab1]">{description}</p>
                             </div>
 
                             {children}
                         </div>
 
                         <p className="mt-6 text-center text-xs leading-5 text-[#9fb3c8]">
-                            Akses hanya diperuntukkan bagi petugas yang telah
-                            mendapatkan izin.
+                            Akses hanya diperuntukkan bagi petugas yang telah mendapatkan izin.
                         </p>
                     </div>
                 </section>

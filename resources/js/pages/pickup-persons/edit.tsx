@@ -19,20 +19,9 @@ import { type FormEventHandler } from 'react';
 import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 
-type FaceStatus =
-    | 'not_registered'
-    | 'registered'
-    | 'needs_update';
+type FaceStatus = 'not_registered' | 'registered' | 'needs_update';
 
-type RelationshipType =
-    | ''
-    | 'father'
-    | 'mother'
-    | 'sibling'
-    | 'relative'
-    | 'driver'
-    | 'guardian'
-    | 'other';
+type RelationshipType = '' | 'father' | 'mother' | 'sibling' | 'relative' | 'driver' | 'guardian' | 'other';
 
 interface StudentOption {
     id: number;
@@ -55,10 +44,7 @@ interface StudentLinkForm {
 }
 
 interface PickupPersonForm {
-    [key: string]:
-        | string
-        | boolean
-        | StudentLinkForm[];
+    [key: string]: string | boolean | StudentLinkForm[];
 
     full_name: string;
     identity_number: string;
@@ -132,16 +118,7 @@ const relationshipOptions: Array<{
     },
 ];
 
-const validRelationshipTypes: RelationshipType[] = [
-    '',
-    'father',
-    'mother',
-    'sibling',
-    'relative',
-    'driver',
-    'guardian',
-    'other',
-];
+const validRelationshipTypes: RelationshipType[] = ['', 'father', 'mother', 'sibling', 'relative', 'driver', 'guardian', 'other'];
 
 function emptyStudentLink(): StudentLinkForm {
     return {
@@ -154,9 +131,7 @@ function emptyStudentLink(): StudentLinkForm {
     };
 }
 
-function normalizeDate(
-    value: string | null | undefined,
-): string {
+function normalizeDate(value: string | null | undefined): string {
     if (!value) {
         return '';
     }
@@ -164,61 +139,37 @@ function normalizeDate(
     return value.slice(0, 10);
 }
 
-function normalizeRelationshipType(
-    value: string,
-): RelationshipType {
-    if (
-        validRelationshipTypes.includes(
-            value as RelationshipType,
-        )
-    ) {
+function normalizeRelationshipType(value: string): RelationshipType {
+    if (validRelationshipTypes.includes(value as RelationshipType)) {
         return value as RelationshipType;
     }
 
     return 'other';
 }
 
-function normalizeStudentLinks(
-    studentLinks: PickupPersonStudentPayload[],
-): StudentLinkForm[] {
+function normalizeStudentLinks(studentLinks: PickupPersonStudentPayload[]): StudentLinkForm[] {
     if (studentLinks.length === 0) {
         return [emptyStudentLink()];
     }
 
     return studentLinks.map(
         (studentLink): StudentLinkForm => ({
-            student_id: String(
-                studentLink.student_id,
-            ),
+            student_id: String(studentLink.student_id),
 
-            relationship_type:
-                normalizeRelationshipType(
-                    studentLink.relationship_type,
-                ),
+            relationship_type: normalizeRelationshipType(studentLink.relationship_type),
 
-            is_primary: Boolean(
-                studentLink.is_primary,
-            ),
+            is_primary: Boolean(studentLink.is_primary),
 
-            is_active: Boolean(
-                studentLink.is_active,
-            ),
+            is_active: Boolean(studentLink.is_active),
 
-            valid_from: normalizeDate(
-                studentLink.valid_from,
-            ),
+            valid_from: normalizeDate(studentLink.valid_from),
 
-            valid_until: normalizeDate(
-                studentLink.valid_until,
-            ),
+            valid_until: normalizeDate(studentLink.valid_until),
         }),
     );
 }
 
-function inputClass(
-    hasError: boolean,
-    hasIcon = false,
-): string {
+function inputClass(hasError: boolean, hasIcon = false): string {
     return [
         'h-12 w-full rounded-xl border bg-[#fbfdff] px-4',
         'text-sm text-[#334e68] placeholder:text-[#bcccdc]',
@@ -226,116 +177,64 @@ function inputClass(
         'disabled:cursor-not-allowed disabled:bg-[#f5f8fb]',
         'disabled:opacity-70',
         hasIcon ? 'pl-11' : '',
-        hasError
-            ? 'border-[#e97a7a] focus:border-[#e97a7a]'
-            : 'border-[#d9e5ee] focus:border-[#7fa9d8]',
+        hasError ? 'border-[#e97a7a] focus:border-[#e97a7a]' : 'border-[#d9e5ee] focus:border-[#7fa9d8]',
     ]
         .filter(Boolean)
         .join(' ');
 }
 
-function textareaClass(
-    hasError: boolean,
-): string {
+function textareaClass(hasError: boolean): string {
     return [
         'w-full resize-none rounded-xl border bg-[#fbfdff] px-4 py-3',
         'text-sm leading-6 text-[#334e68] placeholder:text-[#bcccdc]',
         'outline-none transition focus:ring-2 focus:ring-[#dcebf8]',
         'disabled:cursor-not-allowed disabled:bg-[#f5f8fb]',
-        hasError
-            ? 'border-[#e97a7a] focus:border-[#e97a7a]'
-            : 'border-[#d9e5ee] focus:border-[#7fa9d8]',
+        hasError ? 'border-[#e97a7a] focus:border-[#e97a7a]' : 'border-[#d9e5ee] focus:border-[#7fa9d8]',
     ].join(' ');
 }
 
-export default function EditPickupPerson({
-    pickupPerson,
-    students = [],
-}: EditPickupPersonProps) {
-    const {
-        data,
-        setData,
-        put,
-        processing,
-        errors,
-        clearErrors,
-        isDirty,
-    } = useForm<PickupPersonForm>({
-        full_name:
-            pickupPerson.full_name ?? '',
+export default function EditPickupPerson({ pickupPerson, students = [] }: EditPickupPersonProps) {
+    const { data, setData, put, processing, errors, clearErrors, isDirty } = useForm<PickupPersonForm>({
+        full_name: pickupPerson.full_name ?? '',
 
-        identity_number:
-            pickupPerson.identity_number ?? '',
+        identity_number: pickupPerson.identity_number ?? '',
 
-        phone:
-            pickupPerson.phone ?? '',
+        phone: pickupPerson.phone ?? '',
 
-        email:
-            pickupPerson.email ?? '',
+        email: pickupPerson.email ?? '',
 
-        address:
-            pickupPerson.address ?? '',
+        address: pickupPerson.address ?? '',
 
-        face_status:
-            pickupPerson.face_status,
+        face_status: pickupPerson.face_status,
 
-        is_active:
-            Boolean(pickupPerson.is_active),
+        is_active: Boolean(pickupPerson.is_active),
 
-        notes:
-            pickupPerson.notes ?? '',
+        notes: pickupPerson.notes ?? '',
 
-        students:
-            normalizeStudentLinks(
-                pickupPerson.students ?? [],
-            ),
+        students: normalizeStudentLinks(pickupPerson.students ?? []),
     });
 
-    const validationErrors =
-        errors as Record<string, string | undefined>;
+    const validationErrors = errors as Record<string, string | undefined>;
 
-    const fieldError = (
-        field: string,
-    ): string | undefined =>
-        validationErrors[field];
+    const fieldError = (field: string): string | undefined => validationErrors[field];
 
-    const clearFieldError = (
-        field: string,
-    ): void => {
-        clearErrors(
-            field as keyof PickupPersonForm,
-        );
+    const clearFieldError = (field: string): void => {
+        clearErrors(field as keyof PickupPersonForm);
     };
 
-    const updateStudentLink = <
-        K extends keyof StudentLinkForm,
-    >(
-        index: number,
-        field: K,
-        value: StudentLinkForm[K],
-    ): void => {
-        const updatedStudents =
-            data.students.map(
-                (
-                    studentLink,
-                    studentIndex,
-                ) =>
-                    studentIndex === index
-                        ? {
-                              ...studentLink,
-                              [field]: value,
-                          }
-                        : studentLink,
-            );
-
-        setData(
-            'students',
-            updatedStudents,
+    const updateStudentLink = <K extends keyof StudentLinkForm>(index: number, field: K, value: StudentLinkForm[K]): void => {
+        const updatedStudents = data.students.map((studentLink, studentIndex) =>
+            studentIndex === index
+                ? {
+                      ...studentLink,
+                      [field]: value,
+                  }
+                : studentLink,
         );
 
-        clearFieldError(
-            `students.${index}.${String(field)}`,
-        );
+        setData('students', updatedStudents);
+
+        clearFieldError(`students.${index}.${String(field)}`);
 
         clearFieldError('students');
     };
@@ -345,25 +244,14 @@ export default function EditPickupPerson({
             return;
         }
 
-        setData(
-            'students',
-            [
-                ...data.students,
-                emptyStudentLink(),
-            ],
-        );
+        setData('students', [...data.students, emptyStudentLink()]);
 
         clearFieldError('students');
     };
 
-    const removeStudentLink = (
-        index: number,
-    ): void => {
+    const removeStudentLink = (index: number): void => {
         if (data.students.length === 1) {
-            setData(
-                'students',
-                [emptyStudentLink()],
-            );
+            setData('students', [emptyStudentLink()]);
 
             clearFieldError('students');
 
@@ -372,37 +260,25 @@ export default function EditPickupPerson({
 
         setData(
             'students',
-            data.students.filter(
-                (
-                    _studentLink,
-                    studentIndex,
-                ) => studentIndex !== index,
-            ),
+            data.students.filter((_studentLink, studentIndex) => studentIndex !== index),
         );
 
         clearFieldError('students');
     };
 
-    const submit: FormEventHandler<
-        HTMLFormElement
-    > = (event) => {
+    const submit: FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
 
         clearErrors();
 
-        put(
-            `/pickup-persons/${pickupPerson.id}`,
-            {
-                preserveScroll: true,
-            },
-        );
+        put(`/pickup-persons/${pickupPerson.id}`, {
+            preserveScroll: true,
+        });
     };
 
     return (
         <AppLayout>
-            <Head
-                title={`Edit ${pickupPerson.full_name}`}
-            />
+            <Head title={`Edit ${pickupPerson.full_name}`} />
 
             <main className="min-h-full bg-[#f8fafc]">
                 <div className="mx-auto w-full max-w-6xl p-4 md:p-6">
@@ -410,11 +286,7 @@ export default function EditPickupPerson({
                         href={`/pickup-persons/${pickupPerson.id}`}
                         className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#627d98] transition hover:text-[#4f7cac]"
                     >
-                        <ArrowLeft
-                            aria-hidden="true"
-                            className="size-4"
-                        />
-
+                        <ArrowLeft aria-hidden="true" className="size-4" />
                         Kembali ke Detail Penjemput
                     </Link>
 
@@ -424,31 +296,17 @@ export default function EditPickupPerson({
                         <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                             <div className="flex items-start gap-4">
                                 <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#5b8def] shadow-sm">
-                                    <UserRoundCheck
-                                        aria-hidden="true"
-                                        className="size-6"
-                                    />
+                                    <UserRoundCheck aria-hidden="true" className="size-6" />
                                 </div>
 
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#829ab1]">
-                                        Data Penjemput
-                                    </p>
+                                    <p className="text-xs font-semibold tracking-[0.16em] text-[#829ab1] uppercase">Data Penjemput</p>
 
-                                    <h1 className="mt-1 text-2xl font-bold text-[#243b53] md:text-3xl">
-                                        Edit Penjemput
-                                    </h1>
+                                    <h1 className="mt-1 text-2xl font-bold text-[#243b53] md:text-3xl">Edit Penjemput</h1>
 
                                     <p className="mt-2 max-w-2xl text-sm leading-6 text-[#627d98]">
-                                        Perbarui identitas,
-                                        status, dan daftar siswa
-                                        yang boleh dijemput oleh{' '}
-                                        <span className="font-semibold text-[#486581]">
-                                            {
-                                                pickupPerson.full_name
-                                            }
-                                        </span>
-                                        .
+                                        Perbarui identitas, status, dan daftar siswa yang boleh dijemput oleh{' '}
+                                        <span className="font-semibold text-[#486581]">{pickupPerson.full_name}</span>.
                                     </p>
                                 </div>
                             </div>
@@ -461,28 +319,15 @@ export default function EditPickupPerson({
                         </div>
                     </section>
 
-                    {Object.keys(errors).length >
-                        0 && (
-                        <section
-                            role="alert"
-                            className="mb-6 rounded-2xl border border-[#f0cece] bg-[#fff4f4] p-4"
-                        >
+                    {Object.keys(errors).length > 0 && (
+                        <section role="alert" className="mb-6 rounded-2xl border border-[#f0cece] bg-[#fff4f4] p-4">
                             <div className="flex items-start gap-3">
-                                <AlertCircle
-                                    aria-hidden="true"
-                                    className="mt-0.5 size-5 shrink-0 text-[#cf6464]"
-                                />
+                                <AlertCircle aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#cf6464]" />
 
                                 <div>
-                                    <h2 className="text-sm font-semibold text-[#a64f4f]">
-                                        Perubahan belum dapat
-                                        disimpan
-                                    </h2>
+                                    <h2 className="text-sm font-semibold text-[#a64f4f]">Perubahan belum dapat disimpan</h2>
 
-                                    <p className="mt-1 text-sm text-[#b46363]">
-                                        Periksa kembali kolom
-                                        yang ditandai merah.
-                                    </p>
+                                    <p className="mt-1 text-sm text-[#b46363]">Periksa kembali kolom yang ditandai merah.</p>
                                 </div>
                             </div>
                         </section>
@@ -491,109 +336,57 @@ export default function EditPickupPerson({
                     {students.length === 0 && (
                         <section className="mb-6 rounded-2xl border border-[#f0dfb6] bg-[#fff8e8] p-4">
                             <div className="flex items-start gap-3">
-                                <AlertCircle
-                                    aria-hidden="true"
-                                    className="mt-0.5 size-5 shrink-0 text-[#b88a22]"
-                                />
+                                <AlertCircle aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#b88a22]" />
 
                                 <div>
-                                    <h2 className="text-sm font-semibold text-[#8b681c]">
-                                        Tidak ada siswa yang
-                                        dapat dipilih
-                                    </h2>
+                                    <h2 className="text-sm font-semibold text-[#8b681c]">Tidak ada siswa yang dapat dipilih</h2>
 
-                                    <p className="mt-1 text-sm text-[#9a741f]">
-                                        Tambahkan atau aktifkan
-                                        data siswa terlebih dahulu.
-                                    </p>
+                                    <p className="mt-1 text-sm text-[#9a741f]">Tambahkan atau aktifkan data siswa terlebih dahulu.</p>
                                 </div>
                             </div>
                         </section>
                     )}
 
-                    <form
-                        onSubmit={submit}
-                        className="space-y-6"
-                        noValidate
-                    >
+                    <form onSubmit={submit} className="space-y-6" noValidate>
                         <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm md:p-7">
                             <div className="mb-6 flex items-center gap-3">
                                 <div className="flex size-10 items-center justify-center rounded-xl bg-[#eef6ff] text-[#5b8def]">
-                                    <UserRoundCheck
-                                        aria-hidden="true"
-                                        className="size-5"
-                                    />
+                                    <UserRoundCheck aria-hidden="true" className="size-5" />
                                 </div>
 
                                 <div>
-                                    <h2 className="font-bold text-[#243b53]">
-                                        Identitas Penjemput
-                                    </h2>
+                                    <h2 className="font-bold text-[#243b53]">Identitas Penjemput</h2>
 
-                                    <p className="text-sm text-[#829ab1]">
-                                        Informasi utama pihak
-                                        yang diizinkan menjemput.
-                                    </p>
+                                    <p className="text-sm text-[#829ab1]">Informasi utama pihak yang diizinkan menjemput.</p>
                                 </div>
                             </div>
 
                             <div className="grid gap-5 md:grid-cols-2">
                                 <div className="md:col-span-2">
-                                    <label
-                                        htmlFor="full_name"
-                                        className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                    >
+                                    <label htmlFor="full_name" className="mb-2 block text-sm font-semibold text-[#334e68]">
                                         Nama lengkap
-
-                                        <span className="ml-1 text-[#e97a7a]">
-                                            *
-                                        </span>
+                                        <span className="ml-1 text-[#e97a7a]">*</span>
                                     </label>
 
                                     <input
                                         id="full_name"
                                         type="text"
-                                        value={
-                                            data.full_name
-                                        }
-                                        onChange={(
-                                            event,
-                                        ) => {
-                                            setData(
-                                                'full_name',
-                                                event
-                                                    .currentTarget
-                                                    .value,
-                                            );
+                                        value={data.full_name}
+                                        onChange={(event) => {
+                                            setData('full_name', event.currentTarget.value);
 
-                                            clearFieldError(
-                                                'full_name',
-                                            );
+                                            clearFieldError('full_name');
                                         }}
-                                        disabled={
-                                            processing
-                                        }
+                                        disabled={processing}
                                         placeholder="Contoh: Budi Pratama"
-                                        className={inputClass(
-                                            Boolean(
-                                                errors.full_name,
-                                            ),
-                                        )}
+                                        className={inputClass(Boolean(errors.full_name))}
                                     />
 
-                                    <InputError
-                                        message={
-                                            errors.full_name
-                                        }
-                                        className="mt-2"
-                                    />
+                                    <InputError message={errors.full_name} className="mt-2" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        htmlFor="identity_number"
-                                        className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                    >
+                                    <label htmlFor="identity_number" className="mb-2 block text-sm font-semibold text-[#334e68]">
                                         Nomor identitas
                                     </label>
 
@@ -608,63 +401,27 @@ export default function EditPickupPerson({
                                             type="text"
                                             inputMode="numeric"
                                             maxLength={30}
-                                            value={
-                                                data.identity_number
-                                            }
-                                            onChange={(
-                                                event,
-                                            ) => {
-                                                const value =
-                                                    event.currentTarget.value
-                                                        .replace(
-                                                            /\D/g,
-                                                            '',
-                                                        )
-                                                        .slice(
-                                                            0,
-                                                            30,
-                                                        );
+                                            value={data.identity_number}
+                                            onChange={(event) => {
+                                                const value = event.currentTarget.value.replace(/\D/g, '').slice(0, 30);
 
-                                                setData(
-                                                    'identity_number',
-                                                    value,
-                                                );
+                                                setData('identity_number', value);
 
-                                                clearFieldError(
-                                                    'identity_number',
-                                                );
+                                                clearFieldError('identity_number');
                                             }}
-                                            disabled={
-                                                processing
-                                            }
+                                            disabled={processing}
                                             placeholder="Nomor KTP atau identitas"
-                                            className={inputClass(
-                                                Boolean(
-                                                    errors.identity_number,
-                                                ),
-                                                true,
-                                            )}
+                                            className={inputClass(Boolean(errors.identity_number), true)}
                                         />
                                     </div>
 
-                                    <InputError
-                                        message={
-                                            errors.identity_number
-                                        }
-                                        className="mt-2"
-                                    />
+                                    <InputError message={errors.identity_number} className="mt-2" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        htmlFor="phone"
-                                        className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                    >
+                                    <label htmlFor="phone" className="mb-2 block text-sm font-semibold text-[#334e68]">
                                         Nomor telepon
-
-                                        <span className="ml-1 text-[#e97a7a]">
-                                            *
-                                        </span>
+                                        <span className="ml-1 text-[#e97a7a]">*</span>
                                     </label>
 
                                     <div className="relative">
@@ -676,49 +433,23 @@ export default function EditPickupPerson({
                                         <input
                                             id="phone"
                                             type="tel"
-                                            value={
-                                                data.phone
-                                            }
-                                            onChange={(
-                                                event,
-                                            ) => {
-                                                setData(
-                                                    'phone',
-                                                    event
-                                                        .currentTarget
-                                                        .value,
-                                                );
+                                            value={data.phone}
+                                            onChange={(event) => {
+                                                setData('phone', event.currentTarget.value);
 
-                                                clearFieldError(
-                                                    'phone',
-                                                );
+                                                clearFieldError('phone');
                                             }}
-                                            disabled={
-                                                processing
-                                            }
+                                            disabled={processing}
                                             placeholder="Contoh: 081298765401"
-                                            className={inputClass(
-                                                Boolean(
-                                                    errors.phone,
-                                                ),
-                                                true,
-                                            )}
+                                            className={inputClass(Boolean(errors.phone), true)}
                                         />
                                     </div>
 
-                                    <InputError
-                                        message={
-                                            errors.phone
-                                        }
-                                        className="mt-2"
-                                    />
+                                    <InputError message={errors.phone} className="mt-2" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        htmlFor="email"
-                                        className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                    >
+                                    <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#334e68]">
                                         Email
                                     </label>
 
@@ -731,54 +462,25 @@ export default function EditPickupPerson({
                                         <input
                                             id="email"
                                             type="email"
-                                            value={
-                                                data.email
-                                            }
-                                            onChange={(
-                                                event,
-                                            ) => {
-                                                setData(
-                                                    'email',
-                                                    event
-                                                        .currentTarget
-                                                        .value,
-                                                );
+                                            value={data.email}
+                                            onChange={(event) => {
+                                                setData('email', event.currentTarget.value);
 
-                                                clearFieldError(
-                                                    'email',
-                                                );
+                                                clearFieldError('email');
                                             }}
-                                            disabled={
-                                                processing
-                                            }
+                                            disabled={processing}
                                             placeholder="nama@email.com"
-                                            className={inputClass(
-                                                Boolean(
-                                                    errors.email,
-                                                ),
-                                                true,
-                                            )}
+                                            className={inputClass(Boolean(errors.email), true)}
                                         />
                                     </div>
 
-                                    <InputError
-                                        message={
-                                            errors.email
-                                        }
-                                        className="mt-2"
-                                    />
+                                    <InputError message={errors.email} className="mt-2" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        htmlFor="face_status"
-                                        className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                    >
+                                    <label htmlFor="face_status" className="mb-2 block text-sm font-semibold text-[#334e68]">
                                         Status wajah
-
-                                        <span className="ml-1 text-[#e97a7a]">
-                                            *
-                                        </span>
+                                        <span className="ml-1 text-[#e97a7a]">*</span>
                                     </label>
 
                                     <div className="relative">
@@ -789,110 +491,51 @@ export default function EditPickupPerson({
 
                                         <select
                                             id="face_status"
-                                            value={
-                                                data.face_status
-                                            }
-                                            onChange={(
-                                                event,
-                                            ) => {
-                                                setData(
-                                                    'face_status',
-                                                    event
-                                                        .currentTarget
-                                                        .value as FaceStatus,
-                                                );
+                                            value={data.face_status}
+                                            onChange={(event) => {
+                                                setData('face_status', event.currentTarget.value as FaceStatus);
 
-                                                clearFieldError(
-                                                    'face_status',
-                                                );
+                                                clearFieldError('face_status');
                                             }}
-                                            disabled={
-                                                processing
-                                            }
-                                            className={inputClass(
-                                                Boolean(
-                                                    errors.face_status,
-                                                ),
-                                                true,
-                                            )}
+                                            disabled={processing}
+                                            className={inputClass(Boolean(errors.face_status), true)}
                                         >
-                                            <option value="not_registered">
-                                                Belum terdaftar
-                                            </option>
+                                            <option value="not_registered">Belum terdaftar</option>
 
-                                            <option value="registered">
-                                                Wajah terdaftar
-                                            </option>
+                                            <option value="registered">Wajah terdaftar</option>
 
-                                            <option value="needs_update">
-                                                Perlu diperbarui
-                                            </option>
+                                            <option value="needs_update">Perlu diperbarui</option>
                                         </select>
                                     </div>
 
-                                    <InputError
-                                        message={
-                                            errors.face_status
-                                        }
-                                        className="mt-2"
-                                    />
+                                    <InputError message={errors.face_status} className="mt-2" />
                                 </div>
 
                                 <div className="md:col-span-2">
-                                    <label
-                                        htmlFor="address"
-                                        className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                    >
+                                    <label htmlFor="address" className="mb-2 block text-sm font-semibold text-[#334e68]">
                                         Alamat
                                     </label>
 
                                     <div className="relative">
-                                        <MapPin
-                                            aria-hidden="true"
-                                            className="pointer-events-none absolute top-3.5 left-3.5 size-4 text-[#9fb3c8]"
-                                        />
+                                        <MapPin aria-hidden="true" className="pointer-events-none absolute top-3.5 left-3.5 size-4 text-[#9fb3c8]" />
 
                                         <textarea
                                             id="address"
                                             rows={4}
-                                            maxLength={
-                                                2000
-                                            }
-                                            value={
-                                                data.address
-                                            }
-                                            onChange={(
-                                                event,
-                                            ) => {
-                                                setData(
-                                                    'address',
-                                                    event
-                                                        .currentTarget
-                                                        .value,
-                                                );
+                                            maxLength={2000}
+                                            value={data.address}
+                                            onChange={(event) => {
+                                                setData('address', event.currentTarget.value);
 
-                                                clearFieldError(
-                                                    'address',
-                                                );
+                                                clearFieldError('address');
                                             }}
-                                            disabled={
-                                                processing
-                                            }
+                                            disabled={processing}
                                             placeholder="Alamat lengkap penjemput..."
-                                            className={`${textareaClass(
-                                                Boolean(
-                                                    errors.address,
-                                                ),
-                                            )} pl-11`}
+                                            className={`${textareaClass(Boolean(errors.address))} pl-11`}
                                         />
                                     </div>
 
-                                    <InputError
-                                        message={
-                                            errors.address
-                                        }
-                                        className="mt-2"
-                                    />
+                                    <InputError message={errors.address} className="mt-2" />
                                 </div>
                             </div>
                         </section>
@@ -901,504 +544,226 @@ export default function EditPickupPerson({
                             <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                                 <div className="flex items-center gap-3">
                                     <div className="flex size-10 items-center justify-center rounded-xl bg-[#eef9f6] text-[#4c9e94]">
-                                        <UsersRound
-                                            aria-hidden="true"
-                                            className="size-5"
-                                        />
+                                        <UsersRound aria-hidden="true" className="size-5" />
                                     </div>
 
                                     <div>
-                                        <h2 className="font-bold text-[#243b53]">
-                                            Siswa yang Dijemput
-                                        </h2>
+                                        <h2 className="font-bold text-[#243b53]">Siswa yang Dijemput</h2>
 
-                                        <p className="text-sm text-[#829ab1]">
-                                            Pilih minimal satu
-                                            siswa beserta jenis
-                                            hubungannya.
-                                        </p>
+                                        <p className="text-sm text-[#829ab1]">Pilih minimal satu siswa beserta jenis hubungannya.</p>
                                     </div>
                                 </div>
 
                                 <button
                                     type="button"
-                                    onClick={
-                                        addStudentLink
-                                    }
-                                    disabled={
-                                        processing ||
-                                        data.students
-                                            .length >= 20
-                                    }
+                                    onClick={addStudentLink}
+                                    disabled={processing || data.students.length >= 20}
                                     className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#cfe4f6] bg-[#eef6ff] px-4 text-sm font-semibold text-[#4f7cac] transition hover:bg-[#e2f0fb] disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                    <Plus
-                                        aria-hidden="true"
-                                        className="size-4"
-                                    />
-
+                                    <Plus aria-hidden="true" className="size-4" />
                                     Tambah Siswa
                                 </button>
                             </div>
 
-                            <InputError
-                                message={
-                                    errors.students
-                                }
-                                className="mb-4"
-                            />
+                            <InputError message={errors.students} className="mb-4" />
 
                             <div className="space-y-4">
-                                {data.students.map(
-                                    (
-                                        studentLink,
-                                        index,
-                                    ) => {
-                                        const selectedStudent =
-                                            students.find(
-                                                (
-                                                    student,
-                                                ) =>
-                                                    String(
-                                                        student.id,
-                                                    ) ===
-                                                    studentLink.student_id,
-                                            );
+                                {data.students.map((studentLink, index) => {
+                                    const selectedStudent = students.find((student) => String(student.id) === studentLink.student_id);
 
-                                        return (
-                                            <article
-                                                key={
-                                                    index
-                                                }
-                                                className="rounded-2xl border border-[#e6eef5] bg-[#fbfdff] p-4"
-                                            >
-                                                <div className="mb-4 flex items-center justify-between gap-4">
-                                                    <div>
-                                                        <h3 className="text-sm font-bold text-[#334e68]">
-                                                            Siswa{' '}
-                                                            {index +
-                                                                1}
-                                                        </h3>
+                                    return (
+                                        <article key={index} className="rounded-2xl border border-[#e6eef5] bg-[#fbfdff] p-4">
+                                            <div className="mb-4 flex items-center justify-between gap-4">
+                                                <div>
+                                                    <h3 className="text-sm font-bold text-[#334e68]">Siswa {index + 1}</h3>
 
-                                                        {selectedStudent && (
-                                                            <p className="mt-1 text-xs text-[#829ab1]">
-                                                                {
-                                                                    selectedStudent.student_number
-                                                                }
-                                                            </p>
-                                                        )}
-                                                    </div>
+                                                    {selectedStudent && (
+                                                        <p className="mt-1 text-xs text-[#829ab1]">{selectedStudent.student_number}</p>
+                                                    )}
+                                                </div>
 
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            removeStudentLink(
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeStudentLink(index)}
+                                                    disabled={processing}
+                                                    title="Hapus hubungan siswa"
+                                                    aria-label={`Hapus siswa ${index + 1}`}
+                                                    className="inline-flex size-9 items-center justify-center rounded-xl border border-[#f0d0d0] bg-white text-[#cf6464] transition hover:bg-[#fff2f2] disabled:opacity-50"
+                                                >
+                                                    <Trash2 aria-hidden="true" className="size-4" />
+                                                </button>
+                                            </div>
+
+                                            <div className="grid gap-4 md:grid-cols-2">
+                                                <div>
+                                                    <label htmlFor={`student-${index}`} className="mb-2 block text-sm font-semibold text-[#334e68]">
+                                                        Siswa
+                                                        <span className="ml-1 text-[#e97a7a]">*</span>
+                                                    </label>
+
+                                                    <select
+                                                        id={`student-${index}`}
+                                                        value={studentLink.student_id}
+                                                        onChange={(event) => updateStudentLink(index, 'student_id', event.currentTarget.value)}
+                                                        disabled={processing}
+                                                        className={inputClass(Boolean(fieldError(`students.${index}.student_id`)))}
+                                                    >
+                                                        <option value="">Pilih siswa</option>
+
+                                                        {students.map((student) => {
+                                                            const alreadySelected = data.students.some(
+                                                                (link, linkIndex) => linkIndex !== index && link.student_id === String(student.id),
+                                                            );
+
+                                                            return (
+                                                                <option key={student.id} value={student.id} disabled={alreadySelected}>
+                                                                    {student.full_name} · {student.student_number}
+                                                                </option>
+                                                            );
+                                                        })}
+                                                    </select>
+
+                                                    <InputError message={fieldError(`students.${index}.student_id`)} className="mt-2" />
+
+                                                    {selectedStudent && (
+                                                        <p className="mt-2 text-xs text-[#829ab1]">
+                                                            Kelas {selectedStudent.class_name ?? '-'} · {selectedStudent.academic_year ?? '-'}
+                                                            {selectedStudent.status !== 'active' && (
+                                                                <span className="ml-2 font-semibold text-[#b88a22]">Siswa tidak aktif</span>
+                                                            )}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                <div>
+                                                    <label
+                                                        htmlFor={`relationship-${index}`}
+                                                        className="mb-2 block text-sm font-semibold text-[#334e68]"
+                                                    >
+                                                        Hubungan
+                                                        <span className="ml-1 text-[#e97a7a]">*</span>
+                                                    </label>
+
+                                                    <select
+                                                        id={`relationship-${index}`}
+                                                        value={studentLink.relationship_type}
+                                                        onChange={(event) =>
+                                                            updateStudentLink(
                                                                 index,
+                                                                'relationship_type',
+                                                                event.currentTarget.value as RelationshipType,
                                                             )
                                                         }
-                                                        disabled={
-                                                            processing
-                                                        }
-                                                        title="Hapus hubungan siswa"
-                                                        aria-label={`Hapus siswa ${index + 1}`}
-                                                        className="inline-flex size-9 items-center justify-center rounded-xl border border-[#f0d0d0] bg-white text-[#cf6464] transition hover:bg-[#fff2f2] disabled:opacity-50"
+                                                        disabled={processing}
+                                                        className={inputClass(Boolean(fieldError(`students.${index}.relationship_type`)))}
                                                     >
-                                                        <Trash2
+                                                        <option value="">Pilih hubungan</option>
+
+                                                        {relationshipOptions.map((option) => (
+                                                            <option key={option.value} value={option.value}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+
+                                                    <InputError message={fieldError(`students.${index}.relationship_type`)} className="mt-2" />
+                                                </div>
+
+                                                <div>
+                                                    <label
+                                                        htmlFor={`valid-from-${index}`}
+                                                        className="mb-2 block text-sm font-semibold text-[#334e68]"
+                                                    >
+                                                        Berlaku mulai
+                                                    </label>
+
+                                                    <div className="relative">
+                                                        <CalendarDays
                                                             aria-hidden="true"
-                                                            className="size-4"
-                                                        />
-                                                    </button>
-                                                </div>
-
-                                                <div className="grid gap-4 md:grid-cols-2">
-                                                    <div>
-                                                        <label
-                                                            htmlFor={`student-${index}`}
-                                                            className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                                        >
-                                                            Siswa
-
-                                                            <span className="ml-1 text-[#e97a7a]">
-                                                                *
-                                                            </span>
-                                                        </label>
-
-                                                        <select
-                                                            id={`student-${index}`}
-                                                            value={
-                                                                studentLink.student_id
-                                                            }
-                                                            onChange={(
-                                                                event,
-                                                            ) =>
-                                                                updateStudentLink(
-                                                                    index,
-                                                                    'student_id',
-                                                                    event
-                                                                        .currentTarget
-                                                                        .value,
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                processing
-                                                            }
-                                                            className={inputClass(
-                                                                Boolean(
-                                                                    fieldError(
-                                                                        `students.${index}.student_id`,
-                                                                    ),
-                                                                ),
-                                                            )}
-                                                        >
-                                                            <option value="">
-                                                                Pilih
-                                                                siswa
-                                                            </option>
-
-                                                            {students.map(
-                                                                (
-                                                                    student,
-                                                                ) => {
-                                                                    const alreadySelected =
-                                                                        data.students.some(
-                                                                            (
-                                                                                link,
-                                                                                linkIndex,
-                                                                            ) =>
-                                                                                linkIndex !==
-                                                                                    index &&
-                                                                                link.student_id ===
-                                                                                    String(
-                                                                                        student.id,
-                                                                                    ),
-                                                                        );
-
-                                                                    return (
-                                                                        <option
-                                                                            key={
-                                                                                student.id
-                                                                            }
-                                                                            value={
-                                                                                student.id
-                                                                            }
-                                                                            disabled={
-                                                                                alreadySelected
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                student.full_name
-                                                                            }{' '}
-                                                                            ·{' '}
-                                                                            {
-                                                                                student.student_number
-                                                                            }
-                                                                        </option>
-                                                                    );
-                                                                },
-                                                            )}
-                                                        </select>
-
-                                                        <InputError
-                                                            message={fieldError(
-                                                                `students.${index}.student_id`,
-                                                            )}
-                                                            className="mt-2"
+                                                            className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-[#9fb3c8]"
                                                         />
 
-                                                        {selectedStudent && (
-                                                            <p className="mt-2 text-xs text-[#829ab1]">
-                                                                Kelas{' '}
-                                                                {selectedStudent.class_name ??
-                                                                    '-'}{' '}
-                                                                ·{' '}
-                                                                {selectedStudent.academic_year ??
-                                                                    '-'}
-                                                                {selectedStudent.status !==
-                                                                    'active' && (
-                                                                    <span className="ml-2 font-semibold text-[#b88a22]">
-                                                                        Siswa
-                                                                        tidak
-                                                                        aktif
-                                                                    </span>
-                                                                )}
-                                                            </p>
-                                                        )}
-                                                    </div>
-
-                                                    <div>
-                                                        <label
-                                                            htmlFor={`relationship-${index}`}
-                                                            className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                                        >
-                                                            Hubungan
-
-                                                            <span className="ml-1 text-[#e97a7a]">
-                                                                *
-                                                            </span>
-                                                        </label>
-
-                                                        <select
-                                                            id={`relationship-${index}`}
-                                                            value={
-                                                                studentLink.relationship_type
-                                                            }
-                                                            onChange={(
-                                                                event,
-                                                            ) =>
-                                                                updateStudentLink(
-                                                                    index,
-                                                                    'relationship_type',
-                                                                    event
-                                                                        .currentTarget
-                                                                        .value as RelationshipType,
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                processing
-                                                            }
-                                                            className={inputClass(
-                                                                Boolean(
-                                                                    fieldError(
-                                                                        `students.${index}.relationship_type`,
-                                                                    ),
-                                                                ),
-                                                            )}
-                                                        >
-                                                            <option value="">
-                                                                Pilih
-                                                                hubungan
-                                                            </option>
-
-                                                            {relationshipOptions.map(
-                                                                (
-                                                                    option,
-                                                                ) => (
-                                                                    <option
-                                                                        key={
-                                                                            option.value
-                                                                        }
-                                                                        value={
-                                                                            option.value
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            option.label
-                                                                        }
-                                                                    </option>
-                                                                ),
-                                                            )}
-                                                        </select>
-
-                                                        <InputError
-                                                            message={fieldError(
-                                                                `students.${index}.relationship_type`,
-                                                            )}
-                                                            className="mt-2"
-                                                        />
-                                                    </div>
-
-                                                    <div>
-                                                        <label
-                                                            htmlFor={`valid-from-${index}`}
-                                                            className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                                        >
-                                                            Berlaku
-                                                            mulai
-                                                        </label>
-
-                                                        <div className="relative">
-                                                            <CalendarDays
-                                                                aria-hidden="true"
-                                                                className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-[#9fb3c8]"
-                                                            />
-
-                                                            <input
-                                                                id={`valid-from-${index}`}
-                                                                type="date"
-                                                                value={
-                                                                    studentLink.valid_from
-                                                                }
-                                                                max={
-                                                                    studentLink.valid_until ||
-                                                                    undefined
-                                                                }
-                                                                onChange={(
-                                                                    event,
-                                                                ) =>
-                                                                    updateStudentLink(
-                                                                        index,
-                                                                        'valid_from',
-                                                                        event
-                                                                            .currentTarget
-                                                                            .value,
-                                                                    )
-                                                                }
-                                                                disabled={
-                                                                    processing
-                                                                }
-                                                                className={inputClass(
-                                                                    Boolean(
-                                                                        fieldError(
-                                                                            `students.${index}.valid_from`,
-                                                                        ),
-                                                                    ),
-                                                                    true,
-                                                                )}
-                                                            />
-                                                        </div>
-
-                                                        <InputError
-                                                            message={fieldError(
-                                                                `students.${index}.valid_from`,
-                                                            )}
-                                                            className="mt-2"
-                                                        />
-                                                    </div>
-
-                                                    <div>
-                                                        <label
-                                                            htmlFor={`valid-until-${index}`}
-                                                            className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                                        >
-                                                            Berlaku
-                                                            sampai
-                                                        </label>
-
-                                                        <div className="relative">
-                                                            <CalendarDays
-                                                                aria-hidden="true"
-                                                                className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-[#9fb3c8]"
-                                                            />
-
-                                                            <input
-                                                                id={`valid-until-${index}`}
-                                                                type="date"
-                                                                min={
-                                                                    studentLink.valid_from ||
-                                                                    undefined
-                                                                }
-                                                                value={
-                                                                    studentLink.valid_until
-                                                                }
-                                                                onChange={(
-                                                                    event,
-                                                                ) =>
-                                                                    updateStudentLink(
-                                                                        index,
-                                                                        'valid_until',
-                                                                        event
-                                                                            .currentTarget
-                                                                            .value,
-                                                                    )
-                                                                }
-                                                                disabled={
-                                                                    processing
-                                                                }
-                                                                className={inputClass(
-                                                                    Boolean(
-                                                                        fieldError(
-                                                                            `students.${index}.valid_until`,
-                                                                        ),
-                                                                    ),
-                                                                    true,
-                                                                )}
-                                                            />
-                                                        </div>
-
-                                                        <InputError
-                                                            message={fieldError(
-                                                                `students.${index}.valid_until`,
-                                                            )}
-                                                            className="mt-2"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-4 flex flex-wrap gap-5 rounded-xl border border-[#edf2f7] bg-white p-3">
-                                                    <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-[#627d98]">
                                                         <input
-                                                            type="checkbox"
-                                                            checked={
-                                                                studentLink.is_primary
-                                                            }
-                                                            onChange={(
-                                                                event,
-                                                            ) =>
-                                                                updateStudentLink(
-                                                                    index,
-                                                                    'is_primary',
-                                                                    event
-                                                                        .currentTarget
-                                                                        .checked,
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                processing
-                                                            }
-                                                            className="size-4 rounded border-[#bcccdc] text-[#5b8def]"
+                                                            id={`valid-from-${index}`}
+                                                            type="date"
+                                                            value={studentLink.valid_from}
+                                                            max={studentLink.valid_until || undefined}
+                                                            onChange={(event) => updateStudentLink(index, 'valid_from', event.currentTarget.value)}
+                                                            disabled={processing}
+                                                            className={inputClass(Boolean(fieldError(`students.${index}.valid_from`)), true)}
                                                         />
+                                                    </div>
 
-                                                        Penjemput
-                                                        utama
+                                                    <InputError message={fieldError(`students.${index}.valid_from`)} className="mt-2" />
+                                                </div>
+
+                                                <div>
+                                                    <label
+                                                        htmlFor={`valid-until-${index}`}
+                                                        className="mb-2 block text-sm font-semibold text-[#334e68]"
+                                                    >
+                                                        Berlaku sampai
                                                     </label>
 
-                                                    <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-[#627d98]">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={
-                                                                studentLink.is_active
-                                                            }
-                                                            onChange={(
-                                                                event,
-                                                            ) =>
-                                                                updateStudentLink(
-                                                                    index,
-                                                                    'is_active',
-                                                                    event
-                                                                        .currentTarget
-                                                                        .checked,
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                processing
-                                                            }
-                                                            className="size-4 rounded border-[#bcccdc] text-[#5b8def]"
+                                                    <div className="relative">
+                                                        <CalendarDays
+                                                            aria-hidden="true"
+                                                            className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-[#9fb3c8]"
                                                         />
 
-                                                        Izin aktif
-                                                    </label>
+                                                        <input
+                                                            id={`valid-until-${index}`}
+                                                            type="date"
+                                                            min={studentLink.valid_from || undefined}
+                                                            value={studentLink.valid_until}
+                                                            onChange={(event) => updateStudentLink(index, 'valid_until', event.currentTarget.value)}
+                                                            disabled={processing}
+                                                            className={inputClass(Boolean(fieldError(`students.${index}.valid_until`)), true)}
+                                                        />
+                                                    </div>
+
+                                                    <InputError message={fieldError(`students.${index}.valid_until`)} className="mt-2" />
                                                 </div>
+                                            </div>
 
-                                                <InputError
-                                                    message={fieldError(
-                                                        `students.${index}.is_primary`,
-                                                    )}
-                                                    className="mt-2"
-                                                />
+                                            <div className="mt-4 flex flex-wrap gap-5 rounded-xl border border-[#edf2f7] bg-white p-3">
+                                                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-[#627d98]">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={studentLink.is_primary}
+                                                        onChange={(event) => updateStudentLink(index, 'is_primary', event.currentTarget.checked)}
+                                                        disabled={processing}
+                                                        className="size-4 rounded border-[#bcccdc] text-[#5b8def]"
+                                                    />
+                                                    Penjemput utama
+                                                </label>
 
-                                                <InputError
-                                                    message={fieldError(
-                                                        `students.${index}.is_active`,
-                                                    )}
-                                                    className="mt-2"
-                                                />
-                                            </article>
-                                        );
-                                    },
-                                )}
+                                                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-[#627d98]">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={studentLink.is_active}
+                                                        onChange={(event) => updateStudentLink(index, 'is_active', event.currentTarget.checked)}
+                                                        disabled={processing}
+                                                        className="size-4 rounded border-[#bcccdc] text-[#5b8def]"
+                                                    />
+                                                    Izin aktif
+                                                </label>
+                                            </div>
+
+                                            <InputError message={fieldError(`students.${index}.is_primary`)} className="mt-2" />
+
+                                            <InputError message={fieldError(`students.${index}.is_active`)} className="mt-2" />
+                                        </article>
+                                    );
+                                })}
                             </div>
                         </section>
 
                         <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm md:p-7">
                             <div className="mb-6">
-                                <h2 className="font-bold text-[#243b53]">
-                                    Status dan Catatan
-                                </h2>
+                                <h2 className="font-bold text-[#243b53]">Status dan Catatan</h2>
 
-                                <p className="mt-1 text-sm text-[#829ab1]">
-                                    Atur ketersediaan penjemput
-                                    dalam proses penjemputan.
-                                </p>
+                                <p className="mt-1 text-sm text-[#829ab1]">Atur ketersediaan penjemput dalam proses penjemputan.</p>
                             </div>
 
                             <div className="grid gap-5 md:grid-cols-2">
@@ -1406,57 +771,30 @@ export default function EditPickupPerson({
                                     <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#d9e5ee] bg-[#fbfdff] p-4 transition hover:bg-[#f7fafc]">
                                         <input
                                             type="checkbox"
-                                            checked={
-                                                data.is_active
-                                            }
-                                            onChange={(
-                                                event,
-                                            ) => {
-                                                setData(
-                                                    'is_active',
-                                                    event
-                                                        .currentTarget
-                                                        .checked,
-                                                );
+                                            checked={data.is_active}
+                                            onChange={(event) => {
+                                                setData('is_active', event.currentTarget.checked);
 
-                                                clearFieldError(
-                                                    'is_active',
-                                                );
+                                                clearFieldError('is_active');
                                             }}
-                                            disabled={
-                                                processing
-                                            }
+                                            disabled={processing}
                                             className="size-4 rounded border-[#bcccdc] text-[#5b8def]"
                                         />
 
                                         <span>
-                                            <span className="block text-sm font-semibold text-[#334e68]">
-                                                Penjemput
-                                                aktif
-                                            </span>
+                                            <span className="block text-sm font-semibold text-[#334e68]">Penjemput aktif</span>
 
                                             <span className="mt-1 block text-xs leading-5 text-[#829ab1]">
-                                                Penjemput dapat
-                                                digunakan dalam
-                                                proses
-                                                penjemputan.
+                                                Penjemput dapat digunakan dalam proses penjemputan.
                                             </span>
                                         </span>
                                     </label>
 
-                                    <InputError
-                                        message={
-                                            errors.is_active
-                                        }
-                                        className="mt-2"
-                                    />
+                                    <InputError message={errors.is_active} className="mt-2" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        htmlFor="notes"
-                                        className="mb-2 block text-sm font-semibold text-[#334e68]"
-                                    >
+                                    <label htmlFor="notes" className="mb-2 block text-sm font-semibold text-[#334e68]">
                                         Catatan
                                     </label>
 
@@ -1464,49 +802,24 @@ export default function EditPickupPerson({
                                         id="notes"
                                         rows={5}
                                         maxLength={2000}
-                                        value={
-                                            data.notes
-                                        }
-                                        onChange={(
-                                            event,
-                                        ) => {
-                                            setData(
-                                                'notes',
-                                                event
-                                                    .currentTarget
-                                                    .value,
-                                            );
+                                        value={data.notes}
+                                        onChange={(event) => {
+                                            setData('notes', event.currentTarget.value);
 
-                                            clearFieldError(
-                                                'notes',
-                                            );
+                                            clearFieldError('notes');
                                         }}
-                                        disabled={
-                                            processing
-                                        }
+                                        disabled={processing}
                                         placeholder="Catatan tambahan mengenai penjemput..."
-                                        className={textareaClass(
-                                            Boolean(
-                                                errors.notes,
-                                            ),
-                                        )}
+                                        className={textareaClass(Boolean(errors.notes))}
                                     />
 
-                                    <InputError
-                                        message={
-                                            errors.notes
-                                        }
-                                        className="mt-2"
-                                    />
+                                    <InputError message={errors.notes} className="mt-2" />
                                 </div>
                             </div>
                         </section>
 
                         <section className="flex flex-col-reverse gap-3 rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-                            <p className="text-xs leading-5 text-[#829ab1]">
-                                Perubahan akan langsung
-                                diterapkan setelah disimpan.
-                            </p>
+                            <p className="text-xs leading-5 text-[#829ab1]">Perubahan akan langsung diterapkan setelah disimpan.</p>
 
                             <div className="flex flex-col-reverse gap-3 sm:flex-row">
                                 <Link
@@ -1518,26 +831,17 @@ export default function EditPickupPerson({
 
                                 <button
                                     type="submit"
-                                    disabled={
-                                        processing ||
-                                        students.length ===
-                                            0
-                                    }
+                                    disabled={processing || students.length === 0}
                                     className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-6 text-sm font-semibold text-white shadow-md shadow-blue-200/60 transition hover:bg-[#4c7fd9] disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {processing ? (
                                         <>
                                             <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-
                                             Menyimpan...
                                         </>
                                     ) : (
                                         <>
-                                            <Save
-                                                aria-hidden="true"
-                                                className="size-4"
-                                            />
-
+                                            <Save aria-hidden="true" className="size-4" />
                                             Simpan Perubahan
                                         </>
                                     )}

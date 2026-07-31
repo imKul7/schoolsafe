@@ -1,7 +1,4 @@
-import {
-    Human,
-    type Config,
-} from '@vladmandic/human';
+import { Human, type Config } from '@vladmandic/human';
 
 const humanConfig: Partial<Config> = {
     backend: 'webgl',
