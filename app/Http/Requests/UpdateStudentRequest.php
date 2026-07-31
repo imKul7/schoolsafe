@@ -129,41 +129,29 @@ class UpdateStudentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'school_class_id.required' =>
-                'Kelas siswa wajib dipilih.',
+            'school_class_id.required' => 'Kelas siswa wajib dipilih.',
 
-            'school_class_id.exists' =>
-                'Kelas yang dipilih tidak valid.',
+            'school_class_id.exists' => 'Kelas yang dipilih tidak valid.',
 
-            'student_number.required' =>
-                'Nomor siswa wajib diisi.',
+            'student_number.required' => 'Nomor siswa wajib diisi.',
 
-            'student_number.unique' =>
-                'Nomor siswa sudah digunakan.',
+            'student_number.unique' => 'Nomor siswa sudah digunakan.',
 
-            'nisn.regex' =>
-                'NISN harus terdiri dari tepat 10 angka.',
+            'nisn.regex' => 'NISN harus terdiri dari tepat 10 angka.',
 
-            'nisn.unique' =>
-                'NISN sudah digunakan siswa lain.',
+            'nisn.unique' => 'NISN sudah digunakan siswa lain.',
 
-            'full_name.required' =>
-                'Nama lengkap siswa wajib diisi.',
+            'full_name.required' => 'Nama lengkap siswa wajib diisi.',
 
-            'full_name.min' =>
-                'Nama lengkap minimal terdiri dari 3 karakter.',
+            'full_name.min' => 'Nama lengkap minimal terdiri dari 3 karakter.',
 
-            'gender.required' =>
-                'Jenis kelamin wajib dipilih.',
+            'gender.required' => 'Jenis kelamin wajib dipilih.',
 
-            'date_of_birth.before_or_equal' =>
-                'Tanggal lahir tidak boleh melewati hari ini.',
+            'date_of_birth.before_or_equal' => 'Tanggal lahir tidak boleh melewati hari ini.',
 
-            'status.required' =>
-                'Status siswa wajib dipilih.',
+            'status.required' => 'Status siswa wajib dipilih.',
 
-            'notes.max' =>
-                'Catatan maksimal 2.000 karakter.',
+            'notes.max' => 'Catatan maksimal 2.000 karakter.',
         ];
     }
 }

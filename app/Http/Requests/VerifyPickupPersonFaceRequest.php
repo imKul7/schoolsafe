@@ -98,12 +98,11 @@ class VerifyPickupPersonFaceRequest extends FormRequest
                     ],
                 )
                     ->map(
-                        fn (mixed $action): string =>
-                            strtolower(
-                                trim(
-                                    (string) $action,
-                                ),
+                        fn (mixed $action): string => strtolower(
+                            trim(
+                                (string) $action,
                             ),
+                        ),
                     )
                     ->values()
                     ->all();
@@ -388,77 +387,53 @@ class VerifyPickupPersonFaceRequest extends FormRequest
             |--------------------------------------------------------------------------
             */
 
-            'challenge_id.required' =>
-                'Challenge verifikasi belum tersedia.',
+            'challenge_id.required' => 'Challenge verifikasi belum tersedia.',
 
-            'challenge_id.uuid' =>
-                'ID challenge verifikasi tidak valid.',
+            'challenge_id.uuid' => 'ID challenge verifikasi tidak valid.',
 
-            'challenge_evidence.required' =>
-                'Bukti penyelesaian challenge belum tersedia.',
+            'challenge_evidence.required' => 'Bukti penyelesaian challenge belum tersedia.',
 
-            'challenge_evidence.array' =>
-                'Format bukti challenge tidak valid.',
+            'challenge_evidence.array' => 'Format bukti challenge tidak valid.',
 
-            'challenge_evidence.completed_actions.required' =>
-                'Daftar challenge yang diselesaikan belum tersedia.',
+            'challenge_evidence.completed_actions.required' => 'Daftar challenge yang diselesaikan belum tersedia.',
 
-            'challenge_evidence.completed_actions.array' =>
-                'Format daftar challenge tidak valid.',
+            'challenge_evidence.completed_actions.array' => 'Format daftar challenge tidak valid.',
 
-            'challenge_evidence.completed_actions.size' =>
-                'Kedua challenge harus diselesaikan.',
+            'challenge_evidence.completed_actions.size' => 'Kedua challenge harus diselesaikan.',
 
-            'challenge_evidence.completed_actions.*.required' =>
-                'Jenis challenge tidak boleh kosong.',
+            'challenge_evidence.completed_actions.*.required' => 'Jenis challenge tidak boleh kosong.',
 
-            'challenge_evidence.completed_actions.*.in' =>
-                'Jenis challenge yang diselesaikan tidak valid.',
+            'challenge_evidence.completed_actions.*.in' => 'Jenis challenge yang diselesaikan tidak valid.',
 
-            'challenge_evidence.completed_actions.*.distinct' =>
-                'Challenge yang sama tidak boleh dikirim dua kali.',
+            'challenge_evidence.completed_actions.*.distinct' => 'Challenge yang sama tidak boleh dikirim dua kali.',
 
-            'challenge_evidence.blink_duration_ms.required' =>
-                'Durasi kedipan belum tersedia.',
+            'challenge_evidence.blink_duration_ms.required' => 'Durasi kedipan belum tersedia.',
 
-            'challenge_evidence.blink_duration_ms.integer' =>
-                'Durasi kedipan harus berupa angka dalam milidetik.',
+            'challenge_evidence.blink_duration_ms.integer' => 'Durasi kedipan harus berupa angka dalam milidetik.',
 
-            'challenge_evidence.blink_duration_ms.between' =>
-                'Durasi kedipan berada di luar batas yang diperbolehkan.',
+            'challenge_evidence.blink_duration_ms.between' => 'Durasi kedipan berada di luar batas yang diperbolehkan.',
 
-            'challenge_evidence.maximum_yaw_delta.required' =>
-                'Nilai perubahan posisi kepala belum tersedia.',
+            'challenge_evidence.maximum_yaw_delta.required' => 'Nilai perubahan posisi kepala belum tersedia.',
 
-            'challenge_evidence.maximum_yaw_delta.numeric' =>
-                'Nilai perubahan posisi kepala tidak valid.',
+            'challenge_evidence.maximum_yaw_delta.numeric' => 'Nilai perubahan posisi kepala tidak valid.',
 
-            'challenge_evidence.maximum_yaw_delta.between' =>
-                'Nilai perubahan posisi kepala berada di luar batas.',
+            'challenge_evidence.maximum_yaw_delta.between' => 'Nilai perubahan posisi kepala berada di luar batas.',
 
-            'challenge_evidence.returned_to_center.required' =>
-                'Status kembalinya wajah ke tengah belum tersedia.',
+            'challenge_evidence.returned_to_center.required' => 'Status kembalinya wajah ke tengah belum tersedia.',
 
-            'challenge_evidence.returned_to_center.boolean' =>
-                'Status posisi tengah wajah tidak valid.',
+            'challenge_evidence.returned_to_center.boolean' => 'Status posisi tengah wajah tidak valid.',
 
-            'challenge_evidence.duration_ms.required' =>
-                'Durasi challenge belum tersedia.',
+            'challenge_evidence.duration_ms.required' => 'Durasi challenge belum tersedia.',
 
-            'challenge_evidence.duration_ms.integer' =>
-                'Durasi challenge harus berupa angka dalam milidetik.',
+            'challenge_evidence.duration_ms.integer' => 'Durasi challenge harus berupa angka dalam milidetik.',
 
-            'challenge_evidence.duration_ms.between' =>
-                'Durasi challenge melewati batas waktu yang diperbolehkan.',
+            'challenge_evidence.duration_ms.between' => 'Durasi challenge melewati batas waktu yang diperbolehkan.',
 
-            'challenge_evidence.sample_count.required' =>
-                'Jumlah sampel challenge belum tersedia.',
+            'challenge_evidence.sample_count.required' => 'Jumlah sampel challenge belum tersedia.',
 
-            'challenge_evidence.sample_count.integer' =>
-                'Jumlah sampel challenge harus berupa bilangan bulat.',
+            'challenge_evidence.sample_count.integer' => 'Jumlah sampel challenge harus berupa bilangan bulat.',
 
-            'challenge_evidence.sample_count.between' =>
-                'Jumlah sampel challenge tidak valid.',
+            'challenge_evidence.sample_count.between' => 'Jumlah sampel challenge tidak valid.',
 
             /*
             |--------------------------------------------------------------------------
@@ -466,26 +441,19 @@ class VerifyPickupPersonFaceRequest extends FormRequest
             |--------------------------------------------------------------------------
             */
 
-            'embedding.required' =>
-                'Descriptor wajah belum tersedia.',
+            'embedding.required' => 'Descriptor wajah belum tersedia.',
 
-            'embedding.array' =>
-                'Format descriptor wajah tidak valid.',
+            'embedding.array' => 'Format descriptor wajah tidak valid.',
 
-            'embedding.min' =>
-                'Dimensi descriptor wajah terlalu kecil.',
+            'embedding.min' => 'Dimensi descriptor wajah terlalu kecil.',
 
-            'embedding.max' =>
-                'Dimensi descriptor wajah terlalu besar.',
+            'embedding.max' => 'Dimensi descriptor wajah terlalu besar.',
 
-            'embedding.*.required' =>
-                'Descriptor wajah memiliki nilai kosong.',
+            'embedding.*.required' => 'Descriptor wajah memiliki nilai kosong.',
 
-            'embedding.*.numeric' =>
-                'Descriptor wajah mengandung nilai bukan angka.',
+            'embedding.*.numeric' => 'Descriptor wajah mengandung nilai bukan angka.',
 
-            'embedding.*.between' =>
-                'Descriptor wajah mengandung nilai di luar batas.',
+            'embedding.*.between' => 'Descriptor wajah mengandung nilai di luar batas.',
 
             /*
             |--------------------------------------------------------------------------
@@ -493,20 +461,15 @@ class VerifyPickupPersonFaceRequest extends FormRequest
             |--------------------------------------------------------------------------
             */
 
-            'model_name.required' =>
-                'Nama model biometrik wajib tersedia.',
+            'model_name.required' => 'Nama model biometrik wajib tersedia.',
 
-            'model_name.string' =>
-                'Nama model biometrik tidak valid.',
+            'model_name.string' => 'Nama model biometrik tidak valid.',
 
-            'model_name.max' =>
-                'Nama model biometrik terlalu panjang.',
+            'model_name.max' => 'Nama model biometrik terlalu panjang.',
 
-            'model_version.string' =>
-                'Versi model biometrik tidak valid.',
+            'model_version.string' => 'Versi model biometrik tidak valid.',
 
-            'model_version.max' =>
-                'Versi model biometrik terlalu panjang.',
+            'model_version.max' => 'Versi model biometrik terlalu panjang.',
 
             /*
             |--------------------------------------------------------------------------
@@ -514,32 +477,23 @@ class VerifyPickupPersonFaceRequest extends FormRequest
             |--------------------------------------------------------------------------
             */
 
-            'quality_score.required' =>
-                'Nilai kualitas wajah wajib tersedia.',
+            'quality_score.required' => 'Nilai kualitas wajah wajib tersedia.',
 
-            'quality_score.numeric' =>
-                'Nilai kualitas wajah harus berupa angka.',
+            'quality_score.numeric' => 'Nilai kualitas wajah harus berupa angka.',
 
-            'quality_score.between' =>
-                'Nilai kualitas wajah harus berada antara 0 dan 1.',
+            'quality_score.between' => 'Nilai kualitas wajah harus berada antara 0 dan 1.',
 
-            'liveness_passed.required' =>
-                'Hasil pemeriksaan liveness wajib tersedia.',
+            'liveness_passed.required' => 'Hasil pemeriksaan liveness wajib tersedia.',
 
-            'liveness_passed.boolean' =>
-                'Hasil pemeriksaan liveness tidak valid.',
+            'liveness_passed.boolean' => 'Hasil pemeriksaan liveness tidak valid.',
 
-            'live_score.numeric' =>
-                'Nilai live harus berupa angka.',
+            'live_score.numeric' => 'Nilai live harus berupa angka.',
 
-            'live_score.between' =>
-                'Nilai live harus berada antara 0 dan 1.',
+            'live_score.between' => 'Nilai live harus berada antara 0 dan 1.',
 
-            'real_score.numeric' =>
-                'Nilai anti-spoofing harus berupa angka.',
+            'real_score.numeric' => 'Nilai anti-spoofing harus berupa angka.',
 
-            'real_score.between' =>
-                'Nilai anti-spoofing harus berada antara 0 dan 1.',
+            'real_score.between' => 'Nilai anti-spoofing harus berada antara 0 dan 1.',
 
             /*
             |--------------------------------------------------------------------------
@@ -547,17 +501,13 @@ class VerifyPickupPersonFaceRequest extends FormRequest
             |--------------------------------------------------------------------------
             */
 
-            'capture_method.required' =>
-                'Metode pengambilan wajah wajib tersedia.',
+            'capture_method.required' => 'Metode pengambilan wajah wajib tersedia.',
 
-            'capture_method.in' =>
-                'Verifikasi gerbang harus menggunakan kamera.',
+            'capture_method.in' => 'Verifikasi gerbang harus menggunakan kamera.',
 
-            'metadata.array' =>
-                'Format metadata analisis tidak valid.',
+            'metadata.array' => 'Format metadata analisis tidak valid.',
 
-            'metadata.max' =>
-                'Metadata analisis terlalu banyak.',
+            'metadata.max' => 'Metadata analisis terlalu banyak.',
         ];
     }
 
@@ -569,56 +519,39 @@ class VerifyPickupPersonFaceRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'challenge_id' =>
-                'ID challenge',
+            'challenge_id' => 'ID challenge',
 
-            'challenge_evidence' =>
-                'bukti challenge',
+            'challenge_evidence' => 'bukti challenge',
 
-            'challenge_evidence.completed_actions' =>
-                'challenge yang diselesaikan',
+            'challenge_evidence.completed_actions' => 'challenge yang diselesaikan',
 
-            'challenge_evidence.blink_duration_ms' =>
-                'durasi kedipan',
+            'challenge_evidence.blink_duration_ms' => 'durasi kedipan',
 
-            'challenge_evidence.maximum_yaw_delta' =>
-                'perubahan posisi kepala',
+            'challenge_evidence.maximum_yaw_delta' => 'perubahan posisi kepala',
 
-            'challenge_evidence.returned_to_center' =>
-                'status posisi tengah',
+            'challenge_evidence.returned_to_center' => 'status posisi tengah',
 
-            'challenge_evidence.duration_ms' =>
-                'durasi challenge',
+            'challenge_evidence.duration_ms' => 'durasi challenge',
 
-            'challenge_evidence.sample_count' =>
-                'jumlah sampel challenge',
+            'challenge_evidence.sample_count' => 'jumlah sampel challenge',
 
-            'embedding' =>
-                'descriptor wajah',
+            'embedding' => 'descriptor wajah',
 
-            'model_name' =>
-                'nama model biometrik',
+            'model_name' => 'nama model biometrik',
 
-            'model_version' =>
-                'versi model biometrik',
+            'model_version' => 'versi model biometrik',
 
-            'quality_score' =>
-                'kualitas wajah',
+            'quality_score' => 'kualitas wajah',
 
-            'liveness_passed' =>
-                'hasil liveness',
+            'liveness_passed' => 'hasil liveness',
 
-            'live_score' =>
-                'nilai live',
+            'live_score' => 'nilai live',
 
-            'real_score' =>
-                'nilai anti-spoofing',
+            'real_score' => 'nilai anti-spoofing',
 
-            'capture_method' =>
-                'metode pengambilan',
+            'capture_method' => 'metode pengambilan',
 
-            'metadata' =>
-                'metadata analisis',
+            'metadata' => 'metadata analisis',
         ];
     }
 

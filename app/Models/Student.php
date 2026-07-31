@@ -83,17 +83,13 @@ class Student extends Model
     protected function casts(): array
     {
         return [
-            'school_id' =>
-                'integer',
+            'school_id' => 'integer',
 
-            'school_class_id' =>
-                'integer',
+            'school_class_id' => 'integer',
 
-            'date_of_birth' =>
-                'date',
+            'date_of_birth' => 'date',
 
-            'deleted_at' =>
-                'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 
@@ -560,31 +556,24 @@ class Student extends Model
     public function statusLabel(): string
     {
         return match ($this->status) {
-            self::STATUS_ACTIVE =>
-                'Aktif',
+            self::STATUS_ACTIVE => 'Aktif',
 
-            self::STATUS_INACTIVE =>
-                'Tidak Aktif',
+            self::STATUS_INACTIVE => 'Tidak Aktif',
 
-            self::STATUS_GRADUATED =>
-                'Lulus',
+            self::STATUS_GRADUATED => 'Lulus',
 
-            default =>
-                'Tidak Diketahui',
+            default => 'Tidak Diketahui',
         };
     }
 
     public function genderLabel(): string
     {
         return match ($this->gender) {
-            self::GENDER_MALE =>
-                'Laki-laki',
+            self::GENDER_MALE => 'Laki-laki',
 
-            self::GENDER_FEMALE =>
-                'Perempuan',
+            self::GENDER_FEMALE => 'Perempuan',
 
-            default =>
-                'Tidak Diketahui',
+            default => 'Tidak Diketahui',
         };
     }
 }

@@ -63,35 +63,25 @@ class PickupPersonFaceProfile extends Model
              * Laravel mengenkripsi array embedding sebelum
              * menyimpannya ke database.
              */
-            'embedding' =>
-                'encrypted:array',
+            'embedding' => 'encrypted:array',
 
-            'embedding_dimension' =>
-                'integer',
+            'embedding_dimension' => 'integer',
 
-            'quality_score' =>
-                'decimal:4',
+            'quality_score' => 'decimal:4',
 
-            'liveness_passed' =>
-                'boolean',
+            'liveness_passed' => 'boolean',
 
-            'registration_revision' =>
-                'integer',
+            'registration_revision' => 'integer',
 
-            'consented_at' =>
-                'datetime',
+            'consented_at' => 'datetime',
 
-            'registered_at' =>
-                'datetime',
+            'registered_at' => 'datetime',
 
-            'invalidated_at' =>
-                'datetime',
+            'invalidated_at' => 'datetime',
 
-            'revoked_at' =>
-                'datetime',
+            'revoked_at' => 'datetime',
 
-            'metadata' =>
-                'array',
+            'metadata' => 'array',
         ];
     }
 

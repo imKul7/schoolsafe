@@ -15,47 +15,46 @@ class CancelPickupEventStudentRequest extends FormRequest
         $user =
             $this->user();
 
-        return (
+        return
             $user instanceof User
             && (bool) $user->is_active
             && (int) $user->school_id > 0
             && $user->hasRole(
                 User::ROLE_SCHOOL_ADMIN,
                 User::ROLE_GATE_OFFICER,
+            );
+    }
+
+    protected function failedAuthorization(): void
+    {
+        $user =
+            $this->user();
+
+        if (
+            $user instanceof User
+            && ! (bool) $user->is_active
+        ) {
+            throw new AuthorizationException(
+                'Akun Anda sedang tidak aktif.',
+            );
+        }
+
+        if (
+            $user instanceof User
+            && (
+                $user->school_id === null
+                || (int) $user->school_id <= 0
             )
-        );
-    }
+        ) {
+            throw new AuthorizationException(
+                'Akun belum terhubung dengan sekolah.',
+            );
+        }
 
-protected function failedAuthorization(): void
-{
-    $user =
-        $this->user();
-
-    if (
-        $user instanceof User
-        && ! (bool) $user->is_active
-    ) {
         throw new AuthorizationException(
-            'Akun Anda sedang tidak aktif.',
+            'Akun tidak memiliki izin mengelola transaksi gerbang.',
         );
     }
-
-    if (
-        $user instanceof User
-        && (
-            $user->school_id === null
-            || (int) $user->school_id <= 0
-        )
-    ) {
-        throw new AuthorizationException(
-            'Akun belum terhubung dengan sekolah.',
-        );
-    }
-
-    throw new AuthorizationException(
-        'Akun tidak memiliki izin mengelola transaksi gerbang.',
-    );
-}
 
     protected function prepareForValidation(): void
     {
@@ -65,8 +64,7 @@ protected function failedAuthorization(): void
             );
 
         $this->merge([
-            'reason' =>
-                is_string($reason)
+            'reason' => is_string($reason)
                     ? trim($reason)
                     : $reason,
         ]);
@@ -88,17 +86,13 @@ protected function failedAuthorization(): void
     public function messages(): array
     {
         return [
-            'reason.required' =>
-                'Alasan pembatalan siswa wajib diisi.',
+            'reason.required' => 'Alasan pembatalan siswa wajib diisi.',
 
-            'reason.string' =>
-                'Alasan pembatalan siswa tidak valid.',
+            'reason.string' => 'Alasan pembatalan siswa tidak valid.',
 
-            'reason.min' =>
-                'Alasan pembatalan siswa minimal 5 karakter.',
+            'reason.min' => 'Alasan pembatalan siswa minimal 5 karakter.',
 
-            'reason.max' =>
-                'Alasan pembatalan siswa maksimal 1000 karakter.',
+            'reason.max' => 'Alasan pembatalan siswa maksimal 1000 karakter.',
         ];
     }
 

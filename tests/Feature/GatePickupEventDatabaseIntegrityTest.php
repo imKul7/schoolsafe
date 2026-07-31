@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\Test;
@@ -96,8 +95,7 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     public function pickup_events_has_unique_idempotency_key(): void
     {
         $this->assertUniqueIndexExists(
-            table:
-                'pickup_events',
+            table: 'pickup_events',
 
             columns: [
                 'idempotency_key',
@@ -109,8 +107,7 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     public function face_verification_attempt_can_only_be_used_once(): void
     {
         $this->assertUniqueIndexExists(
-            table:
-                'pickup_events',
+            table: 'pickup_events',
 
             columns: [
                 'face_verification_attempt_id',
@@ -122,8 +119,7 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     public function student_cannot_be_duplicated_inside_same_pickup_event(): void
     {
         $this->assertUniqueIndexExists(
-            table:
-                'pickup_event_students',
+            table: 'pickup_event_students',
 
             columns: [
                 'pickup_event_id',
@@ -136,17 +132,13 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     public function pickup_event_student_has_parent_foreign_key(): void
     {
         $this->assertForeignKeyExists(
-            table:
-                'pickup_event_students',
+            table: 'pickup_event_students',
 
-            column:
-                'pickup_event_id',
+            column: 'pickup_event_id',
 
-            referencedTable:
-                'pickup_events',
+            referencedTable: 'pickup_events',
 
-            referencedColumn:
-                'id',
+            referencedColumn: 'id',
         );
     }
 
@@ -154,17 +146,13 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     public function pickup_event_has_school_foreign_key(): void
     {
         $this->assertForeignKeyExists(
-            table:
-                'pickup_events',
+            table: 'pickup_events',
 
-            column:
-                'school_id',
+            column: 'school_id',
 
-            referencedTable:
-                'schools',
+            referencedTable: 'schools',
 
-            referencedColumn:
-                'id',
+            referencedColumn: 'id',
         );
     }
 
@@ -172,17 +160,13 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     public function pickup_event_has_pickup_person_foreign_key(): void
     {
         $this->assertForeignKeyExists(
-            table:
-                'pickup_events',
+            table: 'pickup_events',
 
-            column:
-                'pickup_person_id',
+            column: 'pickup_person_id',
 
-            referencedTable:
-                'pickup_persons',
+            referencedTable: 'pickup_persons',
 
-            referencedColumn:
-                'id',
+            referencedColumn: 'id',
         );
     }
 
@@ -190,17 +174,13 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     public function pickup_event_has_face_attempt_foreign_key(): void
     {
         $this->assertForeignKeyExists(
-            table:
-                'pickup_events',
+            table: 'pickup_events',
 
-            column:
-                'face_verification_attempt_id',
+            column: 'face_verification_attempt_id',
 
-            referencedTable:
-                'pickup_person_face_verification_attempts',
+            referencedTable: 'pickup_person_face_verification_attempts',
 
-            referencedColumn:
-                'id',
+            referencedColumn: 'id',
         );
     }
 
@@ -208,17 +188,13 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     public function pickup_event_student_has_student_foreign_key(): void
     {
         $this->assertForeignKeyExists(
-            table:
-                'pickup_event_students',
+            table: 'pickup_event_students',
 
-            column:
-                'student_id',
+            column: 'student_id',
 
-            referencedTable:
-                'students',
+            referencedTable: 'students',
 
-            referencedColumn:
-                'id',
+            referencedColumn: 'id',
         );
     }
 
@@ -226,8 +202,7 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     public function pickup_events_has_tenant_history_index(): void
     {
         $this->assertIndexPrefixExists(
-            table:
-                'pickup_events',
+            table: 'pickup_events',
 
             requiredPrefix: [
                 'school_id',
@@ -240,8 +215,7 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     public function pickup_event_students_has_parent_status_index(): void
     {
         $this->assertIndexPrefixExists(
-            table:
-                'pickup_event_students',
+            table: 'pickup_event_students',
 
             requiredPrefix: [
                 'pickup_event_id',
@@ -251,7 +225,7 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     }
 
     /**
-     * @param array<int, string> $columns
+     * @param  array<int, string>  $columns
      */
     private function assertUniqueIndexExists(
         string $table,
@@ -288,7 +262,7 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
     }
 
     /**
-     * @param array<int, string> $requiredPrefix
+     * @param  array<int, string>  $requiredPrefix
      */
     private function assertIndexPrefixExists(
         string $table,
@@ -408,8 +382,7 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
             ->groupBy(
                 static fn (
                     object $row,
-                ): string =>
-                    (string) $row->INDEX_NAME,
+                ): string => (string) $row->INDEX_NAME,
             )
             ->map(
                 static function (
@@ -417,27 +390,23 @@ class GatePickupEventDatabaseIntegrityTest extends TestCase
                     string $indexName,
                 ): array {
                     return [
-                        'name' =>
-                            $indexName,
+                        'name' => $indexName,
 
-                        'non_unique' =>
-                            (int) $group
-                                ->first()
-                                ->NON_UNIQUE,
+                        'non_unique' => (int) $group
+                            ->first()
+                            ->NON_UNIQUE,
 
-                        'columns' =>
-                            $group
-                                ->pluck(
-                                    'COLUMN_NAME',
-                                )
-                                ->map(
-                                    static fn (
-                                        mixed $column,
-                                    ): string =>
-                                        (string) $column,
-                                )
-                                ->values()
-                                ->all(),
+                        'columns' => $group
+                            ->pluck(
+                                'COLUMN_NAME',
+                            )
+                            ->map(
+                                static fn (
+                                    mixed $column,
+                                ): string => (string) $column,
+                            )
+                            ->values()
+                            ->all(),
                     ];
                 },
             )

@@ -140,59 +140,41 @@ class StoreStudentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'school_class_id.required' =>
-                'Kelas siswa wajib dipilih.',
+            'school_class_id.required' => 'Kelas siswa wajib dipilih.',
 
-            'school_class_id.integer' =>
-                'Kelas yang dipilih tidak valid.',
+            'school_class_id.integer' => 'Kelas yang dipilih tidak valid.',
 
-            'school_class_id.exists' =>
-                'Kelas yang dipilih tidak tersedia atau tidak aktif.',
+            'school_class_id.exists' => 'Kelas yang dipilih tidak tersedia atau tidak aktif.',
 
-            'student_number.required' =>
-                'Nomor siswa wajib diisi.',
+            'student_number.required' => 'Nomor siswa wajib diisi.',
 
-            'student_number.max' =>
-                'Nomor siswa maksimal 50 karakter.',
+            'student_number.max' => 'Nomor siswa maksimal 50 karakter.',
 
-            'student_number.unique' =>
-                'Nomor siswa sudah digunakan di sekolah ini.',
+            'student_number.unique' => 'Nomor siswa sudah digunakan di sekolah ini.',
 
-            'nisn.regex' =>
-                'NISN harus terdiri dari tepat 10 angka.',
+            'nisn.regex' => 'NISN harus terdiri dari tepat 10 angka.',
 
-            'nisn.unique' =>
-                'NISN sudah digunakan siswa lain.',
+            'nisn.unique' => 'NISN sudah digunakan siswa lain.',
 
-            'full_name.required' =>
-                'Nama lengkap siswa wajib diisi.',
+            'full_name.required' => 'Nama lengkap siswa wajib diisi.',
 
-            'full_name.min' =>
-                'Nama lengkap minimal terdiri dari 3 karakter.',
+            'full_name.min' => 'Nama lengkap minimal terdiri dari 3 karakter.',
 
-            'full_name.max' =>
-                'Nama lengkap maksimal 255 karakter.',
+            'full_name.max' => 'Nama lengkap maksimal 255 karakter.',
 
-            'gender.required' =>
-                'Jenis kelamin wajib dipilih.',
+            'gender.required' => 'Jenis kelamin wajib dipilih.',
 
-            'gender.in' =>
-                'Jenis kelamin yang dipilih tidak valid.',
+            'gender.in' => 'Jenis kelamin yang dipilih tidak valid.',
 
-            'date_of_birth.date' =>
-                'Tanggal lahir tidak valid.',
+            'date_of_birth.date' => 'Tanggal lahir tidak valid.',
 
-            'date_of_birth.before_or_equal' =>
-                'Tanggal lahir tidak boleh melewati hari ini.',
+            'date_of_birth.before_or_equal' => 'Tanggal lahir tidak boleh melewati hari ini.',
 
-            'status.required' =>
-                'Status siswa wajib dipilih.',
+            'status.required' => 'Status siswa wajib dipilih.',
 
-            'status.in' =>
-                'Status siswa yang dipilih tidak valid.',
+            'status.in' => 'Status siswa yang dipilih tidak valid.',
 
-            'notes.max' =>
-                'Catatan maksimal 2.000 karakter.',
+            'notes.max' => 'Catatan maksimal 2.000 karakter.',
         ];
     }
 

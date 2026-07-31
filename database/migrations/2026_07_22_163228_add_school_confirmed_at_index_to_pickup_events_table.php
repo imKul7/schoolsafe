@@ -18,7 +18,7 @@ return new class extends Migration
     public function up(): void
     {
         if (! Schema::hasTable(self::TABLE)) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf(
                     'Tabel [%s] tidak ditemukan.',
                     self::TABLE,
@@ -35,7 +35,7 @@ return new class extends Migration
                 ],
             )
         ) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf(
                     'Kolom school_id atau confirmed_at tidak ditemukan pada tabel [%s].',
                     self::TABLE,
@@ -95,7 +95,7 @@ return new class extends Migration
             );
 
         if ($databaseName === '') {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Nama database tidak tersedia saat memeriksa index.',
             );
         }

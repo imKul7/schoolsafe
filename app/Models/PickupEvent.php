@@ -88,38 +88,27 @@ class PickupEvent extends Model
     protected function casts(): array
     {
         return [
-            'school_id' =>
-                'integer',
+            'school_id' => 'integer',
 
-            'pickup_person_id' =>
-                'integer',
+            'pickup_person_id' => 'integer',
 
-            'face_verification_attempt_id' =>
-                'integer',
+            'face_verification_attempt_id' => 'integer',
 
-            'confirmed_by_user_id' =>
-                'integer',
+            'confirmed_by_user_id' => 'integer',
 
-            'cancelled_by_user_id' =>
-                'integer',
+            'cancelled_by_user_id' => 'integer',
 
-            'similarity_score' =>
-                'float',
+            'similarity_score' => 'float',
 
-            'similarity_threshold' =>
-                'float',
+            'similarity_threshold' => 'float',
 
-            'candidate_margin' =>
-                'float',
+            'candidate_margin' => 'float',
 
-            'confirmed_at' =>
-                'datetime',
+            'confirmed_at' => 'datetime',
 
-            'cancelled_at' =>
-                'datetime',
+            'cancelled_at' => 'datetime',
 
-            'metadata' =>
-                'array',
+            'metadata' => 'array',
         ];
     }
 
@@ -395,10 +384,9 @@ class PickupEvent extends Model
 
     public function canBeCancelled(): bool
     {
-        return (
+        return
             $this->isConfirmed()
-            && $this->cancelled_at === null
-        );
+            && $this->cancelled_at === null;
     }
 
     public function hasReleasedStudents(): bool
@@ -417,14 +405,11 @@ class PickupEvent extends Model
     public function statusLabel(): string
     {
         return match ($this->status) {
-            self::STATUS_CONFIRMED =>
-                'Dikonfirmasi',
+            self::STATUS_CONFIRMED => 'Dikonfirmasi',
 
-            self::STATUS_CANCELLED =>
-                'Dibatalkan',
+            self::STATUS_CANCELLED => 'Dibatalkan',
 
-            default =>
-                'Tidak Diketahui',
+            default => 'Tidak Diketahui',
         };
     }
 
@@ -433,14 +418,11 @@ class PickupEvent extends Model
         return match (
             $this->verification_method
         ) {
-            self::VERIFICATION_METHOD_FACE =>
-                'Verifikasi Wajah',
+            self::VERIFICATION_METHOD_FACE => 'Verifikasi Wajah',
 
-            self::VERIFICATION_METHOD_MANUAL =>
-                'Verifikasi Manual',
+            self::VERIFICATION_METHOD_MANUAL => 'Verifikasi Manual',
 
-            default =>
-                'Tidak Diketahui',
+            default => 'Tidak Diketahui',
         };
     }
 }

@@ -96,44 +96,31 @@ class RegisterPickupPersonFaceRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'embedding.required' =>
-                'Data biometrik wajah belum tersedia.',
+            'embedding.required' => 'Data biometrik wajah belum tersedia.',
 
-            'embedding.array' =>
-                'Format data biometrik wajah tidak valid.',
+            'embedding.array' => 'Format data biometrik wajah tidak valid.',
 
-            'embedding.min' =>
-                'Dimensi data biometrik terlalu kecil.',
+            'embedding.min' => 'Dimensi data biometrik terlalu kecil.',
 
-            'embedding.max' =>
-                'Dimensi data biometrik terlalu besar.',
+            'embedding.max' => 'Dimensi data biometrik terlalu besar.',
 
-            'embedding.*.numeric' =>
-                'Salah satu nilai data biometrik tidak valid.',
+            'embedding.*.numeric' => 'Salah satu nilai data biometrik tidak valid.',
 
-            'model_name.required' =>
-                'Nama model pengenal wajah wajib tersedia.',
+            'model_name.required' => 'Nama model pengenal wajah wajib tersedia.',
 
-            'model_version.required' =>
-                'Versi model pengenal wajah wajib tersedia.',
+            'model_version.required' => 'Versi model pengenal wajah wajib tersedia.',
 
-            'quality_score.required' =>
-                'Nilai kualitas foto wajah wajib tersedia.',
+            'quality_score.required' => 'Nilai kualitas foto wajah wajib tersedia.',
 
-            'quality_score.between' =>
-                'Nilai kualitas wajah harus berada antara 0 dan 1.',
+            'quality_score.between' => 'Nilai kualitas wajah harus berada antara 0 dan 1.',
 
-            'liveness_passed.required' =>
-                'Hasil pemeriksaan liveness wajib tersedia.',
+            'liveness_passed.required' => 'Hasil pemeriksaan liveness wajib tersedia.',
 
-            'capture_method.required' =>
-                'Metode pengambilan foto wajib tersedia.',
+            'capture_method.required' => 'Metode pengambilan foto wajib tersedia.',
 
-            'capture_method.in' =>
-                'Metode pengambilan foto tidak valid.',
+            'capture_method.in' => 'Metode pengambilan foto tidak valid.',
 
-            'consent_confirmed.accepted' =>
-                'Persetujuan penggunaan data biometrik harus diberikan.',
+            'consent_confirmed.accepted' => 'Persetujuan penggunaan data biometrik harus diberikan.',
         ];
     }
 }

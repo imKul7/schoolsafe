@@ -14,7 +14,7 @@ define(
 );
 
 /**
- * @param array<string, mixed> $payload
+ * @param  array<string, mixed>  $payload
  */
 function writeJsonAtomically(
     string $path,
@@ -208,7 +208,7 @@ if ($argc !== 5) {
     fwrite(
         STDERR,
         sprintf(
-            "Penggunaan: php %s <job.json> <result.json> <ready.json> <release.marker>%s",
+            'Penggunaan: php %s <job.json> <result.json> <ready.json> <release.marker>%s',
             $argv[0] ?? 'GatePickupEventParallelWorker.php',
             PHP_EOL,
         ),
@@ -486,37 +486,28 @@ try {
         );
 
     $server = [
-        'HTTP_ACCEPT' =>
-            'application/json',
+        'HTTP_ACCEPT' => 'application/json',
 
-        'HTTP_X_REQUESTED_WITH' =>
-            'XMLHttpRequest',
+        'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
 
-        'CONTENT_TYPE' =>
-            'application/json',
+        'CONTENT_TYPE' => 'application/json',
 
-        'CONTENT_LENGTH' =>
-            (string) strlen(
-                $requestBody,
-            ),
+        'CONTENT_LENGTH' => (string) strlen(
+            $requestBody,
+        ),
 
-        'REMOTE_ADDR' =>
-            '127.0.0.1',
+        'REMOTE_ADDR' => '127.0.0.1',
 
-        'HTTP_HOST' =>
-            'localhost',
+        'HTTP_HOST' => 'localhost',
 
-        'SERVER_NAME' =>
-            'localhost',
+        'SERVER_NAME' => 'localhost',
 
-        'SERVER_PORT' =>
-            '80',
+        'SERVER_PORT' => '80',
 
-        'HTTP_USER_AGENT' =>
-            sprintf(
-                'SchoolSafe Parallel Worker/%s',
-                $requestId,
-            ),
+        'HTTP_USER_AGENT' => sprintf(
+            'SchoolSafe Parallel Worker/%s',
+            $requestId,
+        ),
     ];
 
     $request =
@@ -548,8 +539,7 @@ try {
      * Resolver request menjadi lapisan tambahan bagi controller.
      */
     $request->setUserResolver(
-        static fn (): User =>
-            $user,
+        static fn (): User => $user,
     );
 
     Auth::shouldUse(
@@ -576,26 +566,19 @@ try {
     writeJsonAtomically(
         $readyPath,
         [
-            'ready' =>
-                true,
+            'ready' => true,
 
-            'request_id' =>
-                $requestId,
+            'request_id' => $requestId,
 
-            'pid' =>
-                getmypid(),
+            'pid' => getmypid(),
 
-            'environment' =>
-                $app->environment(),
+            'environment' => $app->environment(),
 
-            'database' =>
-                $databaseName,
+            'database' => $databaseName,
 
-            'connection_name' =>
-                $connection->getName(),
+            'connection_name' => $connection->getName(),
 
-            'ready_at' =>
-                now()->toIso8601String(),
+            'ready_at' => now()->toIso8601String(),
         ],
     );
 
@@ -649,36 +632,26 @@ try {
     writeJsonAtomically(
         $resultPath,
         [
-            'completed' =>
-                true,
+            'completed' => true,
 
-            'request_id' =>
-                $requestId,
+            'request_id' => $requestId,
 
-            'pid' =>
-                getmypid(),
+            'pid' => getmypid(),
 
-            'environment' =>
-                $app->environment(),
+            'environment' => $app->environment(),
 
-            'database' =>
-                $databaseName,
+            'database' => $databaseName,
 
-            'status' =>
-                $response
-                    ->getStatusCode(),
+            'status' => $response
+                ->getStatusCode(),
 
-            'json' =>
-                $json,
+            'json' => $json,
 
-            'body' =>
-                $body,
+            'body' => $body,
 
-            'duration_ms' =>
-                $durationMilliseconds,
+            'duration_ms' => $durationMilliseconds,
 
-            'completed_at' =>
-                now()->toIso8601String(),
+            'completed_at' => now()->toIso8601String(),
         ],
     );
 
@@ -716,31 +689,23 @@ try {
             : null;
 
     $failurePayload = [
-        'completed' =>
-            false,
+        'completed' => false,
 
-        'pid' =>
-            getmypid(),
+        'pid' => getmypid(),
 
-        'exception_class' =>
-            $exception::class,
+        'exception_class' => $exception::class,
 
-        'exception_message' =>
-            $exception->getMessage(),
+        'exception_message' => $exception->getMessage(),
 
-        'exception_file' =>
-            $exception->getFile(),
+        'exception_file' => $exception->getFile(),
 
-        'exception_line' =>
-            $exception->getLine(),
+        'exception_line' => $exception->getLine(),
 
-        'duration_ms' =>
-            $durationMilliseconds,
+        'duration_ms' => $durationMilliseconds,
 
-        'failed_at' =>
-            date(
-                DATE_ATOM,
-            ),
+        'failed_at' => date(
+            DATE_ATOM,
+        ),
     ];
 
     /*
@@ -770,7 +735,7 @@ try {
         fwrite(
             STDERR,
             sprintf(
-                "%s: %s%sGagal mengubah exception worker menjadi JSON: %s%s",
+                '%s: %s%sGagal mengubah exception worker menjadi JSON: %s%s',
                 $exception::class,
                 $exception->getMessage(),
                 PHP_EOL,
@@ -789,7 +754,7 @@ try {
         fwrite(
             STDERR,
             sprintf(
-                "%s: %s%sGagal menulis result file: %s%s",
+                '%s: %s%sGagal menulis result file: %s%s',
                 $exception::class,
                 $exception->getMessage(),
                 PHP_EOL,

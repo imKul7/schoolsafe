@@ -13,15 +13,14 @@ class ConfirmPickupEventRequest extends FormRequest
     {
         $user = $this->user();
 
-        return (
+        return
             $user instanceof User
             && (bool) $user->is_active
             && (int) $user->school_id > 0
             && $user->hasRole(
                 'school_admin',
                 'gate_officer',
-            )
-        );
+            );
     }
 
     protected function prepareForValidation(): void
@@ -71,10 +70,9 @@ class ConfirmPickupEventRequest extends FormRequest
         }
 
         $this->merge([
-            'idempotency_key' =>
-                is_string(
-                    $idempotencyKey,
-                )
+            'idempotency_key' => is_string(
+                $idempotencyKey,
+            )
                     ? strtolower(
                         trim(
                             $idempotencyKey,
@@ -82,11 +80,9 @@ class ConfirmPickupEventRequest extends FormRequest
                     )
                     : $idempotencyKey,
 
-            'student_ids' =>
-                $studentIds,
+            'student_ids' => $studentIds,
 
-            'notes' =>
-                is_string($notes)
+            'notes' => is_string($notes)
                     ? trim($notes)
                     : $notes,
         ]);
@@ -137,58 +133,42 @@ class ConfirmPickupEventRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'idempotency_key.required' =>
-                'Kunci idempotency wajib dikirim.',
+            'idempotency_key.required' => 'Kunci idempotency wajib dikirim.',
 
-            'idempotency_key.uuid' =>
-                'Kunci idempotency harus berupa UUID yang valid.',
+            'idempotency_key.uuid' => 'Kunci idempotency harus berupa UUID yang valid.',
 
-            'face_verification_attempt_id.required' =>
-                'Hasil verifikasi wajah wajib dipilih.',
+            'face_verification_attempt_id.required' => 'Hasil verifikasi wajah wajib dipilih.',
 
-            'face_verification_attempt_id.integer' =>
-                'ID hasil verifikasi wajah tidak valid.',
+            'face_verification_attempt_id.integer' => 'ID hasil verifikasi wajah tidak valid.',
 
-            'student_ids.required' =>
-                'Pilih minimal satu siswa yang akan diserahkan.',
+            'student_ids.required' => 'Pilih minimal satu siswa yang akan diserahkan.',
 
-            'student_ids.array' =>
-                'Daftar siswa harus berupa array.',
+            'student_ids.array' => 'Daftar siswa harus berupa array.',
 
-            'student_ids.min' =>
-                'Pilih minimal satu siswa yang akan diserahkan.',
+            'student_ids.min' => 'Pilih minimal satu siswa yang akan diserahkan.',
 
-            'student_ids.max' =>
-                'Maksimal 20 siswa dalam satu transaksi.',
+            'student_ids.max' => 'Maksimal 20 siswa dalam satu transaksi.',
 
-            'student_ids.*.integer' =>
-                'Salah satu ID siswa tidak valid.',
+            'student_ids.*.integer' => 'Salah satu ID siswa tidak valid.',
 
-            'student_ids.*.distinct' =>
-                'Siswa yang sama tidak boleh dipilih lebih dari satu kali.',
+            'student_ids.*.distinct' => 'Siswa yang sama tidak boleh dipilih lebih dari satu kali.',
 
-            'notes.max' =>
-                'Catatan maksimal 1000 karakter.',
+            'notes.max' => 'Catatan maksimal 1000 karakter.',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'idempotency_key' =>
-                'kunci idempotency',
+            'idempotency_key' => 'kunci idempotency',
 
-            'face_verification_attempt_id' =>
-                'hasil verifikasi wajah',
+            'face_verification_attempt_id' => 'hasil verifikasi wajah',
 
-            'student_ids' =>
-                'daftar siswa',
+            'student_ids' => 'daftar siswa',
 
-            'student_ids.*' =>
-                'siswa',
+            'student_ids.*' => 'siswa',
 
-            'notes' =>
-                'catatan',
+            'notes' => 'catatan',
         ];
     }
 

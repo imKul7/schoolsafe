@@ -24,68 +24,60 @@ class GatePickupEventHistoryRequest extends FormRequest
         $user =
             $this->user();
 
-        return (
+        return
             $user instanceof User
             && (bool) $user->is_active
             && (int) $user->school_id > 0
             && $user->hasRole(
                 User::ROLE_SCHOOL_ADMIN,
                 User::ROLE_GATE_OFFICER,
-            )
-        );
+            );
     }
 
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'date_from' =>
-                $this->nullableTrimmedString(
-                    $this->input(
-                        'date_from',
-                    ),
+            'date_from' => $this->nullableTrimmedString(
+                $this->input(
+                    'date_from',
                 ),
+            ),
 
-            'date_to' =>
-                $this->nullableTrimmedString(
-                    $this->input(
-                        'date_to',
-                    ),
+            'date_to' => $this->nullableTrimmedString(
+                $this->input(
+                    'date_to',
                 ),
+            ),
 
-            'status' =>
-                $this->nullableTrimmedString(
-                    $this->input(
-                        'status',
-                    ),
+            'status' => $this->nullableTrimmedString(
+                $this->input(
+                    'status',
                 ),
+            ),
 
-            'verification_method' =>
-                $this->nullableTrimmedString(
-                    $this->input(
-                        'verification_method',
-                    ),
+            'verification_method' => $this->nullableTrimmedString(
+                $this->input(
+                    'verification_method',
                 ),
+            ),
 
-            'search' =>
-                $this->nullableTrimmedString(
-                    $this->input(
-                        'search',
-                    ),
+            'search' => $this->nullableTrimmedString(
+                $this->input(
+                    'search',
                 ),
+            ),
 
-            'confirmed_by_user_id' =>
-                $this->normalizeInteger(
-                    $this->input(
-                        'confirmed_by_user_id',
-                    ),
+            'confirmed_by_user_id' => $this->normalizeInteger(
+                $this->input(
+                    'confirmed_by_user_id',
                 ),
+            ),
 
-            'per_page' =>
-                $this->normalizeInteger(
-                    $this->input(
-                        'per_page',
-                    ),
+            'per_page' => $this->normalizeInteger(
+                $this->input(
+                    'per_page',
                 ),
+            ),
         ]);
     }
 
@@ -177,35 +169,25 @@ class GatePickupEventHistoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'date_from.date_format' =>
-                'Tanggal awal harus menggunakan format YYYY-MM-DD.',
+            'date_from.date_format' => 'Tanggal awal harus menggunakan format YYYY-MM-DD.',
 
-            'date_to.date_format' =>
-                'Tanggal akhir harus menggunakan format YYYY-MM-DD.',
+            'date_to.date_format' => 'Tanggal akhir harus menggunakan format YYYY-MM-DD.',
 
-            'date_to.after_or_equal' =>
-                'Tanggal akhir tidak boleh sebelum tanggal awal.',
+            'date_to.after_or_equal' => 'Tanggal akhir tidak boleh sebelum tanggal awal.',
 
-            'status.in' =>
-                'Status transaksi tidak valid.',
+            'status.in' => 'Status transaksi tidak valid.',
 
-            'verification_method.in' =>
-                'Metode verifikasi tidak valid.',
+            'verification_method.in' => 'Metode verifikasi tidak valid.',
 
-            'confirmed_by_user_id.integer' =>
-                'Petugas yang dipilih tidak valid.',
+            'confirmed_by_user_id.integer' => 'Petugas yang dipilih tidak valid.',
 
-            'search.max' =>
-                'Kata pencarian maksimal 100 karakter.',
+            'search.max' => 'Kata pencarian maksimal 100 karakter.',
 
-            'per_page.in' =>
-                'Jumlah data per halaman tidak valid.',
+            'per_page.in' => 'Jumlah data per halaman tidak valid.',
 
-            'confirmed_by_user_id.integer' =>
-                'Petugas konfirmasi tidak valid.',
+            'confirmed_by_user_id.integer' => 'Petugas konfirmasi tidak valid.',
 
-            'confirmed_by_user_id.exists' =>
-                'Petugas konfirmasi tidak ditemukan pada sekolah Anda.',
+            'confirmed_by_user_id.exists' => 'Petugas konfirmasi tidak ditemukan pada sekolah Anda.',
         ];
     }
 

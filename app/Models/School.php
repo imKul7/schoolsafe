@@ -37,9 +37,9 @@ class School extends Model
 
     public function pickupEvents(): HasMany
     {
-    return $this->hasMany(
-        PickupEvent::class,
-    );
+        return $this->hasMany(
+            PickupEvent::class,
+        );
     }
 
     /**

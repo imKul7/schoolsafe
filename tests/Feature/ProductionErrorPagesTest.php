@@ -19,58 +19,44 @@ class ProductionErrorPagesTest extends TestCase
 
         $expectedPages = [
             403 => [
-                'title' =>
-                    'Akses ditolak',
+                'title' => 'Akses ditolak',
 
-                'status' =>
-                    'Permintaan tidak diizinkan',
+                'status' => 'Permintaan tidak diizinkan',
             ],
 
             404 => [
-                'title' =>
-                    'Halaman tidak ditemukan',
+                'title' => 'Halaman tidak ditemukan',
 
-                'status' =>
-                    'Alamat tidak tersedia',
+                'status' => 'Alamat tidak tersedia',
             ],
 
             419 => [
-                'title' =>
-                    'Sesi telah berakhir',
+                'title' => 'Sesi telah berakhir',
 
-                'status' =>
-                    'Sesi keamanan kedaluwarsa',
+                'status' => 'Sesi keamanan kedaluwarsa',
             ],
 
             429 => [
-                'title' =>
-                    'Terlalu banyak permintaan',
+                'title' => 'Terlalu banyak permintaan',
 
-                'status' =>
-                    'Batas permintaan tercapai',
+                'status' => 'Batas permintaan tercapai',
             ],
 
             500 => [
-                'title' =>
-                    'Terjadi gangguan pada sistem',
+                'title' => 'Terjadi gangguan pada sistem',
 
-                'status' =>
-                    'Kesalahan internal',
+                'status' => 'Kesalahan internal',
             ],
 
             503 => [
-                'title' =>
-                    'Layanan sedang tidak tersedia',
+                'title' => 'Layanan sedang tidak tersedia',
 
-                'status' =>
-                    'Pemeliharaan atau gangguan sementara',
+                'status' => 'Pemeliharaan atau gangguan sementara',
             ],
         ];
 
         foreach (
-            $expectedPages as
-            $statusCode =>
-            $expectedPage
+            $expectedPages as $statusCode => $expectedPage
         ) {
             $response =
                 $this->get(
@@ -114,8 +100,7 @@ class ProductionErrorPagesTest extends TestCase
                     ->getContent();
 
             foreach (
-                $this->sensitiveDebugMarkers() as
-                $sensitiveDebugMarker
+                $this->sensitiveDebugMarkers() as $sensitiveDebugMarker
             ) {
                 $this->assertStringNotContainsString(
                     $sensitiveDebugMarker,
@@ -148,8 +133,7 @@ class ProductionErrorPagesTest extends TestCase
         ];
 
         foreach (
-            $expectedFiles as
-            $expectedFile
+            $expectedFiles as $expectedFile
         ) {
             $absolutePath =
                 $errorViewDirectory
@@ -185,8 +169,7 @@ class ProductionErrorPagesTest extends TestCase
             );
 
             foreach (
-                $this->sensitiveDebugMarkers() as
-                $sensitiveDebugMarker
+                $this->sensitiveDebugMarkers() as $sensitiveDebugMarker
             ) {
                 $this->assertStringNotContainsString(
                     $sensitiveDebugMarker,
@@ -227,8 +210,7 @@ class ProductionErrorPagesTest extends TestCase
         ];
 
         foreach (
-            $forbiddenRuntimeDependencies as
-            $forbiddenRuntimeDependency
+            $forbiddenRuntimeDependencies as $forbiddenRuntimeDependency
         ) {
             $this->assertStringNotContainsString(
                 $forbiddenRuntimeDependency,
@@ -248,8 +230,7 @@ class ProductionErrorPagesTest extends TestCase
                 429,
                 500,
                 503,
-            ] as
-            $statusCode
+            ] as $statusCode
         ) {
             $pageSource =
                 file_get_contents(

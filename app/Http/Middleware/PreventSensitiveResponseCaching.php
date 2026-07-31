@@ -14,7 +14,7 @@ class PreventSensitiveResponseCaching
      * Menambahkan header anti-cache pada respons yang memuat
      * data transaksi, identitas, atau audit sensitif.
      *
-     * @param Closure(Request): Response $next
+     * @param  Closure(Request): Response  $next
      */
     public function handle(
         Request $request,

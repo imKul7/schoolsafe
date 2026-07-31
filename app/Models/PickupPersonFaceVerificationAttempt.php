@@ -12,11 +12,12 @@ class PickupPersonFaceVerificationAttempt extends Model
 {
     public function pickupEvent(): HasOne
     {
-    return $this->hasOne(
-        PickupEvent::class,
-        'face_verification_attempt_id',
-    );
+        return $this->hasOne(
+            PickupEvent::class,
+            'face_verification_attempt_id',
+        );
     }
+
     public const RESULT_MATCH = 'match';
 
     public const RESULT_NO_MATCH = 'no_match';
@@ -65,38 +66,27 @@ class PickupPersonFaceVerificationAttempt extends Model
     protected function casts(): array
     {
         return [
-            'similarity_score' =>
-                'decimal:4',
+            'similarity_score' => 'decimal:4',
 
-            'similarity_threshold' =>
-                'decimal:4',
+            'similarity_threshold' => 'decimal:4',
 
-            'candidate_margin' =>
-                'decimal:4',
+            'candidate_margin' => 'decimal:4',
 
-            'candidate_count' =>
-                'integer',
+            'candidate_count' => 'integer',
 
-            'quality_score' =>
-                'decimal:4',
+            'quality_score' => 'decimal:4',
 
-            'liveness_passed' =>
-                'boolean',
+            'liveness_passed' => 'boolean',
 
-            'live_score' =>
-                'decimal:4',
+            'live_score' => 'decimal:4',
 
-            'real_score' =>
-                'decimal:4',
+            'real_score' => 'decimal:4',
 
-            'embedding_dimension' =>
-                'integer',
+            'embedding_dimension' => 'integer',
 
-            'metadata' =>
-                'array',
+            'metadata' => 'array',
 
-            'occurred_at' =>
-                'datetime',
+            'occurred_at' => 'datetime',
         ];
     }
 

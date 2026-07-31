@@ -40,23 +40,17 @@ class UploadPickupPersonPhotoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'photo.required' =>
-                'Pilih foto penjemput terlebih dahulu.',
+            'photo.required' => 'Pilih foto penjemput terlebih dahulu.',
 
-            'photo.file' =>
-                'Foto yang dipilih tidak valid.',
+            'photo.file' => 'Foto yang dipilih tidak valid.',
 
-            'photo.image' =>
-                'File harus berupa gambar.',
+            'photo.image' => 'File harus berupa gambar.',
 
-            'photo.mimes' =>
-                'Foto harus berformat JPG, JPEG, PNG, atau WEBP.',
+            'photo.mimes' => 'Foto harus berformat JPG, JPEG, PNG, atau WEBP.',
 
-            'photo.max' =>
-                'Ukuran foto maksimal 5 MB.',
+            'photo.max' => 'Ukuran foto maksimal 5 MB.',
 
-            'photo.dimensions' =>
-                'Ukuran foto minimal 200 × 200 piksel dan maksimal 6000 × 6000 piksel.',
+            'photo.dimensions' => 'Ukuran foto minimal 200 × 200 piksel dan maksimal 6000 × 6000 piksel.',
         ];
     }
 

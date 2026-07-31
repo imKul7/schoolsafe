@@ -103,8 +103,7 @@ class StudentController extends Controller
             ->paginate(10)
             ->withQueryString()
             ->through(
-                fn (Student $student): array =>
-                    $this->studentListItem($student),
+                fn (Student $student): array => $this->studentListItem($student),
             );
 
         $classes = $this->getActiveClasses($schoolId);
@@ -211,29 +210,21 @@ class StudentController extends Controller
             'student' => [
                 'id' => $student->id,
 
-                'school_class_id' =>
-                    (string) $student->school_class_id,
+                'school_class_id' => (string) $student->school_class_id,
 
-                'student_number' =>
-                    $student->student_number,
+                'student_number' => $student->student_number,
 
-                'nisn' =>
-                    $student->nisn ?? '',
+                'nisn' => $student->nisn ?? '',
 
-                'full_name' =>
-                    $student->full_name,
+                'full_name' => $student->full_name,
 
-                'gender' =>
-                    $student->gender,
+                'gender' => $student->gender,
 
-                'date_of_birth' =>
-                    $student->date_of_birth?->format('Y-m-d') ?? '',
+                'date_of_birth' => $student->date_of_birth?->format('Y-m-d') ?? '',
 
-                'status' =>
-                    $student->status,
+                'status' => $student->status,
 
-                'notes' =>
-                    $student->notes ?? '',
+                'notes' => $student->notes ?? '',
             ],
 
             'classes' => $this->getActiveClasses(
@@ -463,39 +454,28 @@ class StudentController extends Controller
         return [
             'id' => $student->id,
 
-            'student_number' =>
-                $student->student_number,
+            'student_number' => $student->student_number,
 
-            'nisn' =>
-                $student->nisn,
+            'nisn' => $student->nisn,
 
-            'full_name' =>
-                $student->full_name,
+            'full_name' => $student->full_name,
 
-            'gender' =>
-                $student->gender,
+            'gender' => $student->gender,
 
-            'date_of_birth' =>
-                $student->date_of_birth?->format('d-m-Y'),
+            'date_of_birth' => $student->date_of_birth?->format('d-m-Y'),
 
-            'status' =>
-                $student->status,
+            'status' => $student->status,
 
-            'initials' =>
-                $this->makeInitials($student->full_name),
+            'initials' => $this->makeInitials($student->full_name),
 
             'class' => [
-                'id' =>
-                    $schoolClass->id,
+                'id' => $schoolClass->id,
 
-                'name' =>
-                    $schoolClass->name,
+                'name' => $schoolClass->name,
 
-                'grade_level' =>
-                    $schoolClass->grade_level,
+                'grade_level' => $schoolClass->grade_level,
 
-                'academic_year' =>
-                    $schoolClass->academic_year,
+                'academic_year' => $schoolClass->academic_year,
             ],
         ];
     }
@@ -517,48 +497,34 @@ class StudentController extends Controller
         return [
             'id' => $student->id,
 
-            'student_number' =>
-                $student->student_number,
+            'student_number' => $student->student_number,
 
-            'nisn' =>
-                $student->nisn,
+            'nisn' => $student->nisn,
 
-            'full_name' =>
-                $student->full_name,
+            'full_name' => $student->full_name,
 
-            'gender' =>
-                $student->gender,
+            'gender' => $student->gender,
 
-            'date_of_birth' =>
-                $student->date_of_birth?->format('d-m-Y'),
+            'date_of_birth' => $student->date_of_birth?->format('d-m-Y'),
 
-            'status' =>
-                $student->status,
+            'status' => $student->status,
 
-            'notes' =>
-                $student->notes,
+            'notes' => $student->notes,
 
-            'photo_path' =>
-                $student->photo_path,
+            'photo_path' => $student->photo_path,
 
-            'initials' =>
-                $this->makeInitials($student->full_name),
+            'initials' => $this->makeInitials($student->full_name),
 
             'class' => [
-                'id' =>
-                    $schoolClass->id,
+                'id' => $schoolClass->id,
 
-                'name' =>
-                    $schoolClass->name,
+                'name' => $schoolClass->name,
 
-                'grade_level' =>
-                    $schoolClass->grade_level,
+                'grade_level' => $schoolClass->grade_level,
 
-                'academic_year' =>
-                    $schoolClass->academic_year,
+                'academic_year' => $schoolClass->academic_year,
 
-                'homeroom_teacher' =>
-                    $schoolClass->homeroom_teacher,
+                'homeroom_teacher' => $schoolClass->homeroom_teacher,
             ],
         ];
     }
@@ -578,10 +544,9 @@ class StudentController extends Controller
             ->filter()
             ->take(2)
             ->map(
-                fn (string $word): string =>
-                    mb_strtoupper(
-                        mb_substr($word, 0, 1),
-                    ),
+                fn (string $word): string => mb_strtoupper(
+                    mb_substr($word, 0, 1),
+                ),
             )
             ->implode('');
     }

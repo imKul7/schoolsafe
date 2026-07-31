@@ -58,23 +58,17 @@ class PickupEventStudent extends Pivot
     protected function casts(): array
     {
         return [
-            'pickup_event_id' =>
-                'integer',
+            'pickup_event_id' => 'integer',
 
-            'student_id' =>
-                'integer',
+            'student_id' => 'integer',
 
-            'cancelled_by_user_id' =>
-                'integer',
+            'cancelled_by_user_id' => 'integer',
 
-            'is_primary' =>
-                'boolean',
+            'is_primary' => 'boolean',
 
-            'released_at' =>
-                'datetime',
+            'released_at' => 'datetime',
 
-            'cancelled_at' =>
-                'datetime',
+            'cancelled_at' => 'datetime',
         ];
     }
 
@@ -182,23 +176,19 @@ class PickupEventStudent extends Pivot
 
     public function canBeCancelled(): bool
     {
-        return (
+        return
             $this->isReleased()
-            && $this->cancelled_at === null
-        );
+            && $this->cancelled_at === null;
     }
 
     public function statusLabel(): string
     {
         return match ($this->status) {
-            self::STATUS_RELEASED =>
-                'Diserahkan',
+            self::STATUS_RELEASED => 'Diserahkan',
 
-            self::STATUS_CANCELLED =>
-                'Dibatalkan',
+            self::STATUS_CANCELLED => 'Dibatalkan',
 
-            default =>
-                'Tidak Diketahui',
+            default => 'Tidak Diketahui',
         };
     }
 }

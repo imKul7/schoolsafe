@@ -129,11 +129,10 @@ class GatePickupEventController extends Controller
         $pickupEvents->through(
             fn (
                 PickupEvent $event,
-            ): array =>
-                $this->historyItemPayload(
-                    $event,
-                    $user,
-                ),
+            ): array => $this->historyItemPayload(
+                $event,
+                $user,
+            ),
         );
 
         $officers = User::query()
@@ -151,21 +150,18 @@ class GatePickupEventController extends Controller
             ->filter(
                 static fn (
                     User $officer,
-                ): bool =>
-                    $officer->hasRole(
-                        User::ROLE_SCHOOL_ADMIN,
-                        User::ROLE_GATE_OFFICER,
-                    ),
+                ): bool => $officer->hasRole(
+                    User::ROLE_SCHOOL_ADMIN,
+                    User::ROLE_GATE_OFFICER,
+                ),
             )
             ->map(
                 static fn (
                     User $officer,
                 ): array => [
-                    'id' =>
-                        (int) $officer->id,
+                    'id' => (int) $officer->id,
 
-                    'name' =>
-                        (string) $officer->name,
+                    'name' => (string) $officer->name,
                 ],
             )
             ->values()
@@ -174,88 +170,66 @@ class GatePickupEventController extends Controller
         return Inertia::render(
             'gate/pickup-events/index',
             [
-                'pickupEvents' =>
-                    $pickupEvents,
+                'pickupEvents' => $pickupEvents,
 
                 'summary' => [
-                    'total_transactions' =>
-                        $totalTransactions,
+                    'total_transactions' => $totalTransactions,
 
-                    'confirmed_transactions' =>
-                        $confirmedTransactions,
+                    'confirmed_transactions' => $confirmedTransactions,
 
-                    'cancelled_transactions' =>
-                        $cancelledTransactions,
+                    'cancelled_transactions' => $cancelledTransactions,
 
-                    'released_students' =>
-                        $releasedStudents,
+                    'released_students' => $releasedStudents,
 
-                    'cancelled_students' =>
-                        $cancelledStudents,
+                    'cancelled_students' => $cancelledStudents,
                 ],
 
                 'filters' => [
-                    'date_from' =>
-                        $request->dateFrom(),
+                    'date_from' => $request->dateFrom(),
 
-                    'date_to' =>
-                        $request->dateTo(),
+                    'date_to' => $request->dateTo(),
 
-                    'status' =>
-                        $request->status(),
+                    'status' => $request->status(),
 
-                    'verification_method' =>
-                        $request
-                            ->verificationMethod(),
+                    'verification_method' => $request
+                        ->verificationMethod(),
 
-                    'confirmed_by_user_id' =>
-                        $request
-                            ->confirmedByUserId(),
+                    'confirmed_by_user_id' => $request
+                        ->confirmedByUserId(),
 
-                    'search' =>
-                        $request->searchTerm(),
+                    'search' => $request->searchTerm(),
 
-                    'per_page' =>
-                        $request->perPage(),
+                    'per_page' => $request->perPage(),
                 ],
 
                 'filterOptions' => [
                     'statuses' => [
                         [
-                            'value' =>
-                                PickupEvent::STATUS_CONFIRMED,
+                            'value' => PickupEvent::STATUS_CONFIRMED,
 
-                            'label' =>
-                                'Dikonfirmasi',
+                            'label' => 'Dikonfirmasi',
                         ],
                         [
-                            'value' =>
-                                PickupEvent::STATUS_CANCELLED,
+                            'value' => PickupEvent::STATUS_CANCELLED,
 
-                            'label' =>
-                                'Dibatalkan',
+                            'label' => 'Dibatalkan',
                         ],
                     ],
 
                     'verification_methods' => [
                         [
-                            'value' =>
-                                PickupEvent::VERIFICATION_METHOD_FACE,
+                            'value' => PickupEvent::VERIFICATION_METHOD_FACE,
 
-                            'label' =>
-                                'Verifikasi Wajah',
+                            'label' => 'Verifikasi Wajah',
                         ],
                         [
-                            'value' =>
-                                PickupEvent::VERIFICATION_METHOD_MANUAL,
+                            'value' => PickupEvent::VERIFICATION_METHOD_MANUAL,
 
-                            'label' =>
-                                'Verifikasi Manual',
+                            'label' => 'Verifikasi Manual',
                         ],
                     ],
 
-                    'officers' =>
-                        $officers,
+                    'officers' => $officers,
 
                     'per_page_options' => [
                         10,
@@ -286,11 +260,10 @@ class GatePickupEventController extends Controller
         );
 
         return response()->json([
-            'pickup_event' =>
-                $this->eventDetailPayload(
-                    $event,
-                    $user,
-                ),
+            'pickup_event' => $this->eventDetailPayload(
+                $event,
+                $user,
+            ),
         ]);
     }
 
@@ -313,8 +286,7 @@ class GatePickupEventController extends Controller
                 array_map(
                     static fn (
                         mixed $studentId,
-                    ): int =>
-                        (int) $studentId,
+                    ): int => (int) $studentId,
                     $request->studentIds(),
                 ),
             ),
@@ -338,18 +310,12 @@ class GatePickupEventController extends Controller
 
         $requestFingerprint =
             $this->requestFingerprint(
-                schoolId:
-                    $schoolId,
-                userId:
-                    (int) $user->id,
-                attemptId:
-                    $attemptId,
-                studentIds:
-                    $studentIds,
-                notes:
-                    $notes,
-                sessionBinding:
-                    $sessionBinding,
+                schoolId: $schoolId,
+                userId: (int) $user->id,
+                attemptId: $attemptId,
+                studentIds: $studentIds,
+                notes: $notes,
+                sessionBinding: $sessionBinding,
             );
 
         $today = $this->schoolToday(
@@ -382,26 +348,18 @@ class GatePickupEventController extends Controller
 
                         if ($existingByIdempotency) {
                             $this->ensureReplayMatchesRequest(
-                                event:
-                                    $existingByIdempotency,
-                                schoolId:
-                                    $schoolId,
-                                userId:
-                                    (int) $user->id,
-                                attemptId:
-                                    $attemptId,
-                                requestFingerprint:
-                                    $requestFingerprint,
-                                sessionBinding:
-                                    $sessionBinding,
+                                event: $existingByIdempotency,
+                                schoolId: $schoolId,
+                                userId: (int) $user->id,
+                                attemptId: $attemptId,
+                                requestFingerprint: $requestFingerprint,
+                                sessionBinding: $sessionBinding,
                             );
 
                             return [
-                                'event' =>
-                                    $existingByIdempotency,
+                                'event' => $existingByIdempotency,
 
-                                'replayed' =>
-                                    true,
+                                'replayed' => true,
                             ];
                         }
 
@@ -417,8 +375,7 @@ class GatePickupEventController extends Controller
 
                         if (! $attempt) {
                             throw ValidationException::withMessages([
-                                'face_verification_attempt_id' =>
-                                    'Hasil verifikasi wajah tidak ditemukan.',
+                                'face_verification_attempt_id' => 'Hasil verifikasi wajah tidak ditemukan.',
                             ]);
                         }
 
@@ -467,21 +424,16 @@ class GatePickupEventController extends Controller
 
                         if (! $pickupPerson) {
                             throw ValidationException::withMessages([
-                                'face_verification_attempt_id' =>
-                                    'Penjemput tidak aktif atau tidak ditemukan.',
+                                'face_verification_attempt_id' => 'Penjemput tidak aktif atau tidak ditemukan.',
                             ]);
                         }
 
                         $students =
                             $this->authorizedStudents(
-                                schoolId:
-                                    $schoolId,
-                                pickupPersonId:
-                                    (int) $pickupPerson->id,
-                                studentIds:
-                                    $studentIds,
-                                today:
-                                    $today,
+                                schoolId: $schoolId,
+                                pickupPersonId: (int) $pickupPerson->id,
+                                studentIds: $studentIds,
+                                today: $today,
                             );
 
                         $authorizedStudentIds =
@@ -490,8 +442,7 @@ class GatePickupEventController extends Controller
                                 ->map(
                                     static fn (
                                         mixed $studentId,
-                                    ): int =>
-                                        (int) $studentId,
+                                    ): int => (int) $studentId,
                                 )
                                 ->unique()
                                 ->sort()
@@ -511,8 +462,7 @@ class GatePickupEventController extends Controller
                                 );
 
                             throw ValidationException::withMessages([
-                                'student_ids' =>
-                                    $invalidStudentIds === []
+                                'student_ids' => $invalidStudentIds === []
                                         ? 'Daftar siswa tidak valid.'
                                         : sprintf(
                                             'Siswa dengan ID %s tidak aktif, berbeda sekolah, atau tidak sah dijemput oleh penjemput ini.',
@@ -528,89 +478,64 @@ class GatePickupEventController extends Controller
 
                         $event = PickupEvent::query()
                             ->create([
-                                'school_id' =>
-                                    $schoolId,
+                                'school_id' => $schoolId,
 
-                                'pickup_person_id' =>
-                                    $pickupPerson->id,
+                                'pickup_person_id' => $pickupPerson->id,
 
-                                'face_verification_attempt_id' =>
-                                    $attempt->id,
+                                'face_verification_attempt_id' => $attempt->id,
 
-                                'confirmed_by_user_id' =>
-                                    $user->id,
+                                'confirmed_by_user_id' => $user->id,
 
-                                'cancelled_by_user_id' =>
-                                    null,
+                                'cancelled_by_user_id' => null,
 
-                                'idempotency_key' =>
-                                    $idempotencyKey,
+                                'idempotency_key' => $idempotencyKey,
 
-                                'verification_method' =>
-                                    PickupEvent::VERIFICATION_METHOD_FACE,
+                                'verification_method' => PickupEvent::VERIFICATION_METHOD_FACE,
 
-                                'status' =>
-                                    PickupEvent::STATUS_CONFIRMED,
+                                'status' => PickupEvent::STATUS_CONFIRMED,
 
-                                'pickup_person_name' =>
-                                    $pickupPerson->full_name,
+                                'pickup_person_name' => $pickupPerson->full_name,
 
-                                'pickup_person_phone' =>
-                                    $this->nullableString(
-                                        $pickupPerson->phone,
-                                    ),
+                                'pickup_person_phone' => $this->nullableString(
+                                    $pickupPerson->phone,
+                                ),
 
-                                'verification_result' =>
-                                    $attempt->result,
+                                'verification_result' => $attempt->result,
 
-                                'similarity_score' =>
-                                    $attempt->similarity_score,
+                                'similarity_score' => $attempt->similarity_score,
 
-                                'similarity_threshold' =>
-                                    $attempt->similarity_threshold,
+                                'similarity_threshold' => $attempt->similarity_threshold,
 
-                                'candidate_margin' =>
-                                    $attempt->candidate_margin,
+                                'candidate_margin' => $attempt->candidate_margin,
 
-                                'confirmed_at' =>
-                                    $confirmedAt,
+                                'confirmed_at' => $confirmedAt,
 
-                                'cancelled_at' =>
-                                    null,
+                                'cancelled_at' => null,
 
-                                'cancellation_reason' =>
-                                    null,
+                                'cancellation_reason' => null,
 
-                                'notes' =>
-                                    $notes,
+                                'notes' => $notes,
 
-                                'ip_address' =>
-                                    $this->storeIpAddress()
+                                'ip_address' => $this->storeIpAddress()
                                         ? $request->ip()
                                         : null,
 
-                                'user_agent' =>
-                                    $this->storeUserAgent()
+                                'user_agent' => $this->storeUserAgent()
                                         ? $this->nullableString(
                                             $request->userAgent(),
                                         )
                                         : null,
 
                                 'metadata' => [
-                                    'request_fingerprint' =>
-                                        $requestFingerprint,
+                                    'request_fingerprint' => $requestFingerprint,
 
-                                    'session_binding' =>
-                                        $sessionBinding,
+                                    'session_binding' => $sessionBinding,
 
-                                    'selected_student_count' =>
-                                        count($studentIds),
+                                    'selected_student_count' => count($studentIds),
 
-                                    'source' =>
-                                        'gate_face_verification',
+                                    'source' => 'gate_face_verification',
 
-                                    'verification_attempt_occurred_at' =>
-                                        $attempt->occurred_at
+                                    'verification_attempt_occurred_at' => $attempt->occurred_at
                                             ? (string) $attempt
                                                 ->occurred_at
                                             : null,
@@ -626,55 +551,43 @@ class GatePickupEventController extends Controller
                                         $confirmedAt,
                                     ): array {
                                         return [
-                                            'student_id' =>
-                                                $student->id,
+                                            'student_id' => $student->id,
 
-                                            'student_name' =>
-                                                $student->full_name,
+                                            'student_name' => $student->full_name,
 
-                                            'student_number' =>
-                                                $this->nullableString(
-                                                    $student
-                                                        ->student_number,
+                                            'student_number' => $this->nullableString(
+                                                $student
+                                                    ->student_number,
+                                            ),
+
+                                            'class_name' => $this->studentClassName(
+                                                $student,
+                                            ),
+
+                                            'academic_year' => $this->studentAcademicYear(
+                                                $student,
+                                            ),
+
+                                            'relationship_type' => $this->nullableString(
+                                                $student->getAttribute(
+                                                    'authorized_relationship_type',
+                                                ),
+                                            ),
+
+                                            'is_primary' => (bool) $student
+                                                ->getAttribute(
+                                                    'authorized_is_primary',
                                                 ),
 
-                                            'class_name' =>
-                                                $this->studentClassName(
-                                                    $student,
-                                                ),
+                                            'status' => PickupEventStudent::STATUS_RELEASED,
 
-                                            'academic_year' =>
-                                                $this->studentAcademicYear(
-                                                    $student,
-                                                ),
+                                            'released_at' => $confirmedAt,
 
-                                            'relationship_type' =>
-                                                $this->nullableString(
-                                                    $student->getAttribute(
-                                                        'authorized_relationship_type',
-                                                    ),
-                                                ),
+                                            'cancelled_at' => null,
 
-                                            'is_primary' =>
-                                                (bool) $student
-                                                    ->getAttribute(
-                                                        'authorized_is_primary',
-                                                    ),
+                                            'cancelled_by_user_id' => null,
 
-                                            'status' =>
-                                                PickupEventStudent::STATUS_RELEASED,
-
-                                            'released_at' =>
-                                                $confirmedAt,
-
-                                            'cancelled_at' =>
-                                                null,
-
-                                            'cancelled_by_user_id' =>
-                                                null,
-
-                                            'cancellation_reason' =>
-                                                null,
+                                            'cancellation_reason' => null,
                                         ];
                                     },
                                 )
@@ -687,11 +600,9 @@ class GatePickupEventController extends Controller
                             );
 
                         return [
-                            'event' =>
-                                $event,
+                            'event' => $event,
 
-                            'replayed' =>
-                                false,
+                            'replayed' => false,
                         ];
                     },
                     3,
@@ -709,26 +620,18 @@ class GatePickupEventController extends Controller
 
             if ($existingByIdempotency) {
                 $this->ensureReplayMatchesRequest(
-                    event:
-                        $existingByIdempotency,
-                    schoolId:
-                        $schoolId,
-                    userId:
-                        (int) $user->id,
-                    attemptId:
-                        $attemptId,
-                    requestFingerprint:
-                        $requestFingerprint,
-                    sessionBinding:
-                        $sessionBinding,
+                    event: $existingByIdempotency,
+                    schoolId: $schoolId,
+                    userId: (int) $user->id,
+                    attemptId: $attemptId,
+                    requestFingerprint: $requestFingerprint,
+                    sessionBinding: $sessionBinding,
                 );
 
                 $transactionResult = [
-                    'event' =>
-                        $existingByIdempotency,
+                    'event' => $existingByIdempotency,
 
-                    'replayed' =>
-                        true,
+                    'replayed' => true,
                 ];
             } else {
                 $existingByAttempt =
@@ -764,19 +667,16 @@ class GatePickupEventController extends Controller
 
         return response()->json(
             [
-                'message' =>
-                    $replayed
+                'message' => $replayed
                         ? 'Konfirmasi yang sama sudah pernah diproses.'
                         : 'Penjemputan berhasil dikonfirmasi.',
 
-                'replayed' =>
-                    $replayed,
+                'replayed' => $replayed,
 
-                'pickup_event' =>
-                    $this->eventDetailPayload(
-                        $event,
-                        $user,
-                    ),
+                'pickup_event' => $this->eventDetailPayload(
+                    $event,
+                    $user,
+                ),
             ],
             $replayed
                 ? 200
@@ -854,32 +754,24 @@ class GatePickupEventController extends Controller
                     }
 
                     $studentRow->update([
-                        'status' =>
-                            PickupEventStudent::STATUS_CANCELLED,
+                        'status' => PickupEventStudent::STATUS_CANCELLED,
 
-                        'cancelled_at' =>
-                            $cancelledAt,
+                        'cancelled_at' => $cancelledAt,
 
-                        'cancelled_by_user_id' =>
-                            $user->id,
+                        'cancelled_by_user_id' => $user->id,
 
-                        'cancellation_reason' =>
-                            $reason,
+                        'cancellation_reason' => $reason,
                     ]);
                 }
 
                 $event->update([
-                    'status' =>
-                        PickupEvent::STATUS_CANCELLED,
+                    'status' => PickupEvent::STATUS_CANCELLED,
 
-                    'cancelled_at' =>
-                        $cancelledAt,
+                    'cancelled_at' => $cancelledAt,
 
-                    'cancelled_by_user_id' =>
-                        $user->id,
+                    'cancelled_by_user_id' => $user->id,
 
-                    'cancellation_reason' =>
-                        $reason,
+                    'cancellation_reason' => $reason,
                 ]);
 
                 return $event;
@@ -888,14 +780,12 @@ class GatePickupEventController extends Controller
         );
 
         return response()->json([
-            'message' =>
-                'Transaksi penjemputan berhasil dibatalkan.',
+            'message' => 'Transaksi penjemputan berhasil dibatalkan.',
 
-            'pickup_event' =>
-                $this->eventDetailPayload(
-                    $event,
-                    $user,
-                ),
+            'pickup_event' => $this->eventDetailPayload(
+                $event,
+                $user,
+            ),
         ]);
     }
 
@@ -985,17 +875,13 @@ class GatePickupEventController extends Controller
                 $cancelledAt = now();
 
                 $studentRow->update([
-                    'status' =>
-                        PickupEventStudent::STATUS_CANCELLED,
+                    'status' => PickupEventStudent::STATUS_CANCELLED,
 
-                    'cancelled_at' =>
-                        $cancelledAt,
+                    'cancelled_at' => $cancelledAt,
 
-                    'cancelled_by_user_id' =>
-                        $user->id,
+                    'cancelled_by_user_id' => $user->id,
 
-                    'cancellation_reason' =>
-                        $reason,
+                    'cancellation_reason' => $reason,
                 ]);
 
                 $remainingReleasedStudent =
@@ -1012,17 +898,13 @@ class GatePickupEventController extends Controller
 
                 if (! $remainingReleasedStudent) {
                     $event->update([
-                        'status' =>
-                            PickupEvent::STATUS_CANCELLED,
+                        'status' => PickupEvent::STATUS_CANCELLED,
 
-                        'cancelled_at' =>
-                            $cancelledAt,
+                        'cancelled_at' => $cancelledAt,
 
-                        'cancelled_by_user_id' =>
-                            $user->id,
+                        'cancelled_by_user_id' => $user->id,
 
-                        'cancellation_reason' =>
-                            $reason,
+                        'cancellation_reason' => $reason,
                     ]);
                 }
 
@@ -1032,14 +914,12 @@ class GatePickupEventController extends Controller
         );
 
         return response()->json([
-            'message' =>
-                'Penyerahan siswa berhasil dibatalkan.',
+            'message' => 'Penyerahan siswa berhasil dibatalkan.',
 
-            'pickup_event' =>
-                $this->eventDetailPayload(
-                    $event,
-                    $user,
-                ),
+            'pickup_event' => $this->eventDetailPayload(
+                $event,
+                $user,
+            ),
         ]);
     }
 
@@ -1054,8 +934,7 @@ class GatePickupEventController extends Controller
                 !== PickupPersonFaceVerificationAttempt::RESULT_MATCH
         ) {
             throw ValidationException::withMessages([
-                'face_verification_attempt_id' =>
-                    'Hanya hasil verifikasi wajah yang cocok yang dapat digunakan.',
+                'face_verification_attempt_id' => 'Hanya hasil verifikasi wajah yang cocok yang dapat digunakan.',
             ]);
         }
 
@@ -1064,8 +943,7 @@ class GatePickupEventController extends Controller
                 ->liveness_passed
         ) {
             throw ValidationException::withMessages([
-                'face_verification_attempt_id' =>
-                    'Verifikasi liveness pada hasil ini tidak lulus.',
+                'face_verification_attempt_id' => 'Verifikasi liveness pada hasil ini tidak lulus.',
             ]);
         }
 
@@ -1074,8 +952,7 @@ class GatePickupEventController extends Controller
                 === null
         ) {
             throw ValidationException::withMessages([
-                'face_verification_attempt_id' =>
-                    'Hasil verifikasi tidak memiliki penjemput yang cocok.',
+                'face_verification_attempt_id' => 'Hasil verifikasi tidak memiliki penjemput yang cocok.',
             ]);
         }
 
@@ -1085,8 +962,7 @@ class GatePickupEventController extends Controller
                 !== (int) $user->id
         ) {
             throw ValidationException::withMessages([
-                'face_verification_attempt_id' =>
-                    'Hasil verifikasi ini dibuat oleh petugas lain.',
+                'face_verification_attempt_id' => 'Hasil verifikasi ini dibuat oleh petugas lain.',
             ]);
         }
 
@@ -1095,8 +971,7 @@ class GatePickupEventController extends Controller
                 !== $schoolId
         ) {
             throw ValidationException::withMessages([
-                'face_verification_attempt_id' =>
-                    'Hasil verifikasi berasal dari sekolah yang berbeda.',
+                'face_verification_attempt_id' => 'Hasil verifikasi berasal dari sekolah yang berbeda.',
             ]);
         }
 
@@ -1136,11 +1011,10 @@ class GatePickupEventController extends Controller
             )
         ) {
             throw ValidationException::withMessages([
-                'face_verification_attempt_id' =>
-                    sprintf(
-                        'Hasil verifikasi sudah kedaluwarsa atau waktunya tidak valid. Batas konfirmasi adalah %d detik.',
-                        $windowSeconds,
-                    ),
+                'face_verification_attempt_id' => sprintf(
+                    'Hasil verifikasi sudah kedaluwarsa atau waktunya tidak valid. Batas konfirmasi adalah %d detik.',
+                    $windowSeconds,
+                ),
             ]);
         }
 
@@ -1174,15 +1048,13 @@ class GatePickupEventController extends Controller
             )
         ) {
             throw ValidationException::withMessages([
-                'face_verification_attempt_id' =>
-                    'Hasil verifikasi berasal dari sesi yang berbeda. Jalankan verifikasi wajah ulang.',
+                'face_verification_attempt_id' => 'Hasil verifikasi berasal dari sesi yang berbeda. Jalankan verifikasi wajah ulang.',
             ]);
         }
     }
 
     /**
-     * @param array<int> $studentIds
-     *
+     * @param  array<int>  $studentIds
      * @return Collection<int, Student>
      */
     private function authorizedStudents(
@@ -1318,7 +1190,7 @@ class GatePickupEventController extends Controller
     }
 
     /**
-     * @param array<int> $studentIds
+     * @param  array<int>  $studentIds
      */
     private function requestFingerprint(
         int $schoolId,
@@ -1332,26 +1204,20 @@ class GatePickupEventController extends Controller
             'sha256',
             json_encode(
                 [
-                    'school_id' =>
-                        $schoolId,
+                    'school_id' => $schoolId,
 
-                    'user_id' =>
-                        $userId,
+                    'user_id' => $userId,
 
-                    'attempt_id' =>
-                        $attemptId,
+                    'attempt_id' => $attemptId,
 
-                    'student_ids' =>
-                        array_values($studentIds),
+                    'student_ids' => array_values($studentIds),
 
-                    'notes_hash' =>
-                        hash(
-                            'sha256',
-                            $notes ?? '',
-                        ),
+                    'notes_hash' => hash(
+                        'sha256',
+                        $notes ?? '',
+                    ),
 
-                    'session_binding' =>
-                        $sessionBinding,
+                    'session_binding' => $sessionBinding,
                 ],
                 JSON_THROW_ON_ERROR,
             ),
@@ -1421,85 +1287,66 @@ class GatePickupEventController extends Controller
         User $viewer,
     ): array {
         return [
-            'id' =>
-                (int) $event->id,
+            'id' => (int) $event->id,
 
-            'status' =>
-                (string) $event->status,
+            'status' => (string) $event->status,
 
-            'status_label' =>
-                $event->statusLabel(),
+            'status_label' => $event->statusLabel(),
 
-            'verification_method' =>
-                (string) $event
-                    ->verification_method,
+            'verification_method' => (string) $event
+                ->verification_method,
 
-            'verification_method_label' =>
-                $event
-                    ->verificationMethodLabel(),
+            'verification_method_label' => $event
+                ->verificationMethodLabel(),
 
-            'pickup_person_name' =>
-                (string) $event
-                    ->pickup_person_name,
+            'pickup_person_name' => (string) $event
+                ->pickup_person_name,
 
-            'pickup_person_phone' =>
-                $event->pickup_person_phone,
+            'pickup_person_phone' => $event->pickup_person_phone,
 
-            'confirmed_at' =>
-                $event->confirmed_at
-                    ?->toIso8601String(),
+            'confirmed_at' => $event->confirmed_at
+                ?->toIso8601String(),
 
-            'cancelled_at' =>
-                $event->cancelled_at
-                    ?->toIso8601String(),
+            'cancelled_at' => $event->cancelled_at
+                ?->toIso8601String(),
 
-            'confirmed_by' =>
-                $event->confirmedBy
+            'confirmed_by' => $event->confirmedBy
                     ? [
-                        'id' =>
-                            (int) $event
-                                ->confirmedBy
-                                ->id,
+                        'id' => (int) $event
+                            ->confirmedBy
+                            ->id,
 
-                        'name' =>
-                            (string) $event
-                                ->confirmedBy
-                                ->name,
+                        'name' => (string) $event
+                            ->confirmedBy
+                            ->name,
                     ]
                     : null,
 
-            'cancelled_by' =>
-                $event->cancelledBy
+            'cancelled_by' => $event->cancelledBy
                     ? [
-                        'id' =>
-                            (int) $event
-                                ->cancelledBy
-                                ->id,
+                        'id' => (int) $event
+                            ->cancelledBy
+                            ->id,
 
-                        'name' =>
-                            (string) $event
-                                ->cancelledBy
-                                ->name,
+                        'name' => (string) $event
+                            ->cancelledBy
+                            ->name,
                     ]
                     : null,
 
-            'student_count' =>
-                (int) $event
-                    ->event_students_count,
+            'student_count' => (int) $event
+                ->event_students_count,
 
-            'released_student_count' =>
-                (int) $event
-                    ->released_event_students_count,
+            'released_student_count' => (int) $event
+                ->released_event_students_count,
 
-            'cancelled_student_count' =>
-                (int) $event
-                    ->cancelled_event_students_count,
+            'cancelled_student_count' => (int) $event
+                ->cancelled_event_students_count,
 
-            'can_cancel' =>
-                $this->userCanCancelEvent(
-                    $event,
-                    $viewer,
-                ),
+            'can_cancel' => $this->userCanCancelEvent(
+                $event,
+                $viewer,
+            ),
 
             'url' => sprintf(
                 '/gate/pickup-events/%d',
@@ -1558,255 +1405,200 @@ class GatePickupEventController extends Controller
             );
 
         return [
-            'id' =>
-                (int) $event->id,
+            'id' => (int) $event->id,
 
-            'idempotency_key' =>
-                (string) $event
-                    ->idempotency_key,
+            'idempotency_key' => (string) $event
+                ->idempotency_key,
 
-            'status' =>
-                (string) $event->status,
+            'status' => (string) $event->status,
 
-            'status_label' =>
-                $event->statusLabel(),
+            'status_label' => $event->statusLabel(),
 
-            'verification_method' =>
-                (string) $event
-                    ->verification_method,
+            'verification_method' => (string) $event
+                ->verification_method,
 
-            'verification_method_label' =>
-                $event
-                    ->verificationMethodLabel(),
+            'verification_method_label' => $event
+                ->verificationMethodLabel(),
 
-            'verification_result' =>
-                (string) $event
-                    ->verification_result,
+            'verification_result' => (string) $event
+                ->verification_result,
 
-            'similarity_score' =>
-                $event->similarity_score,
+            'similarity_score' => $event->similarity_score,
 
-            'similarity_threshold' =>
-                $event
-                    ->similarity_threshold,
+            'similarity_threshold' => $event
+                ->similarity_threshold,
 
-            'candidate_margin' =>
-                $event->candidate_margin,
+            'candidate_margin' => $event->candidate_margin,
 
-            'confirmed_at' =>
-                $event->confirmed_at
-                    ?->toIso8601String(),
+            'confirmed_at' => $event->confirmed_at
+                ?->toIso8601String(),
 
-            'cancelled_at' =>
-                $event->cancelled_at
-                    ?->toIso8601String(),
+            'cancelled_at' => $event->cancelled_at
+                ?->toIso8601String(),
 
-            'cancellation_reason' =>
-                $event
-                    ->cancellation_reason,
+            'cancellation_reason' => $event
+                ->cancellation_reason,
 
-            'notes' =>
-                $event->notes,
+            'notes' => $event->notes,
 
-            'can_cancel' =>
-                $canCancelEvent,
+            'can_cancel' => $canCancelEvent,
 
             'pickup_person' => [
-                'id' =>
-                    $event->pickup_person_id
+                'id' => $event->pickup_person_id
                         !== null
                             ? (int) $event
                                 ->pickup_person_id
                             : null,
 
-                'full_name' =>
-                    (string) $event
-                        ->pickup_person_name,
+                'full_name' => (string) $event
+                    ->pickup_person_name,
 
-                'phone' =>
-                    $event
-                        ->pickup_person_phone,
+                'phone' => $event
+                    ->pickup_person_phone,
             ],
 
-            'confirmed_by' =>
-                $event->confirmedBy
+            'confirmed_by' => $event->confirmedBy
                     ? [
-                        'id' =>
-                            (int) $event
-                                ->confirmedBy
-                                ->id,
+                        'id' => (int) $event
+                            ->confirmedBy
+                            ->id,
 
-                        'name' =>
-                            (string) $event
-                                ->confirmedBy
-                                ->name,
+                        'name' => (string) $event
+                            ->confirmedBy
+                            ->name,
                     ]
                     : null,
 
-            'cancelled_by' =>
-                $event->cancelledBy
+            'cancelled_by' => $event->cancelledBy
                     ? [
-                        'id' =>
-                            (int) $event
-                                ->cancelledBy
-                                ->id,
+                        'id' => (int) $event
+                            ->cancelledBy
+                            ->id,
 
-                        'name' =>
-                            (string) $event
-                                ->cancelledBy
-                                ->name,
+                        'name' => (string) $event
+                            ->cancelledBy
+                            ->name,
                     ]
                     : null,
 
-            'verification_attempt' =>
-                $event
-                    ->faceVerificationAttempt
+            'verification_attempt' => $event
+                ->faceVerificationAttempt
                     ? [
-                        'id' =>
-                            (int) $event
-                                ->faceVerificationAttempt
-                                ->id,
+                        'id' => (int) $event
+                            ->faceVerificationAttempt
+                            ->id,
 
-                        'result' =>
-                            $event
-                                ->faceVerificationAttempt
-                                ->result,
+                        'result' => $event
+                            ->faceVerificationAttempt
+                            ->result,
 
-                        'similarity_score' =>
-                            $event
-                                ->faceVerificationAttempt
-                                ->similarity_score,
+                        'similarity_score' => $event
+                            ->faceVerificationAttempt
+                            ->similarity_score,
 
-                        'similarity_threshold' =>
-                            $event
-                                ->faceVerificationAttempt
-                                ->similarity_threshold,
+                        'similarity_threshold' => $event
+                            ->faceVerificationAttempt
+                            ->similarity_threshold,
 
-                        'candidate_margin' =>
-                            $event
-                                ->faceVerificationAttempt
-                                ->candidate_margin,
+                        'candidate_margin' => $event
+                            ->faceVerificationAttempt
+                            ->candidate_margin,
 
-                        'quality_score' =>
-                            $event
-                                ->faceVerificationAttempt
-                                ->quality_score,
+                        'quality_score' => $event
+                            ->faceVerificationAttempt
+                            ->quality_score,
 
-                        'liveness_passed' =>
-                            (bool) $event
-                                ->faceVerificationAttempt
-                                ->liveness_passed,
+                        'liveness_passed' => (bool) $event
+                            ->faceVerificationAttempt
+                            ->liveness_passed,
 
-                        'live_score' =>
-                            $event
-                                ->faceVerificationAttempt
-                                ->live_score,
+                        'live_score' => $event
+                            ->faceVerificationAttempt
+                            ->live_score,
 
-                        'real_score' =>
-                            $event
-                                ->faceVerificationAttempt
-                                ->real_score,
+                        'real_score' => $event
+                            ->faceVerificationAttempt
+                            ->real_score,
 
-                        'model_name' =>
-                            (string) $event
-                                ->faceVerificationAttempt
-                                ->model_name,
+                        'model_name' => (string) $event
+                            ->faceVerificationAttempt
+                            ->model_name,
 
-                        'model_version' =>
-                            $event
-                                ->faceVerificationAttempt
-                                ->model_version,
+                        'model_version' => $event
+                            ->faceVerificationAttempt
+                            ->model_version,
 
-                        'occurred_at' =>
-                            $event
-                                ->faceVerificationAttempt
-                                ->occurred_at
-                                ?->toIso8601String(),
+                        'occurred_at' => $event
+                            ->faceVerificationAttempt
+                            ->occurred_at
+                            ?->toIso8601String(),
                     ]
                     : null,
 
-            'students' =>
-                $event
-                    ->eventStudents
-                    ->map(
-                        static fn (
-                            PickupEventStudent $item,
-                        ): array => [
-                            'id' =>
-                                (int) $item->id,
+            'students' => $event
+                ->eventStudents
+                ->map(
+                    static fn (
+                        PickupEventStudent $item,
+                    ): array => [
+                        'id' => (int) $item->id,
 
-                            'student_id' =>
-                                $item->student_id
-                                    !== null
-                                        ? (int) $item
-                                            ->student_id
-                                        : null,
-
-                            'student_name' =>
-                                (string) $item
-                                    ->student_name,
-
-                            'student_number' =>
-                                $item
-                                    ->student_number,
-
-                            'class_name' =>
-                                $item->class_name,
-
-                            'academic_year' =>
-                                $item
-                                    ->academic_year,
-
-                            'relationship_type' =>
-                                $item
-                                    ->relationship_type,
-
-                            'is_primary' =>
-                                (bool) $item
-                                    ->is_primary,
-
-                            'status' =>
-                                (string) $item
-                                    ->status,
-
-                            'status_label' =>
-                                $item->statusLabel(),
-
-                            'released_at' =>
-                                $item->released_at
-                                    ?->toIso8601String(),
-
-                            'cancelled_at' =>
-                                $item->cancelled_at
-                                    ?->toIso8601String(),
-
-                            'cancellation_reason' =>
-                                $item
-                                    ->cancellation_reason,
-
-                            'cancelled_by' =>
-                                $item->cancelledBy
-                                    ? [
-                                        'id' =>
-                                            (int) $item
-                                                ->cancelledBy
-                                                ->id,
-
-                                        'name' =>
-                                            (string) $item
-                                                ->cancelledBy
-                                                ->name,
-                                    ]
+                        'student_id' => $item->student_id
+                                !== null
+                                    ? (int) $item
+                                        ->student_id
                                     : null,
 
-                            'can_cancel' =>
-                                $canCancelEvent
-                                && $item
-                                    ->canBeCancelled(),
-                        ],
-                    )
-                    ->values()
-                    ->all(),
+                        'student_name' => (string) $item
+                            ->student_name,
+
+                        'student_number' => $item
+                            ->student_number,
+
+                        'class_name' => $item->class_name,
+
+                        'academic_year' => $item
+                            ->academic_year,
+
+                        'relationship_type' => $item
+                            ->relationship_type,
+
+                        'is_primary' => (bool) $item
+                            ->is_primary,
+
+                        'status' => (string) $item
+                            ->status,
+
+                        'status_label' => $item->statusLabel(),
+
+                        'released_at' => $item->released_at
+                            ?->toIso8601String(),
+
+                        'cancelled_at' => $item->cancelled_at
+                            ?->toIso8601String(),
+
+                        'cancellation_reason' => $item
+                            ->cancellation_reason,
+
+                        'cancelled_by' => $item->cancelledBy
+                                ? [
+                                    'id' => (int) $item
+                                        ->cancelledBy
+                                        ->id,
+
+                                    'name' => (string) $item
+                                        ->cancelledBy
+                                        ->name,
+                                ]
+                                : null,
+
+                        'can_cancel' => $canCancelEvent
+                            && $item
+                                ->canBeCancelled(),
+                    ],
+                )
+                ->values()
+                ->all(),
         ];
     }
 
@@ -1982,7 +1774,7 @@ class GatePickupEventController extends Controller
     }
 
     /**
-     * @param array<mixed> $values
+     * @param  array<mixed>  $values
      */
     private function firstNonEmptyString(
         array $values,
@@ -2106,7 +1898,7 @@ class GatePickupEventController extends Controller
             return false;
         }
 
-        return (
+        return
             $confirmedAt
                 instanceof CarbonImmutable
             && ! $confirmedAt->lessThan(
@@ -2114,8 +1906,7 @@ class GatePickupEventController extends Controller
                     $this
                         ->gateCancellationWindowSeconds(),
                 ),
-            )
-        );
+            );
     }
 
     private function gateCancellationWindowSeconds(): int
@@ -2133,57 +1924,57 @@ class GatePickupEventController extends Controller
     }
 
     private function sessionBindingHash(
-    Request $request,
-    int $schoolId,
-    User $user,
-): string {
-    $applicationKey =
-        trim(
-            (string) config(
-                'app.key',
-                '',
+        Request $request,
+        int $schoolId,
+        User $user,
+    ): string {
+        $applicationKey =
+            trim(
+                (string) config(
+                    'app.key',
+                    '',
+                ),
+            );
+
+        $hashKey =
+            $applicationKey !== ''
+                ? $applicationKey
+                : 'schoolsafe-session-binding';
+
+        $bindingEnabled =
+            (bool) config(
+                'biometrics.security.bind_pickup_confirmation_to_session',
+                true,
+            );
+
+        /*
+         * Ketika session binding dimatikan, gunakan komponen
+         * deterministik. Request identik tetap menghasilkan fingerprint
+         * yang sama walaupun Laravel membuat ID session baru pada
+         * request Feature Test berikutnya.
+         */
+        $sessionComponent =
+            $bindingEnabled
+                ? trim(
+                    $request
+                        ->session()
+                        ->getId(),
+                )
+                : 'session-binding-disabled';
+
+        return hash_hmac(
+            'sha256',
+            implode(
+                '|',
+                [
+                    $sessionComponent,
+                    (string) $schoolId,
+                    (string) $user->id,
+                ],
             ),
+            $hashKey,
         );
-
-    $hashKey =
-        $applicationKey !== ''
-            ? $applicationKey
-            : 'schoolsafe-session-binding';
-
-    $bindingEnabled =
-        (bool) config(
-            'biometrics.security.bind_pickup_confirmation_to_session',
-            true,
-        );
-
-    /*
-     * Ketika session binding dimatikan, gunakan komponen
-     * deterministik. Request identik tetap menghasilkan fingerprint
-     * yang sama walaupun Laravel membuat ID session baru pada
-     * request Feature Test berikutnya.
-     */
-    $sessionComponent =
-        $bindingEnabled
-            ? trim(
-                $request
-                    ->session()
-                    ->getId(),
-            )
-            : 'session-binding-disabled';
-
-    return hash_hmac(
-        'sha256',
-        implode(
-            '|',
-            [
-                $sessionComponent,
-                (string) $schoolId,
-                (string) $user->id,
-            ],
-        ),
-        $hashKey,
-    );
-}
+    }
 
     private function storeIpAddress(): bool
     {

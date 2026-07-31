@@ -328,7 +328,7 @@ class GatePickupEventParallelConfirmationTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string, mixed>> $jobs
+     * @param  array<int, array<string, mixed>>  $jobs
      * @return array<int, array<string, mixed>>
      */
     private function runParallelRequests(int $attemptId, array $jobs): array
@@ -395,19 +395,15 @@ class GatePickupEventParallelConfirmationTest extends TestCase
                 $this->processes[] = $process;
             }
 
-           $this->waitForReadyFiles(
-    readyPaths:
-        $readyPaths,
+            $this->waitForReadyFiles(
+                readyPaths: $readyPaths,
 
-    resultPaths:
-        $resultPaths,
+                resultPaths: $resultPaths,
 
-    processes:
-        $processes,
+                processes: $processes,
 
-    timeoutMs:
-        10_000,
-);
+                timeoutMs: 10_000,
+            );
 
             $readyPayloads = array_map(fn (string $path): array => $this->readJson($path), $readyPaths);
             $pids = array_values(array_unique(array_map(
@@ -424,7 +420,7 @@ class GatePickupEventParallelConfirmationTest extends TestCase
             foreach ($processes as $index => $process) {
                 $this->assertTrue(
                     $process->isRunning(),
-                    "Worker ".($index + 1)." selesai sebelum row lock dilepas.\n".$this->processDiagnostics($process),
+                    'Worker '.($index + 1)." selesai sebelum row lock dilepas.\n".$this->processDiagnostics($process),
                 );
             }
 
@@ -438,7 +434,7 @@ class GatePickupEventParallelConfirmationTest extends TestCase
             foreach ($processes as $index => $process) {
                 $this->assertTrue(
                     $process->isSuccessful(),
-                    "Worker ".($index + 1)." gagal.\n".$this->processDiagnostics($process),
+                    'Worker '.($index + 1)." gagal.\n".$this->processDiagnostics($process),
                 );
             }
 
@@ -447,7 +443,7 @@ class GatePickupEventParallelConfirmationTest extends TestCase
             foreach ($results as $index => $result) {
                 $this->assertTrue(
                     (bool) ($result['completed'] ?? false),
-                    "Worker ".($index + 1)." tidak selesai.\n".$this->diagnostics($results),
+                    'Worker '.($index + 1)." tidak selesai.\n".$this->diagnostics($results),
                 );
                 $this->assertSame(
                     DB::connection()->getDatabaseName(),
@@ -474,156 +470,156 @@ class GatePickupEventParallelConfirmationTest extends TestCase
 
     /** @param array<int, string> $readyPaths @param array<int, Process> $processes */
     /**
- * @param array<int, string> $readyPaths
- * @param array<int, string> $resultPaths
- * @param array<int, Process> $processes
- */
-private function waitForReadyFiles(
-    array $readyPaths,
-    array $resultPaths,
-    array $processes,
-    int $timeoutMs,
-): void {
-    $startedAt =
-        hrtime(true);
+     * @param  array<int, string>  $readyPaths
+     * @param  array<int, string>  $resultPaths
+     * @param  array<int, Process>  $processes
+     */
+    private function waitForReadyFiles(
+        array $readyPaths,
+        array $resultPaths,
+        array $processes,
+        int $timeoutMs,
+    ): void {
+        $startedAt =
+            hrtime(true);
 
-    while (true) {
-        $allReady =
-            true;
+        while (true) {
+            $allReady =
+                true;
 
-        foreach ($readyPaths as $readyPath) {
-            clearstatcache(
-                true,
-                $readyPath,
-            );
-
-            if (! is_file($readyPath)) {
-                $allReady =
-                    false;
-
-                break;
-            }
-        }
-
-        if ($allReady) {
-            return;
-        }
-
-        foreach ($processes as $index => $process) {
-            if ($process->isRunning()) {
-                continue;
-            }
-
-            $process->wait();
-
-            $resultDiagnostic =
-                $this->workerResultDiagnostic(
-                    $resultPaths[
-                        $index
-                    ] ?? '',
+            foreach ($readyPaths as $readyPath) {
+                clearstatcache(
+                    true,
+                    $readyPath,
                 );
 
-            throw new RuntimeException(
-                sprintf(
-                    "Worker %d berhenti sebelum ready.\n%s\nRESULT FILE:\n%s",
-                    $index + 1,
-                    $this->processDiagnostics(
-                        $process,
-                    ),
-                    $resultDiagnostic,
-                ),
-            );
-        }
+                if (! is_file($readyPath)) {
+                    $allReady =
+                        false;
 
-        $elapsedMilliseconds =
-            (int) (
-                (
-                    hrtime(true)
-                    - $startedAt
-                )
-                / 1_000_000
-            );
+                    break;
+                }
+            }
 
-        if (
-            $elapsedMilliseconds
-            >= $timeoutMs
-        ) {
-            $diagnostics = [];
+            if ($allReady) {
+                return;
+            }
 
             foreach ($processes as $index => $process) {
-                $diagnostics[] =
+                if ($process->isRunning()) {
+                    continue;
+                }
+
+                $process->wait();
+
+                $resultDiagnostic =
+                    $this->workerResultDiagnostic(
+                        $resultPaths[
+                            $index
+                        ] ?? '',
+                    );
+
+                throw new RuntimeException(
                     sprintf(
-                        "WORKER %d\n%s\nRESULT FILE:\n%s",
+                        "Worker %d berhenti sebelum ready.\n%s\nRESULT FILE:\n%s",
                         $index + 1,
                         $this->processDiagnostics(
                             $process,
                         ),
-                        $this->workerResultDiagnostic(
-                            $resultPaths[
-                                $index
-                            ] ?? '',
-                        ),
-                    );
+                        $resultDiagnostic,
+                    ),
+                );
             }
 
-            throw new RuntimeException(
-                sprintf(
-                    "Dua worker tidak ready dalam %d ms.\n\n%s",
-                    $timeoutMs,
-                    implode(
-                        "\n\n",
-                        $diagnostics,
+            $elapsedMilliseconds =
+                (int) (
+                    (
+                        hrtime(true)
+                        - $startedAt
+                    )
+                    / 1_000_000
+                );
+
+            if (
+                $elapsedMilliseconds
+                >= $timeoutMs
+            ) {
+                $diagnostics = [];
+
+                foreach ($processes as $index => $process) {
+                    $diagnostics[] =
+                        sprintf(
+                            "WORKER %d\n%s\nRESULT FILE:\n%s",
+                            $index + 1,
+                            $this->processDiagnostics(
+                                $process,
+                            ),
+                            $this->workerResultDiagnostic(
+                                $resultPaths[
+                                    $index
+                                ] ?? '',
+                            ),
+                        );
+                }
+
+                throw new RuntimeException(
+                    sprintf(
+                        "Dua worker tidak ready dalam %d ms.\n\n%s",
+                        $timeoutMs,
+                        implode(
+                            "\n\n",
+                            $diagnostics,
+                        ),
                     ),
-                ),
+                );
+            }
+
+            usleep(
+                10_000,
+            );
+        }
+    }
+
+    private function workerResultDiagnostic(
+        string $resultPath,
+    ): string {
+        if (
+            trim($resultPath) === ''
+            || ! is_file($resultPath)
+        ) {
+            return sprintf(
+                'Result file belum tersedia: %s',
+                $resultPath !== ''
+                    ? $resultPath
+                    : '[path kosong]',
             );
         }
 
-        usleep(
-            10_000,
-        );
-    }
-}
-
-private function workerResultDiagnostic(
-    string $resultPath,
-): string {
-    if (
-        trim($resultPath) === ''
-        || ! is_file($resultPath)
-    ) {
-        return sprintf(
-            'Result file belum tersedia: %s',
-            $resultPath !== ''
-                ? $resultPath
-                : '[path kosong]',
-        );
-    }
-
-    try {
-        return json_encode(
-            $this->readJson(
-                $resultPath,
-            ),
-            JSON_THROW_ON_ERROR
-            | JSON_PRETTY_PRINT
-            | JSON_UNESCAPED_SLASHES
-            | JSON_UNESCAPED_UNICODE,
-        );
-    } catch (Throwable $exception) {
-        $rawContents =
-            file_get_contents(
-                $resultPath,
+        try {
+            return json_encode(
+                $this->readJson(
+                    $resultPath,
+                ),
+                JSON_THROW_ON_ERROR
+                | JSON_PRETTY_PRINT
+                | JSON_UNESCAPED_SLASHES
+                | JSON_UNESCAPED_UNICODE,
             );
+        } catch (Throwable $exception) {
+            $rawContents =
+                file_get_contents(
+                    $resultPath,
+                );
 
-        return sprintf(
-            "Result file tidak dapat diparse: %s\nRAW:\n%s",
-            $exception->getMessage(),
-            $rawContents !== false
-                ? $rawContents
-                : '[tidak dapat dibaca]',
-        );
+            return sprintf(
+                "Result file tidak dapat diparse: %s\nRAW:\n%s",
+                $exception->getMessage(),
+                $rawContents !== false
+                    ? $rawContents
+                    : '[tidak dapat dibaca]',
+            );
+        }
     }
-}
 
     /** @return array<string, string> */
     private function workerEnvironment(): array
@@ -708,6 +704,7 @@ private function workerResultDiagnostic(
 
             if (array_key_exists($name, $overrides)) {
                 $attributes[$name] = $this->normalizeValue($column, $overrides[$name]);
+
                 continue;
             }
 
@@ -794,109 +791,109 @@ private function workerResultDiagnostic(
     }
 
     private function normalizeValue(
-    array $column,
-    mixed $value,
-): mixed {
-    if ($value === null) {
-        return null;
+        array $column,
+        mixed $value,
+    ): mixed {
+        if ($value === null) {
+            return null;
+        }
+
+        /*
+         * Query Builder tidak menjalankan cast model Eloquent.
+         *
+         * MariaDB dapat melaporkan kolom JSON sebagai LONGTEXT,
+         * sehingga pemeriksaan DATA_TYPE === 'json' saja tidak cukup.
+         * Semua array fixture harus diubah menjadi JSON sebelum
+         * diteruskan ke PDO.
+         */
+        if (is_array($value)) {
+            return json_encode(
+                $value,
+                JSON_THROW_ON_ERROR
+                | JSON_UNESCAPED_SLASHES
+                | JSON_UNESCAPED_UNICODE,
+            );
+        }
+
+        $type =
+            strtolower(
+                (string) (
+                    $column[
+                        'DATA_TYPE'
+                    ]
+                    ?? ''
+                ),
+            );
+
+        $columnType =
+            strtolower(
+                (string) (
+                    $column[
+                        'COLUMN_TYPE'
+                    ]
+                    ?? ''
+                ),
+            );
+
+        $enum =
+            $this->enumValues(
+                $columnType,
+            );
+
+        if ($enum !== []) {
+            $normalized =
+                (string) $value;
+
+            return in_array(
+                $normalized,
+                $enum,
+                true,
+            )
+                ? $normalized
+                : $enum[0];
+        }
+
+        if (is_bool($value)) {
+            return $value
+                ? 1
+                : 0;
+        }
+
+        /*
+         * Object JSON-serializable juga diamankan. Carbon atau tanggal
+         * pada fixture ini sudah dikirim sebagai string, sehingga blok
+         * ini terutama melindungi metadata berbentuk DTO/object.
+         */
+        if (
+            $value instanceof \JsonSerializable
+        ) {
+            return json_encode(
+                $value,
+                JSON_THROW_ON_ERROR
+                | JSON_UNESCAPED_SLASHES
+                | JSON_UNESCAPED_UNICODE,
+            );
+        }
+
+        if (
+            is_string($value)
+            && in_array(
+                $type,
+                [
+                    'char',
+                    'varchar',
+                ],
+                true,
+            )
+        ) {
+            return $this->truncate(
+                $column,
+                $value,
+            );
+        }
+
+        return $value;
     }
-
-    /*
-     * Query Builder tidak menjalankan cast model Eloquent.
-     *
-     * MariaDB dapat melaporkan kolom JSON sebagai LONGTEXT,
-     * sehingga pemeriksaan DATA_TYPE === 'json' saja tidak cukup.
-     * Semua array fixture harus diubah menjadi JSON sebelum
-     * diteruskan ke PDO.
-     */
-    if (is_array($value)) {
-        return json_encode(
-            $value,
-            JSON_THROW_ON_ERROR
-            | JSON_UNESCAPED_SLASHES
-            | JSON_UNESCAPED_UNICODE,
-        );
-    }
-
-    $type =
-        strtolower(
-            (string) (
-                $column[
-                    'DATA_TYPE'
-                ]
-                ?? ''
-            ),
-        );
-
-    $columnType =
-        strtolower(
-            (string) (
-                $column[
-                    'COLUMN_TYPE'
-                ]
-                ?? ''
-            ),
-        );
-
-    $enum =
-        $this->enumValues(
-            $columnType,
-        );
-
-    if ($enum !== []) {
-        $normalized =
-            (string) $value;
-
-        return in_array(
-            $normalized,
-            $enum,
-            true,
-        )
-            ? $normalized
-            : $enum[0];
-    }
-
-    if (is_bool($value)) {
-        return $value
-            ? 1
-            : 0;
-    }
-
-    /*
-     * Object JSON-serializable juga diamankan. Carbon atau tanggal
-     * pada fixture ini sudah dikirim sebagai string, sehingga blok
-     * ini terutama melindungi metadata berbentuk DTO/object.
-     */
-    if (
-        $value instanceof \JsonSerializable
-    ) {
-        return json_encode(
-            $value,
-            JSON_THROW_ON_ERROR
-            | JSON_UNESCAPED_SLASHES
-            | JSON_UNESCAPED_UNICODE,
-        );
-    }
-
-    if (
-        is_string($value)
-        && in_array(
-            $type,
-            [
-                'char',
-                'varchar',
-            ],
-            true,
-        )
-    ) {
-        return $this->truncate(
-            $column,
-            $value,
-        );
-    }
-
-    return $value;
-}
 
     private function preferredValue(
         string $table,
@@ -916,6 +913,7 @@ private function workerResultDiagnostic(
                         return (string) $value;
                     }
                 }
+
                 return $enum[0];
             }
 
@@ -952,6 +950,7 @@ private function workerResultDiagnostic(
     private function truncate(array $column, string $value): string
     {
         $max = (int) ($column['CHARACTER_MAXIMUM_LENGTH'] ?? 0);
+
         return $max > 0 && mb_strlen($value) > $max ? mb_substr($value, 0, $max) : $value;
     }
 

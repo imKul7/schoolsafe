@@ -125,11 +125,9 @@ return [
         1.0,
     ),
 
-    'minimum_embedding_dimension' =>
-        $minimumEmbeddingDimension,
+    'minimum_embedding_dimension' => $minimumEmbeddingDimension,
 
-    'maximum_embedding_dimension' =>
-        $maximumEmbeddingDimension,
+    'maximum_embedding_dimension' => $maximumEmbeddingDimension,
 
     /*
     |--------------------------------------------------------------------------
@@ -214,11 +212,9 @@ return [
             180,
         ),
 
-        'blink_min_ms' =>
-            $blinkMinimumMilliseconds,
+        'blink_min_ms' => $blinkMinimumMilliseconds,
 
-        'blink_max_ms' =>
-            $blinkMaximumMilliseconds,
+        'blink_max_ms' => $blinkMaximumMilliseconds,
 
         'head_turn_yaw_delta' => $clampFloat(
             env('BIOMETRIC_HEAD_TURN_YAW_DELTA', 0.18),
@@ -343,13 +339,10 @@ return [
         /*
          * Dua nama disediakan untuk kompatibilitas kode lama.
          */
-        'store_ip' =>
-            $storeIpAddress,
+        'store_ip' => $storeIpAddress,
 
-        'store_ip_address' =>
-            $storeIpAddress,
+        'store_ip_address' => $storeIpAddress,
 
-        'store_user_agent' =>
-            $storeUserAgent,
+        'store_user_agent' => $storeUserAgent,
     ],
 ];

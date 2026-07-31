@@ -131,27 +131,24 @@ class PickupPersonController extends Controller
             )
             ->when(
                 $status === 'active',
-                fn (Builder $query): Builder =>
-                    $query->where(
-                        'is_active',
-                        true,
-                    ),
+                fn (Builder $query): Builder => $query->where(
+                    'is_active',
+                    true,
+                ),
             )
             ->when(
                 $status === 'inactive',
-                fn (Builder $query): Builder =>
-                    $query->where(
-                        'is_active',
-                        false,
-                    ),
+                fn (Builder $query): Builder => $query->where(
+                    'is_active',
+                    false,
+                ),
             )
             ->when(
                 $faceStatus !== '',
-                fn (Builder $query): Builder =>
-                    $query->where(
-                        'face_status',
-                        $faceStatus,
-                    ),
+                fn (Builder $query): Builder => $query->where(
+                    'face_status',
+                    $faceStatus,
+                ),
             )
             ->orderBy('full_name')
             ->paginate(10)
@@ -173,24 +170,21 @@ class PickupPersonController extends Controller
                 'pickupPersons' => $pickupPersons,
 
                 'stats' => [
-                    'total' =>
-                        (clone $baseQuery)->count(),
+                    'total' => (clone $baseQuery)->count(),
 
-                    'active' =>
-                        (clone $baseQuery)
-                            ->where(
-                                'is_active',
-                                true,
-                            )
-                            ->count(),
+                    'active' => (clone $baseQuery)
+                        ->where(
+                            'is_active',
+                            true,
+                        )
+                        ->count(),
 
-                    'face_registered' =>
-                        (clone $baseQuery)
-                            ->where(
-                                'face_status',
-                                PickupPerson::FACE_REGISTERED,
-                            )
-                            ->count(),
+                    'face_registered' => (clone $baseQuery)
+                        ->where(
+                            'face_status',
+                            PickupPerson::FACE_REGISTERED,
+                        )
+                        ->count(),
                 ],
 
                 'filters' => [
@@ -199,12 +193,10 @@ class PickupPersonController extends Controller
                     'face_status' => $faceStatus,
                 ],
 
-                'permissions' =>
-                    $this->permissions($user),
+                'permissions' => $this->permissions($user),
             ],
         );
     }
-
 
     /**
      * Menampilkan daftar penjemput yang telah diarsipkan.
@@ -306,10 +298,9 @@ class PickupPersonController extends Controller
         return Inertia::render(
             'pickup-persons/create',
             [
-                'students' =>
-                    $this->studentOptions(
-                        $schoolId,
-                    ),
+                'students' => $this->studentOptions(
+                    $schoolId,
+                ),
             ],
         );
     }
@@ -354,12 +345,9 @@ class PickupPersonController extends Controller
 
                 $pickupPerson = PickupPerson::create([
                     ...$validated,
-                    'school_id' =>
-                        $schoolId,
-                    'photo_path' =>
-                        null,
-                    'face_status' =>
-                        PickupPerson::FACE_NOT_REGISTERED,
+                    'school_id' => $schoolId,
+                    'photo_path' => null,
+                    'face_status' => PickupPerson::FACE_NOT_REGISTERED,
                 ]);
 
                 $this->syncStudents(
@@ -417,26 +405,22 @@ class PickupPersonController extends Controller
         return Inertia::render(
             'pickup-persons/show',
             [
-                'pickupPerson' =>
-                    $this->pickupPersonDetail(
-                        $pickupPerson,
-                    ),
+                'pickupPerson' => $this->pickupPersonDetail(
+                    $pickupPerson,
+                ),
 
-                'permissions' =>
-                    $this->permissions($user),
+                'permissions' => $this->permissions($user),
 
                 'biometricConfig' => [
-                    'minimum_quality_score' =>
-                        (float) config(
-                            'biometrics.minimum_quality_score',
-                            0.75,
-                        ),
+                'minimum_quality_score' => (float) config(
+                    'biometrics.minimum_quality_score',
+                    0.75,
+                ),
 
-                    'consent_version' =>
-                        (string) config(
-                            'biometrics.consent_version',
-                            'v1',
-                        ),
+                'consent_version' => (string) config(
+                    'biometrics.consent_version',
+                    'v1',
+                ),
                 ],
             ],
         );
@@ -486,89 +470,70 @@ class PickupPersonController extends Controller
             'pickup-persons/edit',
             [
                 'pickupPerson' => [
-                    'id' =>
-                        $pickupPerson->id,
+                    'id' => $pickupPerson->id,
 
-                    'photo_path' =>
+                    'photo_path' => $pickupPerson->photo_path,
+
+                    'photo_url' => $this->pickupPersonPhotoUrl(
                         $pickupPerson->photo_path,
+                    ),
 
-                    'photo_url' =>
-                        $this->pickupPersonPhotoUrl(
-                            $pickupPerson->photo_path,
-                        ),
+                    'full_name' => $pickupPerson->full_name,
 
-                    'full_name' =>
-                        $pickupPerson->full_name,
-
-                    'identity_number' =>
-                        $pickupPerson->identity_number
+                    'identity_number' => $pickupPerson->identity_number
                         ?? '',
 
-                    'phone' =>
-                        $pickupPerson->phone,
+                    'phone' => $pickupPerson->phone,
 
-                    'email' =>
-                        $pickupPerson->email
+                    'email' => $pickupPerson->email
                         ?? '',
 
-                    'address' =>
-                        $pickupPerson->address
+                    'address' => $pickupPerson->address
                         ?? '',
 
-                    'face_status' =>
-                        $pickupPerson->face_status,
+                    'face_status' => $pickupPerson->face_status,
 
-                    'is_active' =>
-                        (bool) $pickupPerson->is_active,
+                    'is_active' => (bool) $pickupPerson->is_active,
 
-                    'notes' =>
-                        $pickupPerson->notes
+                    'notes' => $pickupPerson->notes
                         ?? '',
 
-                    'students' =>
-                        $pickupPerson
-                            ->students
-                            ->map(
-                                fn (
-                                    Student $student,
-                                ): array => [
-                                    'student_id' =>
-                                        (string) $student->id,
+                    'students' => $pickupPerson
+                        ->students
+                        ->map(
+                            fn (
+                                Student $student,
+                            ): array => [
+                                'student_id' => (string) $student->id,
 
-                                    'relationship_type' =>
-                                        (string) $student->pivot
-                                            ->relationship_type,
+                                'relationship_type' => (string) $student->pivot
+                                    ->relationship_type,
 
-                                    'is_primary' =>
-                                        (bool) $student->pivot
-                                            ->is_primary,
+                                'is_primary' => (bool) $student->pivot
+                                    ->is_primary,
 
-                                    'is_active' =>
-                                        (bool) $student->pivot
-                                            ->is_active,
+                                'is_active' => (bool) $student->pivot
+                                    ->is_active,
 
-                                    'valid_from' =>
-                                        $this->formatDateValue(
-                                            $student->pivot
-                                                ->valid_from,
-                                        ) ?? '',
+                                'valid_from' => $this->formatDateValue(
+                                    $student->pivot
+                                        ->valid_from,
+                                ) ?? '',
 
-                                    'valid_until' =>
-                                        $this->formatDateValue(
-                                            $student->pivot
-                                                ->valid_until,
-                                        ) ?? '',
-                                ],
-                            )
-                            ->values()
-                            ->all(),
+                                'valid_until' => $this->formatDateValue(
+                                    $student->pivot
+                                        ->valid_until,
+                                ) ?? '',
+                            ],
+                        )
+                        ->values()
+                        ->all(),
                 ],
 
-                'students' =>
-                    $this->studentOptions(
-                        $schoolId,
-                        $selectedStudentIds,
-                    ),
+                'students' => $this->studentOptions(
+                    $schoolId,
+                    $selectedStudentIds,
+                ),
             ],
         );
     }
@@ -764,10 +729,8 @@ class PickupPersonController extends Controller
                         : PickupPerson::FACE_NOT_REGISTERED;
 
                     $lockedPickupPerson->update([
-                        'photo_path' =>
-                            $newPhotoPath,
-                        'face_status' =>
-                            $newFaceStatus,
+                        'photo_path' => $newPhotoPath,
+                        'face_status' => $newFaceStatus,
                     ]);
 
                     if (
@@ -781,12 +744,10 @@ class PickupPersonController extends Controller
                     }
 
                     return [
-                        'old_photo_path' =>
-                            is_string($oldPhotoPath)
+                        'old_photo_path' => is_string($oldPhotoPath)
                                 ? $oldPhotoPath
                                 : null,
-                        'was_replacement' =>
-                            is_string($oldPhotoPath)
+                        'was_replacement' => is_string($oldPhotoPath)
                             && trim($oldPhotoPath) !== '',
                     ];
                 },
@@ -854,18 +815,14 @@ class PickupPersonController extends Controller
                     || trim($oldPhotoPath) === ''
                 ) {
                     return [
-                        'photo_path' =>
-                            null,
-                        'deleted' =>
-                            false,
+                        'photo_path' => null,
+                        'deleted' => false,
                     ];
                 }
 
                 $lockedPickupPerson->update([
-                    'photo_path' =>
-                        null,
-                    'face_status' =>
-                        PickupPerson::FACE_NOT_REGISTERED,
+                    'photo_path' => null,
+                    'face_status' => PickupPerson::FACE_NOT_REGISTERED,
                 ]);
 
                 $profile = PickupPersonFaceProfile::query()
@@ -884,10 +841,8 @@ class PickupPersonController extends Controller
                 }
 
                 return [
-                    'photo_path' =>
-                        $oldPhotoPath,
-                    'deleted' =>
-                        true,
+                    'photo_path' => $oldPhotoPath,
+                    'deleted' => true,
                 ];
             },
             3,
@@ -948,11 +903,10 @@ class PickupPersonController extends Controller
 
         if ($qualityScore < $minimumQualityScore) {
             throw ValidationException::withMessages([
-                'quality_score' =>
-                    sprintf(
-                        'Kualitas wajah minimal %.0f%%. Ambil ulang foto dengan pencahayaan yang lebih baik.',
-                        $minimumQualityScore * 100,
-                    ),
+                'quality_score' => sprintf(
+                    'Kualitas wajah minimal %.0f%%. Ambil ulang foto dengan pencahayaan yang lebih baik.',
+                    $minimumQualityScore * 100,
+                ),
             ]);
         }
 
@@ -963,8 +917,7 @@ class PickupPersonController extends Controller
             )
         ) {
             throw ValidationException::withMessages([
-                'liveness_passed' =>
-                    'Pemeriksaan keaslian wajah belum berhasil.',
+                'liveness_passed' => 'Pemeriksaan keaslian wajah belum berhasil.',
             ]);
         }
 
@@ -982,8 +935,7 @@ class PickupPersonController extends Controller
 
         if ($modelName !== $expectedModelName) {
             throw ValidationException::withMessages([
-                'model_name' =>
-                    'Model biometrik tidak sesuai dengan konfigurasi aplikasi.',
+                'model_name' => 'Model biometrik tidak sesuai dengan konfigurasi aplikasi.',
             ]);
         }
 
@@ -992,8 +944,7 @@ class PickupPersonController extends Controller
 
         $embedding = collect($rawEmbedding)
             ->map(
-                fn (mixed $value): float =>
-                    (float) $value,
+                fn (mixed $value): float => (float) $value,
             )
             ->values()
             ->all();
@@ -1001,8 +952,7 @@ class PickupPersonController extends Controller
         foreach ($embedding as $value) {
             if (! is_finite($value)) {
                 throw ValidationException::withMessages([
-                    'embedding' =>
-                        'Data biometrik mengandung nilai yang tidak valid.',
+                    'embedding' => 'Data biometrik mengandung nilai yang tidak valid.',
                 ]);
             }
         }
@@ -1024,8 +974,7 @@ class PickupPersonController extends Controller
             || $embeddingDimension > $maximumDimension
         ) {
             throw ValidationException::withMessages([
-                'embedding' =>
-                    'Dimensi data biometrik tidak sesuai konfigurasi aplikasi.',
+                'embedding' => 'Dimensi data biometrik tidak sesuai konfigurasi aplikasi.',
             ]);
         }
 
@@ -1055,8 +1004,7 @@ class PickupPersonController extends Controller
                         ->exists($photoPath)
                 ) {
                     throw ValidationException::withMessages([
-                        'face' =>
-                            'Foto penjemput belum tersedia atau tidak ditemukan.',
+                        'face' => 'Foto penjemput belum tersedia atau tidak ditemukan.',
                     ]);
                 }
 
@@ -1065,8 +1013,7 @@ class PickupPersonController extends Controller
                         ->get($photoPath);
                 } catch (Throwable) {
                     throw ValidationException::withMessages([
-                        'face' =>
-                            'Foto penjemput gagal dibaca. Unggah ulang foto lalu coba kembali.',
+                        'face' => 'Foto penjemput gagal dibaca. Unggah ulang foto lalu coba kembali.',
                     ]);
                 }
 
@@ -1093,49 +1040,30 @@ class PickupPersonController extends Controller
                     : 1;
 
                 $profileData = [
-                    'school_id' =>
-                        $schoolId,
-                    'pickup_person_id' =>
-                        $lockedPickupPerson->id,
-                    'registered_by_user_id' =>
-                        $user->id,
-                    'embedding' =>
-                        $embedding,
-                    'embedding_dimension' =>
-                        $embeddingDimension,
-                    'model_name' =>
-                        $modelName,
-                    'model_version' =>
-                        trim(
-                            (string) $validated['model_version'],
-                        ),
-                    'quality_score' =>
-                        $qualityScore,
-                    'liveness_passed' =>
-                        true,
-                    'capture_method' =>
-                        (string) $validated['capture_method'],
-                    'photo_sha256' =>
-                        $photoSha256,
-                    'status' =>
-                        PickupPersonFaceProfile::STATUS_REGISTERED,
-                    'registration_revision' =>
-                        $revision,
-                    'consent_version' =>
-                        (string) config(
-                            'biometrics.consent_version',
-                            'v1',
-                        ),
-                    'consented_at' =>
-                        now(),
-                    'registered_at' =>
-                        now(),
-                    'invalidated_at' =>
-                        null,
-                    'revoked_at' =>
-                        null,
-                    'metadata' =>
-                        $validated['metadata']
+                    'school_id' => $schoolId,
+                    'pickup_person_id' => $lockedPickupPerson->id,
+                    'registered_by_user_id' => $user->id,
+                    'embedding' => $embedding,
+                    'embedding_dimension' => $embeddingDimension,
+                    'model_name' => $modelName,
+                    'model_version' => trim(
+                        (string) $validated['model_version'],
+                    ),
+                    'quality_score' => $qualityScore,
+                    'liveness_passed' => true,
+                    'capture_method' => (string) $validated['capture_method'],
+                    'photo_sha256' => $photoSha256,
+                    'status' => PickupPersonFaceProfile::STATUS_REGISTERED,
+                    'registration_revision' => $revision,
+                    'consent_version' => (string) config(
+                        'biometrics.consent_version',
+                        'v1',
+                    ),
+                    'consented_at' => now(),
+                    'registered_at' => now(),
+                    'invalidated_at' => null,
+                    'revoked_at' => null,
+                    'metadata' => $validated['metadata']
                         ?? null,
                 ];
 
@@ -1150,8 +1078,7 @@ class PickupPersonController extends Controller
                 }
 
                 $lockedPickupPerson->update([
-                    'face_status' =>
-                        PickupPerson::FACE_REGISTERED,
+                    'face_status' => PickupPerson::FACE_REGISTERED,
                 ]);
             },
             3,
@@ -1201,8 +1128,7 @@ class PickupPersonController extends Controller
                     ->first();
 
                 $lockedPickupPerson->update([
-                    'face_status' =>
-                        PickupPerson::FACE_NOT_REGISTERED,
+                    'face_status' => PickupPerson::FACE_NOT_REGISTERED,
                 ]);
 
                 if (! $profile) {
@@ -1275,8 +1201,7 @@ class PickupPersonController extends Controller
                 }
 
                 $lockedPickupPerson->update([
-                    'face_status' =>
-                        PickupPerson::FACE_NOT_REGISTERED,
+                    'face_status' => PickupPerson::FACE_NOT_REGISTERED,
                 ]);
 
                 $name = $lockedPickupPerson->full_name;
@@ -1360,11 +1285,9 @@ class PickupPersonController extends Controller
                     ->findOrFail($pickupPersonId);
 
                 $result = [
-                    'id' =>
-                        (int) $pickupPerson->id,
+                    'id' => (int) $pickupPerson->id,
 
-                    'name' =>
-                        $pickupPerson->full_name,
+                    'name' => $pickupPerson->full_name,
                 ];
 
                 $pickupPerson
@@ -1508,21 +1431,18 @@ class PickupPersonController extends Controller
         User $user,
     ): array {
         return [
-            'can_manage' =>
-                $user->hasRole(
-                    User::ROLE_SCHOOL_ADMIN,
-                    User::ROLE_TEACHER,
-                ),
+            'can_manage' => $user->hasRole(
+                User::ROLE_SCHOOL_ADMIN,
+                User::ROLE_TEACHER,
+            ),
 
-            'can_archive' =>
-                $user->hasRole(
-                    User::ROLE_SCHOOL_ADMIN,
-                ),
+            'can_archive' => $user->hasRole(
+                User::ROLE_SCHOOL_ADMIN,
+            ),
 
-            'can_manage_face' =>
-                $user->hasRole(
-                    User::ROLE_SCHOOL_ADMIN,
-                ),
+            'can_manage_face' => $user->hasRole(
+                User::ROLE_SCHOOL_ADMIN,
+            ),
         ];
     }
 
@@ -1544,7 +1464,7 @@ class PickupPersonController extends Controller
     /**
      * Mengambil siswa yang dapat dipilih dalam form.
      *
-     * @param array<int, int> $selectedIds
+     * @param  array<int, int>  $selectedIds
      * @return array<int, array{
      *     id: int,
      *     full_name: string,
@@ -1601,27 +1521,21 @@ class PickupPersonController extends Controller
             ])
             ->map(
                 fn (Student $student): array => [
-                    'id' =>
-                        $student->id,
+                    'id' => $student->id,
 
-                    'full_name' =>
-                        $student->full_name,
+                    'full_name' => $student->full_name,
 
-                    'student_number' =>
-                        $student->student_number,
+                    'student_number' => $student->student_number,
 
-                    'status' =>
-                        $student->status,
+                    'status' => $student->status,
 
-                    'class_name' =>
-                        $student
-                            ->schoolClass
-                            ?->name,
+                    'class_name' => $student
+                        ->schoolClass
+                        ?->name,
 
-                    'academic_year' =>
-                        $student
-                            ->schoolClass
-                            ?->academic_year,
+                    'academic_year' => $student
+                        ->schoolClass
+                        ?->academic_year,
                 ],
             )
             ->values()
@@ -1631,7 +1545,7 @@ class PickupPersonController extends Controller
     /**
      * Memastikan seluruh siswa pada payload berasal dari sekolah pengguna.
      *
-     * @param array<int, array<string, mixed>> $studentLinks
+     * @param  array<int, array<string, mixed>>  $studentLinks
      *
      * @throws ValidationException
      */
@@ -1641,26 +1555,22 @@ class PickupPersonController extends Controller
     ): void {
         $studentIds = collect($studentLinks)
             ->map(
-                fn (array $link): int =>
-                    (int) ($link['student_id'] ?? 0),
+                fn (array $link): int => (int) ($link['student_id'] ?? 0),
             )
             ->filter(
-                fn (int $studentId): bool =>
-                    $studentId > 0,
+                fn (int $studentId): bool => $studentId > 0,
             )
             ->values();
 
         if ($studentIds->isEmpty()) {
             throw ValidationException::withMessages([
-                'students' =>
-                    'Pilih minimal satu siswa yang boleh dijemput.',
+                'students' => 'Pilih minimal satu siswa yang boleh dijemput.',
             ]);
         }
 
         if ($studentIds->count() !== count($studentLinks)) {
             throw ValidationException::withMessages([
-                'students' =>
-                    'Pilihan siswa tidak valid. Muat ulang halaman lalu pilih kembali siswa.',
+                'students' => 'Pilihan siswa tidak valid. Muat ulang halaman lalu pilih kembali siswa.',
             ]);
         }
 
@@ -1669,8 +1579,7 @@ class PickupPersonController extends Controller
             !== $studentIds->count()
         ) {
             throw ValidationException::withMessages([
-                'students' =>
-                    'Siswa yang sama tidak boleh dipilih lebih dari satu kali.',
+                'students' => 'Siswa yang sama tidak boleh dipilih lebih dari satu kali.',
             ]);
         }
 
@@ -1684,8 +1593,7 @@ class PickupPersonController extends Controller
 
         if ($validStudentCount !== $studentIds->count()) {
             throw ValidationException::withMessages([
-                'students' =>
-                    'Salah satu siswa tidak ditemukan atau bukan milik sekolah Anda.',
+                'students' => 'Salah satu siswa tidak ditemukan atau bukan milik sekolah Anda.',
             ]);
         }
     }
@@ -1693,7 +1601,7 @@ class PickupPersonController extends Controller
     /**
      * Menyelaraskan relasi penjemput dengan siswa.
      *
-     * @param array<int, array<string, mixed>> $studentLinks
+     * @param  array<int, array<string, mixed>>  $studentLinks
      */
     private function syncStudents(
         PickupPerson $pickupPerson,
@@ -1711,33 +1619,27 @@ class PickupPersonController extends Controller
 
                     return [
                         $studentId => [
-                            'school_id' =>
-                                $schoolId,
+                            'school_id' => $schoolId,
 
-                            'relationship_type' =>
-                                (string) (
-                                    $link['relationship_type']
-                                    ?? 'other'
-                                ),
+                            'relationship_type' => (string) (
+                                $link['relationship_type']
+                                ?? 'other'
+                            ),
 
-                            'is_primary' =>
-                                (bool) (
-                                    $link['is_primary']
-                                    ?? false
-                                ),
+                            'is_primary' => (bool) (
+                                $link['is_primary']
+                                ?? false
+                            ),
 
-                            'is_active' =>
-                                (bool) (
-                                    $link['is_active']
-                                    ?? true
-                                ),
+                            'is_active' => (bool) (
+                                $link['is_active']
+                                ?? true
+                            ),
 
-                            'valid_from' =>
-                                ($link['valid_from'] ?? null)
+                            'valid_from' => ($link['valid_from'] ?? null)
                                 ?: null,
 
-                            'valid_until' =>
-                                ($link['valid_until'] ?? null)
+                            'valid_until' => ($link['valid_until'] ?? null)
                                 ?: null,
                         ],
                     ];
@@ -1749,7 +1651,6 @@ class PickupPersonController extends Controller
             ->students()
             ->sync($syncData);
     }
-
 
     /**
      * Membentuk data penjemput untuk halaman arsip.
@@ -1770,37 +1671,28 @@ class PickupPersonController extends Controller
         PickupPerson $pickupPerson,
     ): array {
         return [
-            'id' =>
-                $pickupPerson->id,
+            'id' => $pickupPerson->id,
 
-            'full_name' =>
+            'full_name' => $pickupPerson->full_name,
+
+            'initials' => $this->makeInitials(
                 $pickupPerson->full_name,
+            ),
 
-            'initials' =>
-                $this->makeInitials(
-                    $pickupPerson->full_name,
-                ),
+            'identity_number' => $this->maskIdentityNumber(
+                $pickupPerson->identity_number,
+            ),
 
-            'identity_number' =>
-                $this->maskIdentityNumber(
-                    $pickupPerson->identity_number,
-                ),
+            'phone' => $pickupPerson->phone,
 
-            'phone' =>
-                $pickupPerson->phone,
+            'email' => $pickupPerson->email,
 
-            'email' =>
-                $pickupPerson->email,
+            'face_status' => $pickupPerson->face_status,
 
-            'face_status' =>
-                $pickupPerson->face_status,
+            'is_active' => (bool) $pickupPerson->is_active,
 
-            'is_active' =>
-                (bool) $pickupPerson->is_active,
-
-            'deleted_at' =>
-                $pickupPerson->deleted_at
-                    ?->toISOString(),
+            'deleted_at' => $pickupPerson->deleted_at
+                ?->toISOString(),
         ];
     }
 
@@ -1811,75 +1703,58 @@ class PickupPersonController extends Controller
         PickupPerson $pickupPerson,
     ): array {
         return [
-            'id' =>
-                $pickupPerson->id,
+            'id' => $pickupPerson->id,
 
-            'full_name' =>
+            'full_name' => $pickupPerson->full_name,
+
+            'initials' => $this->makeInitials(
                 $pickupPerson->full_name,
+            ),
 
-            'initials' =>
-                $this->makeInitials(
-                    $pickupPerson->full_name,
-                ),
+            'identity_number' => $this->maskIdentityNumber(
+                $pickupPerson->identity_number,
+            ),
 
-            'identity_number' =>
-                $this->maskIdentityNumber(
-                    $pickupPerson->identity_number,
-                ),
+            'phone' => $pickupPerson->phone,
 
-            'phone' =>
-                $pickupPerson->phone,
+            'email' => $pickupPerson->email,
 
-            'email' =>
-                $pickupPerson->email,
+            'photo_path' => $pickupPerson->photo_path,
 
-            'photo_path' =>
+            'photo_url' => $this->pickupPersonPhotoUrl(
                 $pickupPerson->photo_path,
+            ),
 
-            'photo_url' =>
-                $this->pickupPersonPhotoUrl(
-                    $pickupPerson->photo_path,
-                ),
+            'face_status' => $pickupPerson->face_status,
 
-            'face_status' =>
-                $pickupPerson->face_status,
+            'is_active' => (bool) $pickupPerson->is_active,
 
-            'is_active' =>
-                (bool) $pickupPerson->is_active,
+            'students_count' => $pickupPerson
+                ->students
+                ->count(),
 
-            'students_count' =>
-                $pickupPerson
-                    ->students
-                    ->count(),
+            'students' => $pickupPerson
+                ->students
+                ->take(3)
+                ->map(
+                    fn (
+                        Student $student,
+                    ): array => [
+                        'id' => $student->id,
 
-            'students' =>
-                $pickupPerson
-                    ->students
-                    ->take(3)
-                    ->map(
-                        fn (
-                            Student $student,
-                        ): array => [
-                            'id' =>
-                                $student->id,
+                        'full_name' => $student->full_name,
 
-                            'full_name' =>
-                                $student->full_name,
+                        'student_number' => $student->student_number,
 
-                            'student_number' =>
-                                $student->student_number,
+                        'relationship_type' => (string) $student->pivot
+                            ->relationship_type,
 
-                            'relationship_type' =>
-                                (string) $student->pivot
-                                    ->relationship_type,
-
-                            'is_primary' =>
-                                (bool) $student->pivot
-                                    ->is_primary,
-                        ],
-                    )
-                    ->values()
-                    ->all(),
+                        'is_primary' => (bool) $student->pivot
+                            ->is_primary,
+                    ],
+                )
+                ->values()
+                ->all(),
         ];
     }
 
@@ -1890,107 +1765,82 @@ class PickupPersonController extends Controller
         PickupPerson $pickupPerson,
     ): array {
         return [
-            'id' =>
-                $pickupPerson->id,
+            'id' => $pickupPerson->id,
 
-            'full_name' =>
+            'full_name' => $pickupPerson->full_name,
+
+            'initials' => $this->makeInitials(
                 $pickupPerson->full_name,
+            ),
 
-            'initials' =>
-                $this->makeInitials(
-                    $pickupPerson->full_name,
-                ),
+            'identity_number' => $pickupPerson->identity_number,
 
-            'identity_number' =>
-                $pickupPerson->identity_number,
+            'phone' => $pickupPerson->phone,
 
-            'phone' =>
-                $pickupPerson->phone,
+            'email' => $pickupPerson->email,
 
-            'email' =>
-                $pickupPerson->email,
+            'address' => $pickupPerson->address,
 
-            'address' =>
-                $pickupPerson->address,
+            'photo_path' => $pickupPerson->photo_path,
 
-            'photo_path' =>
+            'photo_url' => $this->pickupPersonPhotoUrl(
                 $pickupPerson->photo_path,
+            ),
 
-            'photo_url' =>
-                $this->pickupPersonPhotoUrl(
-                    $pickupPerson->photo_path,
-                ),
+            'face_status' => $pickupPerson->face_status,
 
-            'face_status' =>
-                $pickupPerson->face_status,
+            'face_profile' => $this->faceProfilePayload(
+                $pickupPerson->faceProfile,
+            ),
 
-            'face_profile' =>
-                $this->faceProfilePayload(
-                    $pickupPerson->faceProfile,
-                ),
+            'is_active' => (bool) $pickupPerson->is_active,
 
-            'is_active' =>
-                (bool) $pickupPerson->is_active,
+            'notes' => $pickupPerson->notes,
 
-            'notes' =>
-                $pickupPerson->notes,
+            'students' => $pickupPerson
+                ->students
+                ->map(
+                    fn (
+                        Student $student,
+                    ): array => [
+                        'id' => $student->id,
 
-            'students' =>
-                $pickupPerson
-                    ->students
-                    ->map(
-                        fn (
-                            Student $student,
-                        ): array => [
-                            'id' =>
-                                $student->id,
+                        'full_name' => $student->full_name,
 
-                            'full_name' =>
-                                $student->full_name,
+                        'student_number' => $student->student_number,
 
-                            'student_number' =>
-                                $student->student_number,
+                        'status' => $student->status,
 
-                            'status' =>
-                                $student->status,
+                        'class_name' => $student
+                            ->schoolClass
+                            ?->name,
 
-                            'class_name' =>
-                                $student
-                                    ->schoolClass
-                                    ?->name,
+                        'academic_year' => $student
+                            ->schoolClass
+                            ?->academic_year,
 
-                            'academic_year' =>
-                                $student
-                                    ->schoolClass
-                                    ?->academic_year,
+                        'relationship_type' => (string) $student->pivot
+                            ->relationship_type,
 
-                            'relationship_type' =>
-                                (string) $student->pivot
-                                    ->relationship_type,
+                        'is_primary' => (bool) $student->pivot
+                            ->is_primary,
 
-                            'is_primary' =>
-                                (bool) $student->pivot
-                                    ->is_primary,
+                        'is_active' => (bool) $student->pivot
+                            ->is_active,
 
-                            'is_active' =>
-                                (bool) $student->pivot
-                                    ->is_active,
+                        'valid_from' => $this->formatDateValue(
+                            $student->pivot
+                                ->valid_from,
+                        ),
 
-                            'valid_from' =>
-                                $this->formatDateValue(
-                                    $student->pivot
-                                        ->valid_from,
-                                ),
-
-                            'valid_until' =>
-                                $this->formatDateValue(
-                                    $student->pivot
-                                        ->valid_until,
-                                ),
-                        ],
-                    )
-                    ->values()
-                    ->all(),
+                        'valid_until' => $this->formatDateValue(
+                            $student->pivot
+                                ->valid_until,
+                        ),
+                    ],
+                )
+                ->values()
+                ->all(),
         ];
     }
 
@@ -2007,50 +1857,37 @@ class PickupPersonController extends Controller
         }
 
         return [
-            'status' =>
-                $profile->status,
+            'status' => $profile->status,
 
-            'embedding_dimension' =>
-                $profile->embedding_dimension,
+            'embedding_dimension' => $profile->embedding_dimension,
 
-            'model_name' =>
-                $profile->model_name,
+            'model_name' => $profile->model_name,
 
-            'model_version' =>
-                $profile->model_version,
+            'model_version' => $profile->model_version,
 
-            'quality_score' =>
-                $profile->quality_score !== null
+            'quality_score' => $profile->quality_score !== null
                     ? (float) $profile->quality_score
                     : null,
 
-            'liveness_passed' =>
-                (bool) $profile->liveness_passed,
+            'liveness_passed' => (bool) $profile->liveness_passed,
 
-            'capture_method' =>
-                $profile->capture_method,
+            'capture_method' => $profile->capture_method,
 
-            'registration_revision' =>
-                (int) $profile->registration_revision,
+            'registration_revision' => (int) $profile->registration_revision,
 
-            'consent_version' =>
-                $profile->consent_version,
+            'consent_version' => $profile->consent_version,
 
-            'consented_at' =>
-                $profile->consented_at
-                    ?->toISOString(),
+            'consented_at' => $profile->consented_at
+                ?->toISOString(),
 
-            'registered_at' =>
-                $profile->registered_at
-                    ?->toISOString(),
+            'registered_at' => $profile->registered_at
+                ?->toISOString(),
 
-            'invalidated_at' =>
-                $profile->invalidated_at
-                    ?->toISOString(),
+            'invalidated_at' => $profile->invalidated_at
+                ?->toISOString(),
 
-            'revoked_at' =>
-                $profile->revoked_at
-                    ?->toISOString(),
+            'revoked_at' => $profile->revoked_at
+                ?->toISOString(),
         ];
     }
 
@@ -2061,24 +1898,15 @@ class PickupPersonController extends Controller
         PickupPersonFaceProfile $profile,
     ): void {
         $profile->update([
-            'embedding' =>
-                null,
-            'embedding_dimension' =>
-                null,
-            'quality_score' =>
-                null,
-            'liveness_passed' =>
-                false,
-            'photo_sha256' =>
-                null,
-            'status' =>
-                PickupPersonFaceProfile::STATUS_NEEDS_UPDATE,
-            'invalidated_at' =>
-                now(),
-            'revoked_at' =>
-                null,
-            'metadata' =>
-                null,
+            'embedding' => null,
+            'embedding_dimension' => null,
+            'quality_score' => null,
+            'liveness_passed' => false,
+            'photo_sha256' => null,
+            'status' => PickupPersonFaceProfile::STATUS_NEEDS_UPDATE,
+            'invalidated_at' => now(),
+            'revoked_at' => null,
+            'metadata' => null,
         ]);
     }
 
@@ -2089,24 +1917,15 @@ class PickupPersonController extends Controller
         PickupPersonFaceProfile $profile,
     ): void {
         $profile->update([
-            'embedding' =>
-                null,
-            'embedding_dimension' =>
-                null,
-            'quality_score' =>
-                null,
-            'liveness_passed' =>
-                false,
-            'photo_sha256' =>
-                null,
-            'status' =>
-                PickupPersonFaceProfile::STATUS_REVOKED,
-            'invalidated_at' =>
-                null,
-            'revoked_at' =>
-                now(),
-            'metadata' =>
-                null,
+            'embedding' => null,
+            'embedding_dimension' => null,
+            'quality_score' => null,
+            'liveness_passed' => false,
+            'photo_sha256' => null,
+            'status' => PickupPersonFaceProfile::STATUS_REVOKED,
+            'invalidated_at' => null,
+            'revoked_at' => now(),
+            'metadata' => null,
         ]);
     }
 
@@ -2156,14 +1975,13 @@ class PickupPersonController extends Controller
             ->filter()
             ->take(2)
             ->map(
-                fn (string $word): string =>
-                    mb_strtoupper(
-                        mb_substr(
-                            $word,
-                            0,
-                            1,
-                        ),
+                fn (string $word): string => mb_strtoupper(
+                    mb_substr(
+                        $word,
+                        0,
+                        1,
                     ),
+                ),
             )
             ->implode('');
     }

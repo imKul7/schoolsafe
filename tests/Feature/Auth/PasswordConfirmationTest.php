@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Models\School;
+use App\Models\User;
 use Illuminate\Support\Str;
 
 function createPasswordConfirmationTestSchool(): School
@@ -26,11 +26,11 @@ function createPasswordConfirmationTestSchool(): School
 test('confirm password screen can be rendered', function () {
     $school = createPasswordConfirmationTestSchool();
 
-$user = User::factory()->create([
-    'school_id' => $school->id,
-    'role' => User::ROLE_SCHOOL_ADMIN,
-    'is_active' => true,
-]);
+    $user = User::factory()->create([
+        'school_id' => $school->id,
+        'role' => User::ROLE_SCHOOL_ADMIN,
+        'is_active' => true,
+    ]);
 
     $response = $this->actingAs($user)->get('/confirm-password');
 
@@ -40,11 +40,11 @@ $user = User::factory()->create([
 test('password can be confirmed', function () {
     $school = createPasswordConfirmationTestSchool();
 
-$user = User::factory()->create([
-    'school_id' => $school->id,
-    'role' => User::ROLE_SCHOOL_ADMIN,
-    'is_active' => true,
-]);
+    $user = User::factory()->create([
+        'school_id' => $school->id,
+        'role' => User::ROLE_SCHOOL_ADMIN,
+        'is_active' => true,
+    ]);
 
     $response = $this->actingAs($user)->post('/confirm-password', [
         'password' => 'password',
@@ -57,11 +57,11 @@ $user = User::factory()->create([
 test('password is not confirmed with invalid password', function () {
     $school = createPasswordConfirmationTestSchool();
 
-$user = User::factory()->create([
-    'school_id' => $school->id,
-    'role' => User::ROLE_SCHOOL_ADMIN,
-    'is_active' => true,
-]);
+    $user = User::factory()->create([
+        'school_id' => $school->id,
+        'role' => User::ROLE_SCHOOL_ADMIN,
+        'is_active' => true,
+    ]);
 
     $response = $this->actingAs($user)->post('/confirm-password', [
         'password' => 'wrong-password',

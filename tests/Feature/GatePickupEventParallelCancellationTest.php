@@ -90,39 +90,30 @@ class GatePickupEventParallelCancellationTest extends TestCase
 
         $results =
             $this->runParallelCancellations(
-                eventId:
-                    (int) $event->id,
+                eventId: (int) $event->id,
 
                 jobs: [
                     $this->job(
-                        requestId:
-                            'event-cancel-a',
+                        requestId: 'event-cancel-a',
 
-                        user:
-                            $officer,
+                        user: $officer,
 
-                        path:
-                            $path,
+                        path: $path,
 
                         payload: [
-                            'reason' =>
-                                $reasonA,
+                            'reason' => $reasonA,
                         ],
                     ),
 
                     $this->job(
-                        requestId:
-                            'event-cancel-b',
+                        requestId: 'event-cancel-b',
 
-                        user:
-                            $officer,
+                        user: $officer,
 
-                        path:
-                            $path,
+                        path: $path,
 
                         payload: [
-                            'reason' =>
-                                $reasonB,
+                            'reason' => $reasonB,
                         ],
                     ),
                 ],
@@ -147,11 +138,10 @@ class GatePickupEventParallelCancellationTest extends TestCase
                     $results,
                     static fn (
                         array $result,
-                    ): bool =>
-                        (int) (
-                            $result['status']
-                            ?? 0
-                        ) === 200,
+                    ): bool => (int) (
+                        $result['status']
+                        ?? 0
+                    ) === 200,
                 ),
             );
 
@@ -161,11 +151,10 @@ class GatePickupEventParallelCancellationTest extends TestCase
                     $results,
                     static fn (
                         array $result,
-                    ): bool =>
-                        (int) (
-                            $result['status']
-                            ?? 0
-                        ) === 409,
+                    ): bool => (int) (
+                        $result['status']
+                        ?? 0
+                    ) === 409,
                 ),
             );
 
@@ -201,14 +190,11 @@ class GatePickupEventParallelCancellationTest extends TestCase
         $eventStudent->refresh();
 
         $this->assertCancelledAuditIsConsistent(
-            event:
-                $event,
+            event: $event,
 
-            eventStudent:
-                $eventStudent,
+            eventStudent: $eventStudent,
 
-            officer:
-                $officer,
+            officer: $officer,
 
             allowedReasons: [
                 $reasonA,
@@ -242,39 +228,30 @@ class GatePickupEventParallelCancellationTest extends TestCase
 
         $results =
             $this->runParallelCancellations(
-                eventId:
-                    (int) $event->id,
+                eventId: (int) $event->id,
 
                 jobs: [
                     $this->job(
-                        requestId:
-                            'whole-event-cancel',
+                        requestId: 'whole-event-cancel',
 
-                        user:
-                            $officer,
+                        user: $officer,
 
-                        path:
-                            "/gate/pickup-events/{$event->id}/cancel",
+                        path: "/gate/pickup-events/{$event->id}/cancel",
 
                         payload: [
-                            'reason' =>
-                                $eventReason,
+                            'reason' => $eventReason,
                         ],
                     ),
 
                     $this->job(
-                        requestId:
-                            'single-student-cancel',
+                        requestId: 'single-student-cancel',
 
-                        user:
-                            $officer,
+                        user: $officer,
 
-                        path:
-                            "/gate/pickup-events/{$event->id}/students/{$eventStudent->id}/cancel",
+                        path: "/gate/pickup-events/{$event->id}/students/{$eventStudent->id}/cancel",
 
                         payload: [
-                            'reason' =>
-                                $studentReason,
+                            'reason' => $studentReason,
                         ],
                     ),
                 ],
@@ -299,11 +276,10 @@ class GatePickupEventParallelCancellationTest extends TestCase
                     $results,
                     static fn (
                         array $result,
-                    ): bool =>
-                        (int) (
-                            $result['status']
-                            ?? 0
-                        ) === 200,
+                    ): bool => (int) (
+                        $result['status']
+                        ?? 0
+                    ) === 200,
                 ),
             );
 
@@ -331,14 +307,11 @@ class GatePickupEventParallelCancellationTest extends TestCase
         $eventStudent->refresh();
 
         $this->assertCancelledAuditIsConsistent(
-            event:
-                $event,
+            event: $event,
 
-            eventStudent:
-                $eventStudent,
+            eventStudent: $eventStudent,
 
-            officer:
-                $officer,
+            officer: $officer,
 
             allowedReasons: [
                 $eventReason,
@@ -366,12 +339,10 @@ class GatePickupEventParallelCancellationTest extends TestCase
             $this->insertWithId(
                 'schools',
                 [
-                    'name' =>
-                        'Parallel Cancellation School '
+                    'name' => 'Parallel Cancellation School '
                         .$this->token,
 
-                    'code' =>
-                        'PCS-'
+                    'code' => 'PCS-'
                         .Str::upper(
                             Str::substr(
                                 md5(
@@ -382,27 +353,20 @@ class GatePickupEventParallelCancellationTest extends TestCase
                             ),
                         ),
 
-                    'slug' =>
-                        $this->token,
+                    'slug' => $this->token,
 
-                    'email' =>
-                        $this->token
+                    'email' => $this->token
                         .'@school.test',
 
-                    'timezone' =>
-                        'Asia/Jakarta',
+                    'timezone' => 'Asia/Jakarta',
 
-                    'is_active' =>
-                        true,
+                    'is_active' => true,
 
-                    'status' =>
-                        'active',
+                    'status' => 'active',
 
-                    'created_at' =>
-                        $now,
+                    'created_at' => $now,
 
-                    'updated_at' =>
-                        $now,
+                    'updated_at' => $now,
                 ],
             );
 
@@ -413,41 +377,32 @@ class GatePickupEventParallelCancellationTest extends TestCase
             $this->insertWithId(
                 'users',
                 [
-                    'school_id' =>
-                        $schoolId,
+                    'school_id' => $schoolId,
 
-                    'name' =>
-                        'Parallel Cancellation Officer '
+                    'name' => 'Parallel Cancellation Officer '
                         .$this->token,
 
-                    'email' =>
-                        $this->token
+                    'email' => $this->token
                         .'@officer.test',
 
-                    'password' =>
-                        password_hash(
-                            'TestPassword123!',
-                            PASSWORD_BCRYPT,
-                        ),
+                    'password' => password_hash(
+                        'TestPassword123!',
+                        PASSWORD_BCRYPT,
+                    ),
 
-                    'role' =>
-                        User::ROLE_GATE_OFFICER,
+                    'role' => User::ROLE_GATE_OFFICER,
 
                     'roles' => [
-                        User::ROLE_GATE_OFFICER,
+                    User::ROLE_GATE_OFFICER,
                     ],
 
-                    'is_active' =>
-                        true,
+                    'is_active' => true,
 
-                    'email_verified_at' =>
-                        $now,
+                    'email_verified_at' => $now,
 
-                    'created_at' =>
-                        $now,
+                    'created_at' => $now,
 
-                    'updated_at' =>
-                        $now,
+                    'updated_at' => $now,
                 ],
             );
 
@@ -458,81 +413,57 @@ class GatePickupEventParallelCancellationTest extends TestCase
             $this->insertWithId(
                 'pickup_events',
                 [
-                    'school_id' =>
-                        $schoolId,
+                    'school_id' => $schoolId,
 
-                    'pickup_person_id' =>
-                        null,
+                    'pickup_person_id' => null,
 
-                    'face_verification_attempt_id' =>
-                        null,
+                    'face_verification_attempt_id' => null,
 
-                    'confirmed_by_user_id' =>
-                        $officerId,
+                    'confirmed_by_user_id' => $officerId,
 
-                    'cancelled_by_user_id' =>
-                        null,
+                    'cancelled_by_user_id' => null,
 
-                    'idempotency_key' =>
-                        (string) Str::uuid(),
+                    'idempotency_key' => (string) Str::uuid(),
 
-                    'verification_method' =>
-                        PickupEvent::VERIFICATION_METHOD_MANUAL,
+                    'verification_method' => PickupEvent::VERIFICATION_METHOD_MANUAL,
 
-                    'status' =>
-                        PickupEvent::STATUS_CONFIRMED,
+                    'status' => PickupEvent::STATUS_CONFIRMED,
 
-                    'pickup_person_name' =>
-                        'Penjemput Parallel '
+                    'pickup_person_name' => 'Penjemput Parallel '
                         .$this->token,
 
-                    'pickup_person_phone' =>
-                        '080000000000',
+                    'pickup_person_phone' => '080000000000',
 
-                    'verification_result' =>
-                        PickupPersonFaceVerificationAttempt::RESULT_MATCH,
+                    'verification_result' => PickupPersonFaceVerificationAttempt::RESULT_MATCH,
 
-                    'similarity_score' =>
-                        null,
+                    'similarity_score' => null,
 
-                    'similarity_threshold' =>
-                        null,
+                    'similarity_threshold' => null,
 
-                    'candidate_margin' =>
-                        null,
+                    'candidate_margin' => null,
 
-                    'confirmed_at' =>
-                        $now,
+                    'confirmed_at' => $now,
 
-                    'cancelled_at' =>
-                        null,
+                    'cancelled_at' => null,
 
-                    'cancellation_reason' =>
-                        null,
+                    'cancellation_reason' => null,
 
-                    'notes' =>
-                        'Fixture pembatalan paralel '
+                    'notes' => 'Fixture pembatalan paralel '
                         .$this->token,
 
-                    'ip_address' =>
-                        '127.0.0.1',
+                    'ip_address' => '127.0.0.1',
 
-                    'user_agent' =>
-                        'SchoolSafe Parallel Cancellation Test',
+                    'user_agent' => 'SchoolSafe Parallel Cancellation Test',
 
                     'metadata' => [
-                        'source' =>
-                            'parallel_cancellation_test',
+                        'source' => 'parallel_cancellation_test',
 
-                        'fixture_token' =>
-                            $this->token,
+                        'fixture_token' => $this->token,
                     ],
 
-                    'created_at' =>
-                        $now,
+                    'created_at' => $now,
 
-                    'updated_at' =>
-                        $now,
+                    'updated_at' => $now,
                 ],
             );
 
@@ -543,62 +474,47 @@ class GatePickupEventParallelCancellationTest extends TestCase
             $this->insertWithId(
                 'pickup_event_students',
                 [
-                    'pickup_event_id' =>
-                        $eventId,
+                    'pickup_event_id' => $eventId,
 
-                    'student_id' =>
-                        null,
+                    'student_id' => null,
 
-                    'student_name' =>
-                        'Siswa Parallel '
+                    'student_name' => 'Siswa Parallel '
                         .$this->token,
 
-                    'student_number' =>
-                        'PAR-CANCEL-001',
+                    'student_number' => 'PAR-CANCEL-001',
 
-                    'class_name' =>
-                        'Kelas Parallel',
+                    'class_name' => 'Kelas Parallel',
 
-                    'academic_year' =>
-                        '2026/2027',
+                    'academic_year' => '2026/2027',
 
-                    'relationship_type' =>
-                        $this->preferredValue(
-                            'pickup_event_students',
-                            'relationship_type',
-                            [
-                                'guardian',
-                                'parent',
-                                'father',
-                                'mother',
-                                'other',
-                            ],
+                    'relationship_type' => $this->preferredValue(
+                        'pickup_event_students',
+                        'relationship_type',
+                        [
                             'guardian',
-                        ),
+                            'parent',
+                            'father',
+                            'mother',
+                            'other',
+                        ],
+                        'guardian',
+                    ),
 
-                    'is_primary' =>
-                        true,
+                    'is_primary' => true,
 
-                    'status' =>
-                        PickupEventStudent::STATUS_RELEASED,
+                    'status' => PickupEventStudent::STATUS_RELEASED,
 
-                    'released_at' =>
-                        $now,
+                    'released_at' => $now,
 
-                    'cancelled_at' =>
-                        null,
+                    'cancelled_at' => null,
 
-                    'cancelled_by_user_id' =>
-                        null,
+                    'cancelled_by_user_id' => null,
 
-                    'cancellation_reason' =>
-                        null,
+                    'cancellation_reason' => null,
 
-                    'created_at' =>
-                        $now,
+                    'created_at' => $now,
 
-                    'updated_at' =>
-                        $now,
+                    'updated_at' => $now,
                 ],
             );
 
@@ -606,34 +522,30 @@ class GatePickupEventParallelCancellationTest extends TestCase
             $eventStudentId;
 
         return [
-            'school' =>
-                School::query()
-                    ->findOrFail(
-                        $schoolId,
-                    ),
+            'school' => School::query()
+                ->findOrFail(
+                    $schoolId,
+                ),
 
-            'officer' =>
-                User::query()
-                    ->findOrFail(
-                        $officerId,
-                    ),
+            'officer' => User::query()
+                ->findOrFail(
+                    $officerId,
+                ),
 
-            'event' =>
-                PickupEvent::query()
-                    ->findOrFail(
-                        $eventId,
-                    ),
+            'event' => PickupEvent::query()
+                ->findOrFail(
+                    $eventId,
+                ),
 
-            'event_student' =>
-                PickupEventStudent::query()
-                    ->findOrFail(
-                        $eventStudentId,
-                    ),
+            'event_student' => PickupEventStudent::query()
+                ->findOrFail(
+                    $eventStudentId,
+                ),
         ];
     }
 
     /**
-     * @param array<int, string> $allowedReasons
+     * @param  array<int, string>  $allowedReasons
      */
     private function assertCancelledAuditIsConsistent(
         PickupEvent $event,
@@ -720,8 +632,7 @@ class GatePickupEventParallelCancellationTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $payload
-     *
+     * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
      */
     private function job(
@@ -731,35 +642,27 @@ class GatePickupEventParallelCancellationTest extends TestCase
         array $payload,
     ): array {
         return [
-            'request_id' =>
-                $requestId
+            'request_id' => $requestId
                 .'-'
                 .$this->token,
 
-            'user_id' =>
-                (int) $user->id,
+            'user_id' => (int) $user->id,
 
-            'method' =>
-                'PATCH',
+            'method' => 'PATCH',
 
-            'path' =>
-                $path,
+            'path' => $path,
 
-            'payload' =>
-                $payload,
+            'payload' => $payload,
 
-            'expected_database' =>
-                DB::connection()
-                    ->getDatabaseName(),
+            'expected_database' => DB::connection()
+                ->getDatabaseName(),
 
-            'barrier_timeout_ms' =>
-                20_000,
+            'barrier_timeout_ms' => 20_000,
         ];
     }
 
     /**
-     * @param array<int, array<string, mixed>> $jobs
-     *
+     * @param  array<int, array<string, mixed>>  $jobs
      * @return array<int, array<string, mixed>>
      */
     private function runParallelCancellations(
@@ -885,27 +788,22 @@ class GatePickupEventParallelCancellationTest extends TestCase
             }
 
             $this->waitForReadyFiles(
-                readyPaths:
-                    $readyPaths,
+                readyPaths: $readyPaths,
 
-                resultPaths:
-                    $resultPaths,
+                resultPaths: $resultPaths,
 
-                processes:
-                    $processes,
+                processes: $processes,
 
-                timeoutMs:
-                    10_000,
+                timeoutMs: 10_000,
             );
 
             $readyPayloads =
                 array_map(
                     fn (
                         string $path,
-                    ): array =>
-                        $this->readJson(
-                            $path,
-                        ),
+                    ): array => $this->readJson(
+                        $path,
+                    ),
                     $readyPaths,
                 );
 
@@ -915,11 +813,10 @@ class GatePickupEventParallelCancellationTest extends TestCase
                         array_map(
                             static fn (
                                 array $payload,
-                            ): int =>
-                                (int) (
-                                    $payload['pid']
-                                    ?? 0
-                                ),
+                            ): int => (int) (
+                                $payload['pid']
+                                ?? 0
+                            ),
                             $readyPayloads,
                         ),
                     ),
@@ -994,10 +891,9 @@ class GatePickupEventParallelCancellationTest extends TestCase
                 array_map(
                     fn (
                         string $path,
-                    ): array =>
-                        $this->readJson(
-                            $path,
-                        ),
+                    ): array => $this->readJson(
+                        $path,
+                    ),
                     $resultPaths,
                 );
 
@@ -1047,9 +943,9 @@ class GatePickupEventParallelCancellationTest extends TestCase
     }
 
     /**
-     * @param array<int, string> $readyPaths
-     * @param array<int, string> $resultPaths
-     * @param array<int, Process> $processes
+     * @param  array<int, string>  $readyPaths
+     * @param  array<int, string>  $resultPaths
+     * @param  array<int, Process>  $processes
      */
     private function waitForReadyFiles(
         array $readyPaths,
@@ -1213,63 +1109,50 @@ class GatePickupEventParallelCancellationTest extends TestCase
             );
 
         return [
-            'APP_ENV' =>
-                'testing',
+            'APP_ENV' => 'testing',
 
-            'APP_KEY' =>
-                (string) config(
-                    'app.key',
-                    '',
-                ),
+            'APP_KEY' => (string) config(
+                'app.key',
+                '',
+            ),
 
-            'APP_DEBUG' =>
-                'true',
+            'APP_DEBUG' => 'true',
 
-            'DB_CONNECTION' =>
-                $connectionName,
+            'DB_CONNECTION' => $connectionName,
 
-            'DB_HOST' =>
-                (string) (
-                    $connectionConfig['host']
-                    ?? '127.0.0.1'
-                ),
+            'DB_HOST' => (string) (
+                $connectionConfig['host']
+                ?? '127.0.0.1'
+            ),
 
-            'DB_PORT' =>
-                (string) (
-                    $connectionConfig['port']
-                    ?? '3306'
-                ),
+            'DB_PORT' => (string) (
+                $connectionConfig['port']
+                ?? '3306'
+            ),
 
-            'DB_DATABASE' =>
-                (string) DB::connection()
-                    ->getDatabaseName(),
+            'DB_DATABASE' => (string) DB::connection()
+                ->getDatabaseName(),
 
-            'DB_USERNAME' =>
-                (string) (
-                    $connectionConfig['username']
-                    ?? ''
-                ),
+            'DB_USERNAME' => (string) (
+                $connectionConfig['username']
+                ?? ''
+            ),
 
-            'DB_PASSWORD' =>
-                (string) (
-                    $connectionConfig['password']
-                    ?? ''
-                ),
+            'DB_PASSWORD' => (string) (
+                $connectionConfig['password']
+                ?? ''
+            ),
 
-            'CACHE_STORE' =>
-                'array',
+            'CACHE_STORE' => 'array',
 
-            'SESSION_DRIVER' =>
-                'array',
+            'SESSION_DRIVER' => 'array',
 
-            'QUEUE_CONNECTION' =>
-                'sync',
+            'QUEUE_CONNECTION' => 'sync',
         ];
     }
 
     /**
-     * @param array<int, array<string, mixed>> $results
-     *
+     * @param  array<int, array<string, mixed>>  $results
      * @return array<int, int>
      */
     private function statuses(
@@ -1279,11 +1162,10 @@ class GatePickupEventParallelCancellationTest extends TestCase
             array_map(
                 static fn (
                     array $result,
-                ): int =>
-                    (int) (
-                        $result['status']
-                        ?? 0
-                    ),
+                ): int => (int) (
+                    $result['status']
+                    ?? 0
+                ),
                 $results,
             );
 
@@ -1297,7 +1179,7 @@ class GatePickupEventParallelCancellationTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string, mixed>> $results
+     * @param  array<int, array<string, mixed>>  $results
      */
     private function diagnostics(
         array $results,
@@ -1461,8 +1343,7 @@ class GatePickupEventParallelCancellationTest extends TestCase
             array_map(
                 static fn (
                     object $row,
-                ): array =>
-                    (array) $row,
+                ): array => (array) $row,
                 $rows,
             );
     }
@@ -1778,10 +1659,9 @@ class GatePickupEventParallelCancellationTest extends TestCase
             array_map(
                 static fn (
                     string $value,
-                ): string =>
-                    stripcslashes(
-                        $value,
-                    ),
+                ): string => stripcslashes(
+                    $value,
+                ),
                 $matches[1]
                 ?? [],
             ),
@@ -2054,7 +1934,7 @@ class GatePickupEventParallelCancellationTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     private function writeJson(
         string $path,

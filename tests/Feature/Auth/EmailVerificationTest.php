@@ -1,11 +1,11 @@
 <?php
 
+use App\Models\School;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
-use App\Models\School;
 
 function createEmailVerificationTestSchool(): School
 {
@@ -29,11 +29,11 @@ function createEmailVerificationTestSchool(): School
 test('email verification screen can be rendered', function () {
     $school = createEmailVerificationTestSchool();
 
-$user = User::factory()->unverified()->create([
-    'school_id' => $school->id,
-    'role' => User::ROLE_SCHOOL_ADMIN,
-    'is_active' => true,
-]);
+    $user = User::factory()->unverified()->create([
+        'school_id' => $school->id,
+        'role' => User::ROLE_SCHOOL_ADMIN,
+        'is_active' => true,
+    ]);
 
     $response = $this->actingAs($user)->get('/verify-email');
 
@@ -43,11 +43,11 @@ $user = User::factory()->unverified()->create([
 test('email can be verified', function () {
     $school = createEmailVerificationTestSchool();
 
-$user = User::factory()->unverified()->create([
-    'school_id' => $school->id,
-    'role' => User::ROLE_SCHOOL_ADMIN,
-    'is_active' => true,
-]);
+    $user = User::factory()->unverified()->create([
+        'school_id' => $school->id,
+        'role' => User::ROLE_SCHOOL_ADMIN,
+        'is_active' => true,
+    ]);
 
     Event::fake();
 
@@ -67,11 +67,11 @@ $user = User::factory()->unverified()->create([
 test('email is not verified with invalid hash', function () {
     $school = createEmailVerificationTestSchool();
 
-$user = User::factory()->unverified()->create([
-    'school_id' => $school->id,
-    'role' => User::ROLE_SCHOOL_ADMIN,
-    'is_active' => true,
-]);
+    $user = User::factory()->unverified()->create([
+        'school_id' => $school->id,
+        'role' => User::ROLE_SCHOOL_ADMIN,
+        'is_active' => true,
+    ]);
 
     $verificationUrl = URL::temporarySignedRoute(
         'verification.verify',

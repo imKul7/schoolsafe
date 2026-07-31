@@ -15,49 +15,46 @@ class CancelPickupEventRequest extends FormRequest
         $user =
             $this->user();
 
-        return (
+        return
             $user instanceof User
             && (bool) $user->is_active
             && (int) $user->school_id > 0
             && $user->hasRole(
                 User::ROLE_SCHOOL_ADMIN,
                 User::ROLE_GATE_OFFICER,
-            )
-        );
+            );
     }
 
     protected function failedAuthorization(): void
-{
-    $user =
-        $this->user();
+    {
+        $user =
+            $this->user();
 
-    if (
-        $user instanceof User
-        && ! (bool) $user->is_active
-    ) {
+        if (
+            $user instanceof User
+            && ! (bool) $user->is_active
+        ) {
+            throw new AuthorizationException(
+                'Akun Anda sedang tidak aktif.',
+            );
+        }
+
+        if (
+            $user instanceof User
+            && (
+                $user->school_id === null
+                || (int) $user->school_id <= 0
+            )
+        ) {
+            throw new AuthorizationException(
+                'Akun belum terhubung dengan sekolah.',
+            );
+        }
+
         throw new AuthorizationException(
-            'Akun Anda sedang tidak aktif.',
+            'Akun tidak memiliki izin mengelola transaksi gerbang.',
         );
     }
-
-    if (
-        $user instanceof User
-        && (
-            $user->school_id === null
-            || (int) $user->school_id <= 0
-        )
-    ) {
-        throw new AuthorizationException(
-            'Akun belum terhubung dengan sekolah.',
-        );
-    }
-
-    throw new AuthorizationException(
-        'Akun tidak memiliki izin mengelola transaksi gerbang.',
-    );
-}
-
-
 
     protected function prepareForValidation(): void
     {
@@ -67,8 +64,7 @@ class CancelPickupEventRequest extends FormRequest
             );
 
         $this->merge([
-            'reason' =>
-                is_string($reason)
+            'reason' => is_string($reason)
                     ? trim($reason)
                     : $reason,
         ]);
@@ -90,17 +86,13 @@ class CancelPickupEventRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'reason.required' =>
-                'Alasan pembatalan wajib diisi.',
+            'reason.required' => 'Alasan pembatalan wajib diisi.',
 
-            'reason.string' =>
-                'Alasan pembatalan tidak valid.',
+            'reason.string' => 'Alasan pembatalan tidak valid.',
 
-            'reason.min' =>
-                'Alasan pembatalan minimal 5 karakter.',
+            'reason.min' => 'Alasan pembatalan minimal 5 karakter.',
 
-            'reason.max' =>
-                'Alasan pembatalan maksimal 1000 karakter.',
+            'reason.max' => 'Alasan pembatalan maksimal 1000 karakter.',
         ];
     }
 

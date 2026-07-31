@@ -528,14 +528,13 @@ return new class extends Migration
                 ->table_comment
             ?? null;
 
-        return (
+        return
             is_string(
                 $tableComment,
             )
             && hash_equals(
                 self::TABLE_COMMENT,
                 $tableComment,
-            )
-        );
+            );
     }
 };

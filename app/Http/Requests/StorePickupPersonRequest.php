@@ -309,62 +309,43 @@ class StorePickupPersonRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'full_name.required' =>
-                'Nama lengkap penjemput wajib diisi.',
+            'full_name.required' => 'Nama lengkap penjemput wajib diisi.',
 
-            'full_name.min' =>
-                'Nama lengkap minimal terdiri dari 3 karakter.',
+            'full_name.min' => 'Nama lengkap minimal terdiri dari 3 karakter.',
 
-            'identity_number.min' =>
-                'Nomor identitas minimal terdiri dari 8 angka.',
+            'identity_number.min' => 'Nomor identitas minimal terdiri dari 8 angka.',
 
-            'identity_number.unique' =>
-                'Nomor identitas sudah digunakan penjemput lain.',
+            'identity_number.unique' => 'Nomor identitas sudah digunakan penjemput lain.',
 
-            'phone.required' =>
-                'Nomor telepon wajib diisi.',
+            'phone.required' => 'Nomor telepon wajib diisi.',
 
-            'phone.regex' =>
-                'Format nomor telepon tidak valid.',
+            'phone.regex' => 'Format nomor telepon tidak valid.',
 
-            'email.email' =>
-                'Format alamat email tidak valid.',
+            'email.email' => 'Format alamat email tidak valid.',
 
-            'face_status.required' =>
-                'Status pendaftaran wajah wajib dipilih.',
+            'face_status.required' => 'Status pendaftaran wajah wajib dipilih.',
 
-            'face_status.in' =>
-                'Status pendaftaran wajah tidak valid.',
+            'face_status.in' => 'Status pendaftaran wajah tidak valid.',
 
-            'students.required' =>
-                'Pilih minimal satu siswa yang boleh dijemput.',
+            'students.required' => 'Pilih minimal satu siswa yang boleh dijemput.',
 
-            'students.min' =>
-                'Pilih minimal satu siswa yang boleh dijemput.',
+            'students.min' => 'Pilih minimal satu siswa yang boleh dijemput.',
 
-            'students.max' =>
-                'Maksimal 20 siswa dapat dihubungkan.',
+            'students.max' => 'Maksimal 20 siswa dapat dihubungkan.',
 
-            'students.*.student_id.required' =>
-                'Siswa wajib dipilih.',
+            'students.*.student_id.required' => 'Siswa wajib dipilih.',
 
-            'students.*.student_id.distinct' =>
-                'Siswa yang sama tidak boleh dipilih lebih dari satu kali.',
+            'students.*.student_id.distinct' => 'Siswa yang sama tidak boleh dipilih lebih dari satu kali.',
 
-            'students.*.student_id.exists' =>
-                'Siswa yang dipilih tidak tersedia.',
+            'students.*.student_id.exists' => 'Siswa yang dipilih tidak tersedia.',
 
-            'students.*.relationship_type.required' =>
-                'Hubungan penjemput dengan siswa wajib dipilih.',
+            'students.*.relationship_type.required' => 'Hubungan penjemput dengan siswa wajib dipilih.',
 
-            'students.*.relationship_type.in' =>
-                'Jenis hubungan penjemput tidak valid.',
+            'students.*.relationship_type.in' => 'Jenis hubungan penjemput tidak valid.',
 
-            'address.max' =>
-                'Alamat maksimal 2.000 karakter.',
+            'address.max' => 'Alamat maksimal 2.000 karakter.',
 
-            'notes.max' =>
-                'Catatan maksimal 2.000 karakter.',
+            'notes.max' => 'Catatan maksimal 2.000 karakter.',
         ];
     }
 

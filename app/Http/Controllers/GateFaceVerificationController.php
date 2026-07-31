@@ -154,8 +154,7 @@ class GateFaceVerificationController extends Controller
                 1,
                 300,
             ),
-            message:
-                'Terlalu banyak permintaan challenge. Tunggu sebelum mencoba kembali.',
+            message: 'Terlalu banyak permintaan challenge. Tunggu sebelum mencoba kembali.',
         );
 
         $ttlSeconds = $this->clampInteger(
@@ -262,8 +261,7 @@ class GateFaceVerificationController extends Controller
                 1,
                 300,
             ),
-            message:
-                'Terlalu banyak permintaan verifikasi. Tunggu sebelum mencoba kembali.',
+            message: 'Terlalu banyak permintaan verifikasi. Tunggu sebelum mencoba kembali.',
         );
 
         $this->acquireVerificationCooldown(
@@ -279,8 +277,7 @@ class GateFaceVerificationController extends Controller
 
         $embedding = collect($rawEmbedding)
             ->map(
-                static fn (mixed $value): float =>
-                    (float) $value,
+                static fn (mixed $value): float => (float) $value,
             )
             ->values()
             ->all();
@@ -406,35 +403,24 @@ class GateFaceVerificationController extends Controller
                 request: $request,
                 schoolId: $schoolId,
                 user: $user,
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_LIVENESS_FAILED,
-                similarityThreshold:
-                    $minimumSimilarity,
-                qualityScore:
-                    $qualityScore,
-                livenessPassed:
-                    false,
-                liveScore:
-                    $liveScore,
-                realScore:
-                    $realScore,
-                modelName:
-                    $modelName,
-                modelVersion:
-                    $modelVersion,
-                embeddingDimension:
-                    count($embedding),
-                captureMethod:
-                    $captureMethod,
-                metadata:
-                    $this->buildAuditMetadata(
-                        $clientMetadata,
-                        null,
-                        'challenge_validation_failed',
-                        $request,
-                        $schoolId,
-                        $user,
-                    ),
+                result: PickupPersonFaceVerificationAttempt::RESULT_LIVENESS_FAILED,
+                similarityThreshold: $minimumSimilarity,
+                qualityScore: $qualityScore,
+                livenessPassed: false,
+                liveScore: $liveScore,
+                realScore: $realScore,
+                modelName: $modelName,
+                modelVersion: $modelVersion,
+                embeddingDimension: count($embedding),
+                captureMethod: $captureMethod,
+                metadata: $this->buildAuditMetadata(
+                    $clientMetadata,
+                    null,
+                    'challenge_validation_failed',
+                    $request,
+                    $schoolId,
+                    $user,
+                ),
             );
 
             $this->registerVerificationFailure(
@@ -461,28 +447,17 @@ class GateFaceVerificationController extends Controller
                 request: $request,
                 schoolId: $schoolId,
                 user: $user,
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_MODEL_MISMATCH,
-                similarityThreshold:
-                    $minimumSimilarity,
-                qualityScore:
-                    $qualityScore,
-                livenessPassed:
-                    $livenessPassed,
-                liveScore:
-                    $liveScore,
-                realScore:
-                    $realScore,
-                modelName:
-                    $modelName,
-                modelVersion:
-                    $modelVersion,
-                embeddingDimension:
-                    count($embedding),
-                captureMethod:
-                    $captureMethod,
-                metadata:
-                    $auditMetadata,
+                result: PickupPersonFaceVerificationAttempt::RESULT_MODEL_MISMATCH,
+                similarityThreshold: $minimumSimilarity,
+                qualityScore: $qualityScore,
+                livenessPassed: $livenessPassed,
+                liveScore: $liveScore,
+                realScore: $realScore,
+                modelName: $modelName,
+                modelVersion: $modelVersion,
+                embeddingDimension: count($embedding),
+                captureMethod: $captureMethod,
+                metadata: $auditMetadata,
             );
 
             $this->registerVerificationFailure(
@@ -492,8 +467,7 @@ class GateFaceVerificationController extends Controller
             );
 
             throw ValidationException::withMessages([
-                'model_name' =>
-                    'Model biometrik tidak sesuai dengan model sekolah.',
+                'model_name' => 'Model biometrik tidak sesuai dengan model sekolah.',
             ]);
         }
 
@@ -502,28 +476,17 @@ class GateFaceVerificationController extends Controller
                 request: $request,
                 schoolId: $schoolId,
                 user: $user,
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_LOW_QUALITY,
-                similarityThreshold:
-                    $minimumSimilarity,
-                qualityScore:
-                    $qualityScore,
-                livenessPassed:
-                    $livenessPassed,
-                liveScore:
-                    $liveScore,
-                realScore:
-                    $realScore,
-                modelName:
-                    $modelName,
-                modelVersion:
-                    $modelVersion,
-                embeddingDimension:
-                    count($embedding),
-                captureMethod:
-                    $captureMethod,
-                metadata:
-                    $auditMetadata,
+                result: PickupPersonFaceVerificationAttempt::RESULT_LOW_QUALITY,
+                similarityThreshold: $minimumSimilarity,
+                qualityScore: $qualityScore,
+                livenessPassed: $livenessPassed,
+                liveScore: $liveScore,
+                realScore: $realScore,
+                modelName: $modelName,
+                modelVersion: $modelVersion,
+                embeddingDimension: count($embedding),
+                captureMethod: $captureMethod,
+                metadata: $auditMetadata,
             );
 
             $this->registerVerificationFailure(
@@ -551,28 +514,17 @@ class GateFaceVerificationController extends Controller
                 request: $request,
                 schoolId: $schoolId,
                 user: $user,
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_LIVENESS_FAILED,
-                similarityThreshold:
-                    $minimumSimilarity,
-                qualityScore:
-                    $qualityScore,
-                livenessPassed:
-                    false,
-                liveScore:
-                    $liveScore,
-                realScore:
-                    $realScore,
-                modelName:
-                    $modelName,
-                modelVersion:
-                    $modelVersion,
-                embeddingDimension:
-                    count($embedding),
-                captureMethod:
-                    $captureMethod,
-                metadata:
-                    $auditMetadata,
+                result: PickupPersonFaceVerificationAttempt::RESULT_LIVENESS_FAILED,
+                similarityThreshold: $minimumSimilarity,
+                qualityScore: $qualityScore,
+                livenessPassed: false,
+                liveScore: $liveScore,
+                realScore: $realScore,
+                modelName: $modelName,
+                modelVersion: $modelVersion,
+                embeddingDimension: count($embedding),
+                captureMethod: $captureMethod,
+                metadata: $auditMetadata,
             );
 
             $this->registerVerificationFailure(
@@ -582,8 +534,7 @@ class GateFaceVerificationController extends Controller
             );
 
             throw ValidationException::withMessages([
-                'liveness_passed' =>
-                    'Pemeriksaan liveness atau anti-spoofing belum lulus.',
+                'liveness_passed' => 'Pemeriksaan liveness atau anti-spoofing belum lulus.',
             ]);
         }
 
@@ -632,20 +583,19 @@ class GateFaceVerificationController extends Controller
                     },
                 )
                 ->with([
-                    'pickupPerson' =>
-                        static function (
-                            Builder $query,
-                        ): void {
-                            $query->select([
-                                'id',
-                                'school_id',
-                                'full_name',
-                                'phone',
-                                'photo_path',
-                                'face_status',
-                                'is_active',
-                            ]);
-                        },
+                    'pickupPerson' => static function (
+                        Builder $query,
+                    ): void {
+                        $query->select([
+                            'id',
+                            'school_id',
+                            'full_name',
+                            'phone',
+                            'photo_path',
+                            'face_status',
+                            'is_active',
+                        ]);
+                    },
                 ])
                 ->orderBy('id')
                 ->limit($maximumCandidates)
@@ -678,8 +628,7 @@ class GateFaceVerificationController extends Controller
                             ->map(
                                 static fn (
                                     mixed $value,
-                                ): float =>
-                                    (float) $value,
+                                ): float => (float) $value,
                             )
                             ->values()
                             ->all();
@@ -694,17 +643,15 @@ class GateFaceVerificationController extends Controller
 
                     return [
                         'profile' => $profile,
-                        'similarity' =>
-                            $this->cosineSimilarity(
-                                $embedding,
-                                $normalizedStoredEmbedding,
-                            ),
+                        'similarity' => $this->cosineSimilarity(
+                            $embedding,
+                            $normalizedStoredEmbedding,
+                        ),
                     ];
                 },
             )
             ->filter(
-                static fn (mixed $value): bool =>
-                    is_array($value),
+                static fn (mixed $value): bool => is_array($value),
             )
             ->sortByDesc('similarity')
             ->values();
@@ -714,30 +661,18 @@ class GateFaceVerificationController extends Controller
                 request: $request,
                 schoolId: $schoolId,
                 user: $user,
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_NO_CANDIDATES,
-                similarityThreshold:
-                    $minimumSimilarity,
-                candidateCount:
-                    $profiles->count(),
-                qualityScore:
-                    $qualityScore,
-                livenessPassed:
-                    true,
-                liveScore:
-                    $liveScore,
-                realScore:
-                    $realScore,
-                modelName:
-                    $modelName,
-                modelVersion:
-                    $modelVersion,
-                embeddingDimension:
-                    count($embedding),
-                captureMethod:
-                    $captureMethod,
-                metadata:
-                    $auditMetadata,
+                result: PickupPersonFaceVerificationAttempt::RESULT_NO_CANDIDATES,
+                similarityThreshold: $minimumSimilarity,
+                candidateCount: $profiles->count(),
+                qualityScore: $qualityScore,
+                livenessPassed: true,
+                liveScore: $liveScore,
+                realScore: $realScore,
+                modelName: $modelName,
+                modelVersion: $modelVersion,
+                embeddingDimension: count($embedding),
+                captureMethod: $captureMethod,
+                metadata: $auditMetadata,
             );
 
             $this->registerVerificationFailure(
@@ -747,12 +682,9 @@ class GateFaceVerificationController extends Controller
             );
 
             return $this->unmatchedResponse(
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_NO_CANDIDATES,
-                message:
-                    'Belum ada profil wajah aktif yang dapat dibandingkan.',
-                threshold:
-                    $minimumSimilarity,
+                result: PickupPersonFaceVerificationAttempt::RESULT_NO_CANDIDATES,
+                message: 'Belum ada profil wajah aktif yang dapat dibandingkan.',
+                threshold: $minimumSimilarity,
             );
         }
 
@@ -786,34 +718,20 @@ class GateFaceVerificationController extends Controller
                 request: $request,
                 schoolId: $schoolId,
                 user: $user,
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_NO_MATCH,
-                similarityScore:
-                    $bestSimilarity,
-                similarityThreshold:
-                    $minimumSimilarity,
-                candidateMargin:
-                    $margin,
-                candidateCount:
-                    $ranked->count(),
-                qualityScore:
-                    $qualityScore,
-                livenessPassed:
-                    true,
-                liveScore:
-                    $liveScore,
-                realScore:
-                    $realScore,
-                modelName:
-                    $modelName,
-                modelVersion:
-                    $modelVersion,
-                embeddingDimension:
-                    count($embedding),
-                captureMethod:
-                    $captureMethod,
-                metadata:
-                    $auditMetadata,
+                result: PickupPersonFaceVerificationAttempt::RESULT_NO_MATCH,
+                similarityScore: $bestSimilarity,
+                similarityThreshold: $minimumSimilarity,
+                candidateMargin: $margin,
+                candidateCount: $ranked->count(),
+                qualityScore: $qualityScore,
+                livenessPassed: true,
+                liveScore: $liveScore,
+                realScore: $realScore,
+                modelName: $modelName,
+                modelVersion: $modelVersion,
+                embeddingDimension: count($embedding),
+                captureMethod: $captureMethod,
+                metadata: $auditMetadata,
             );
 
             $this->registerVerificationFailure(
@@ -823,16 +741,11 @@ class GateFaceVerificationController extends Controller
             );
 
             return $this->unmatchedResponse(
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_NO_MATCH,
-                message:
-                    'Wajah tidak cocok dengan penjemput terdaftar.',
-                threshold:
-                    $minimumSimilarity,
-                similarity:
-                    $bestSimilarity,
-                margin:
-                    $margin,
+                result: PickupPersonFaceVerificationAttempt::RESULT_NO_MATCH,
+                message: 'Wajah tidak cocok dengan penjemput terdaftar.',
+                threshold: $minimumSimilarity,
+                similarity: $bestSimilarity,
+                margin: $margin,
             );
         }
 
@@ -844,34 +757,20 @@ class GateFaceVerificationController extends Controller
                 request: $request,
                 schoolId: $schoolId,
                 user: $user,
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_AMBIGUOUS,
-                similarityScore:
-                    $bestSimilarity,
-                similarityThreshold:
-                    $minimumSimilarity,
-                candidateMargin:
-                    $margin,
-                candidateCount:
-                    $ranked->count(),
-                qualityScore:
-                    $qualityScore,
-                livenessPassed:
-                    true,
-                liveScore:
-                    $liveScore,
-                realScore:
-                    $realScore,
-                modelName:
-                    $modelName,
-                modelVersion:
-                    $modelVersion,
-                embeddingDimension:
-                    count($embedding),
-                captureMethod:
-                    $captureMethod,
-                metadata:
-                    $auditMetadata,
+                result: PickupPersonFaceVerificationAttempt::RESULT_AMBIGUOUS,
+                similarityScore: $bestSimilarity,
+                similarityThreshold: $minimumSimilarity,
+                candidateMargin: $margin,
+                candidateCount: $ranked->count(),
+                qualityScore: $qualityScore,
+                livenessPassed: true,
+                liveScore: $liveScore,
+                realScore: $realScore,
+                modelName: $modelName,
+                modelVersion: $modelVersion,
+                embeddingDimension: count($embedding),
+                captureMethod: $captureMethod,
+                metadata: $auditMetadata,
             );
 
             $this->registerVerificationFailure(
@@ -881,16 +780,11 @@ class GateFaceVerificationController extends Controller
             );
 
             return $this->unmatchedResponse(
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_AMBIGUOUS,
-                message:
-                    'Dua kandidat memiliki skor terlalu dekat. Lakukan verifikasi manual.',
-                threshold:
-                    $minimumSimilarity,
-                similarity:
-                    $bestSimilarity,
-                margin:
-                    $margin,
+                result: PickupPersonFaceVerificationAttempt::RESULT_AMBIGUOUS,
+                message: 'Dua kandidat memiliki skor terlalu dekat. Lakukan verifikasi manual.',
+                threshold: $minimumSimilarity,
+                similarity: $bestSimilarity,
+                margin: $margin,
             );
         }
 
@@ -918,74 +812,73 @@ class GateFaceVerificationController extends Controller
         );
 
         $pickupPerson->load([
-            'students' =>
-                function (
-                    Builder $query,
-                ) use (
-                    $schoolId,
-                    $today,
-                ): void {
-                    $query
-                        ->where(
-                            'students.school_id',
-                            $schoolId,
-                        )
-                        ->where(
-                            'pickup_person_student.school_id',
-                            $schoolId,
-                        )
-                        ->where(
-                            'pickup_person_student.is_active',
-                            true,
-                        )
-                        ->where(
-                            'students.status',
-                            Student::STATUS_ACTIVE,
-                        )
-                        ->where(
-                            function (
-                                Builder $query,
-                            ) use (
-                                $today,
-                            ): void {
-                                $query
-                                    ->whereNull(
-                                        'pickup_person_student.valid_from',
-                                    )
-                                    ->orWhereDate(
-                                        'pickup_person_student.valid_from',
-                                        '<=',
-                                        $today,
-                                    );
-                            },
-                        )
-                        ->where(
-                            function (
-                                Builder $query,
-                            ) use (
-                                $today,
-                            ): void {
-                                $query
-                                    ->whereNull(
-                                        'pickup_person_student.valid_until',
-                                    )
-                                    ->orWhereDate(
-                                        'pickup_person_student.valid_until',
-                                        '>=',
-                                        $today,
-                                    );
-                            },
-                        )
-                        ->with([
-                            'schoolClass:id,name,grade_level,academic_year',
-                        ])
-                        ->orderBy(
-                            'students.full_name',
-                        )
-                        ->orderBy(
-                            'students.id',
-                        );
-                },
+            'students' => function (
+                Builder $query,
+            ) use (
+                $schoolId,
+                $today,
+            ): void {
+                $query
+                    ->where(
+                        'students.school_id',
+                        $schoolId,
+                    )
+                    ->where(
+                        'pickup_person_student.school_id',
+                        $schoolId,
+                    )
+                    ->where(
+                        'pickup_person_student.is_active',
+                        true,
+                    )
+                    ->where(
+                        'students.status',
+                        Student::STATUS_ACTIVE,
+                    )
+                    ->where(
+                        function (
+                            Builder $query,
+                        ) use (
+                            $today,
+                        ): void {
+                            $query
+                                ->whereNull(
+                                    'pickup_person_student.valid_from',
+                                )
+                                ->orWhereDate(
+                                    'pickup_person_student.valid_from',
+                                    '<=',
+                                    $today,
+                                );
+                        },
+                    )
+                    ->where(
+                        function (
+                            Builder $query,
+                        ) use (
+                            $today,
+                        ): void {
+                            $query
+                                ->whereNull(
+                                    'pickup_person_student.valid_until',
+                                )
+                                ->orWhereDate(
+                                    'pickup_person_student.valid_until',
+                                    '>=',
+                                    $today,
+                                );
+                        },
+                    )
+                    ->with([
+                        'schoolClass:id,name,grade_level,academic_year',
+                    ])
+                    ->orderBy(
+                        'students.full_name',
+                    )
+                    ->orderBy(
+                        'students.id',
+                    );
+            },
         ]);
 
         $verificationAttempt =
@@ -993,36 +886,21 @@ class GateFaceVerificationController extends Controller
                 request: $request,
                 schoolId: $schoolId,
                 user: $user,
-                result:
-                    PickupPersonFaceVerificationAttempt::RESULT_MATCH,
-                pickupPerson:
-                    $pickupPerson,
-                similarityScore:
-                    $bestSimilarity,
-                similarityThreshold:
-                    $minimumSimilarity,
-                candidateMargin:
-                    $margin,
-                candidateCount:
-                    $ranked->count(),
-                qualityScore:
-                    $qualityScore,
-                livenessPassed:
-                    true,
-                liveScore:
-                    $liveScore,
-                realScore:
-                    $realScore,
-                modelName:
-                    $modelName,
-                modelVersion:
-                    $modelVersion,
-                embeddingDimension:
-                    count($embedding),
-                captureMethod:
-                    $captureMethod,
-                metadata:
-                    $auditMetadata,
+                result: PickupPersonFaceVerificationAttempt::RESULT_MATCH,
+                pickupPerson: $pickupPerson,
+                similarityScore: $bestSimilarity,
+                similarityThreshold: $minimumSimilarity,
+                candidateMargin: $margin,
+                candidateCount: $ranked->count(),
+                qualityScore: $qualityScore,
+                livenessPassed: true,
+                liveScore: $liveScore,
+                realScore: $realScore,
+                modelName: $modelName,
+                modelVersion: $modelVersion,
+                embeddingDimension: count($embedding),
+                captureMethod: $captureMethod,
+                metadata: $auditMetadata,
             );
 
         RateLimiter::clear(
@@ -1035,85 +913,69 @@ class GateFaceVerificationController extends Controller
 
         return response()->json([
             'matched' => true,
-            'result' =>
-                PickupPersonFaceVerificationAttempt::RESULT_MATCH,
-            'message' =>
-                'Wajah cocok dengan penjemput terdaftar.',
+            'result' => PickupPersonFaceVerificationAttempt::RESULT_MATCH,
+            'message' => 'Wajah cocok dengan penjemput terdaftar.',
             'similarity' => $bestSimilarity,
             'threshold' => $minimumSimilarity,
             'margin' => $margin,
-            'verification_attempt_id' =>
-                (int) $verificationAttempt->id,
+            'verification_attempt_id' => (int) $verificationAttempt->id,
 
             'pickup_person' => [
-                'id' =>
-                    (int) $pickupPerson->id,
+                'id' => (int) $pickupPerson->id,
 
-                'full_name' =>
-                    (string) $pickupPerson->full_name,
+                'full_name' => (string) $pickupPerson->full_name,
 
-                'phone' =>
-                    $this->nullableString(
-                        $pickupPerson->phone,
-                    ),
+                'phone' => $this->nullableString(
+                    $pickupPerson->phone,
+                ),
 
-                'photo_url' =>
-                    $this->photoUrl(
-                        $pickupPerson->photo_path,
-                    ),
+                'photo_url' => $this->photoUrl(
+                    $pickupPerson->photo_path,
+                ),
 
-                'students' =>
-                    $pickupPerson
-                        ->students
-                        ->map(
-                            fn (
-                                Student $student,
-                            ): array => [
-                                'id' =>
-                                    (int) $student->id,
+                'students' => $pickupPerson
+                    ->students
+                    ->map(
+                        fn (
+                            Student $student,
+                        ): array => [
+                            'id' => (int) $student->id,
 
-                                'full_name' =>
-                                    (string) $student->full_name,
+                            'full_name' => (string) $student->full_name,
 
-                                'student_number' =>
-                                    $this->nullableString(
-                                        $student->student_number,
-                                    ),
+                            'student_number' => $this->nullableString(
+                                $student->student_number,
+                            ),
 
-                                'class_name' =>
-                                    $this->nullableString(
-                                        $student
-                                            ->schoolClass
-                                            ?->name,
-                                    ),
+                            'class_name' => $this->nullableString(
+                                $student
+                                    ->schoolClass
+                                    ?->name,
+                            ),
 
-                                'academic_year' =>
-                                    $this->nullableString(
-                                        $student
-                                            ->schoolClass
-                                            ?->academic_year,
-                                    ),
+                            'academic_year' => $this->nullableString(
+                                $student
+                                    ->schoolClass
+                                    ?->academic_year,
+                            ),
 
-                                'relationship_type' =>
-                                    (string) $student
-                                        ->pivot
-                                        ->relationship_type,
+                            'relationship_type' => (string) $student
+                                ->pivot
+                                ->relationship_type,
 
-                                'is_primary' =>
-                                    (bool) $student
-                                        ->pivot
-                                        ->is_primary,
-                            ],
-                        )
-                        ->values()
-                        ->all(),
+                            'is_primary' => (bool) $student
+                                ->pivot
+                                ->is_primary,
+                        ],
+                    )
+                    ->values()
+                    ->all(),
             ],
         ]);
     }
 
     /**
-     * @param array<string, mixed> $validated
-     *
+     * @param  array<string, mixed>  $validated
      * @return array<string, mixed>
      */
     private function consumeAndValidateChallenge(
@@ -1156,8 +1018,7 @@ class GateFaceVerificationController extends Controller
             }
 
             throw ValidationException::withMessages([
-                'challenge_id' =>
-                    'Challenge tidak aktif atau telah digantikan oleh challenge baru.',
+                'challenge_id' => 'Challenge tidak aktif atau telah digantikan oleh challenge baru.',
             ]);
         }
 
@@ -1171,8 +1032,7 @@ class GateFaceVerificationController extends Controller
 
         if (! is_array($challenge)) {
             throw ValidationException::withMessages([
-                'challenge_id' =>
-                    'Challenge tidak ditemukan, telah digunakan, atau sudah kedaluwarsa.',
+                'challenge_id' => 'Challenge tidak ditemukan, telah digunakan, atau sudah kedaluwarsa.',
             ]);
         }
 
@@ -1185,8 +1045,7 @@ class GateFaceVerificationController extends Controller
             )
         ) {
             throw ValidationException::withMessages([
-                'challenge_id' =>
-                    'Identitas challenge tidak valid.',
+                'challenge_id' => 'Identitas challenge tidak valid.',
             ]);
         }
 
@@ -1197,8 +1056,7 @@ class GateFaceVerificationController extends Controller
             ) !== $schoolId
         ) {
             throw ValidationException::withMessages([
-                'challenge_id' =>
-                    'Challenge berasal dari sekolah yang berbeda.',
+                'challenge_id' => 'Challenge berasal dari sekolah yang berbeda.',
             ]);
         }
 
@@ -1209,8 +1067,7 @@ class GateFaceVerificationController extends Controller
             ) !== (int) $user->id
         ) {
             throw ValidationException::withMessages([
-                'challenge_id' =>
-                    'Challenge dibuat oleh pengguna yang berbeda.',
+                'challenge_id' => 'Challenge dibuat oleh pengguna yang berbeda.',
             ]);
         }
 
@@ -1228,8 +1085,7 @@ class GateFaceVerificationController extends Controller
             )
         ) {
             throw ValidationException::withMessages([
-                'challenge_id' =>
-                    'Challenge berasal dari sesi yang berbeda.',
+                'challenge_id' => 'Challenge berasal dari sesi yang berbeda.',
             ]);
         }
 
@@ -1255,8 +1111,7 @@ class GateFaceVerificationController extends Controller
             )
         ) {
             throw ValidationException::withMessages([
-                'challenge_id' =>
-                    'Challenge sudah kedaluwarsa. Jalankan verifikasi ulang.',
+                'challenge_id' => 'Challenge sudah kedaluwarsa. Jalankan verifikasi ulang.',
             ]);
         }
 
@@ -1281,8 +1136,7 @@ class GateFaceVerificationController extends Controller
             ) !== []
         ) {
             throw ValidationException::withMessages([
-                'challenge_id' =>
-                    'Urutan challenge dari server tidak valid.',
+                'challenge_id' => 'Urutan challenge dari server tidak valid.',
             ]);
         }
 
@@ -1292,8 +1146,7 @@ class GateFaceVerificationController extends Controller
 
         if (! is_array($evidence)) {
             throw ValidationException::withMessages([
-                'challenge_evidence' =>
-                    'Bukti challenge tidak tersedia.',
+                'challenge_evidence' => 'Bukti challenge tidak tersedia.',
             ]);
         }
 
@@ -1307,8 +1160,7 @@ class GateFaceVerificationController extends Controller
                 !== array_values($expectedSequence)
         ) {
             throw ValidationException::withMessages([
-                'challenge_evidence.completed_actions' =>
-                    'Urutan challenge yang diselesaikan tidak sesuai.',
+                'challenge_evidence.completed_actions' => 'Urutan challenge yang diselesaikan tidak sesuai.',
             ]);
         }
 
@@ -1341,12 +1193,11 @@ class GateFaceVerificationController extends Controller
             || $blinkDurationMs > $blinkMaxMs
         ) {
             throw ValidationException::withMessages([
-                'challenge_evidence.blink_duration_ms' =>
-                    sprintf(
-                        'Durasi kedipan harus berada di antara %d dan %d milidetik.',
-                        $blinkMinMs,
-                        $blinkMaxMs,
-                    ),
+                'challenge_evidence.blink_duration_ms' => sprintf(
+                    'Durasi kedipan harus berada di antara %d dan %d milidetik.',
+                    $blinkMinMs,
+                    $blinkMaxMs,
+                ),
             ]);
         }
 
@@ -1371,8 +1222,7 @@ class GateFaceVerificationController extends Controller
                 < $headTurnYawDelta
         ) {
             throw ValidationException::withMessages([
-                'challenge_evidence.maximum_yaw_delta' =>
-                    'Gerakan kepala belum mencapai batas minimum.',
+                'challenge_evidence.maximum_yaw_delta' => 'Gerakan kepala belum mencapai batas minimum.',
             ]);
         }
 
@@ -1383,8 +1233,7 @@ class GateFaceVerificationController extends Controller
             )
         ) {
             throw ValidationException::withMessages([
-                'challenge_evidence.returned_to_center' =>
-                    'Wajah belum kembali menghadap lurus ke kamera.',
+                'challenge_evidence.returned_to_center' => 'Wajah belum kembali menghadap lurus ke kamera.',
             ]);
         }
 
@@ -1408,8 +1257,7 @@ class GateFaceVerificationController extends Controller
             || $durationMs > $maximumDurationMs
         ) {
             throw ValidationException::withMessages([
-                'challenge_evidence.duration_ms' =>
-                    'Durasi challenge tidak valid atau telah melewati batas.',
+                'challenge_evidence.duration_ms' => 'Durasi challenge tidak valid atau telah melewati batas.',
             ]);
         }
 
@@ -1424,35 +1272,26 @@ class GateFaceVerificationController extends Controller
             || $sampleCount > 10000
         ) {
             throw ValidationException::withMessages([
-                'challenge_evidence.sample_count' =>
-                    'Jumlah sampel challenge tidak valid.',
+                'challenge_evidence.sample_count' => 'Jumlah sampel challenge tidak valid.',
             ]);
         }
 
         return [
-            'challenge_id_hash' =>
-                hash('sha256', $challengeId),
+            'challenge_id_hash' => hash('sha256', $challengeId),
 
-            'sequence' =>
-                array_values($expectedSequence),
+            'sequence' => array_values($expectedSequence),
 
-            'completed_actions' =>
-                array_values($completedActions),
+            'completed_actions' => array_values($completedActions),
 
-            'blink_duration_ms' =>
-                $blinkDurationMs,
+            'blink_duration_ms' => $blinkDurationMs,
 
-            'maximum_yaw_delta' =>
-                round($maximumYawDelta, 4),
+            'maximum_yaw_delta' => round($maximumYawDelta, 4),
 
-            'returned_to_center' =>
-                true,
+            'returned_to_center' => true,
 
-            'duration_ms' =>
-                $durationMs,
+            'duration_ms' => $durationMs,
 
-            'sample_count' =>
-                $sampleCount,
+            'sample_count' => $sampleCount,
         ];
     }
 
@@ -1476,8 +1315,8 @@ class GateFaceVerificationController extends Controller
     }
 
     /**
-     * @param array<int, float> $first
-     * @param array<int, float> $second
+     * @param  array<int, float>  $first
+     * @param  array<int, float>  $second
      */
     private function cosineSimilarity(
         array $first,
@@ -1532,7 +1371,7 @@ class GateFaceVerificationController extends Controller
     }
 
     /**
-     * @param array<int, float> $embedding
+     * @param  array<int, float>  $embedding
      */
     private function assertFiniteEmbedding(
         array $embedding,
@@ -1543,14 +1382,13 @@ class GateFaceVerificationController extends Controller
             )
         ) {
             throw ValidationException::withMessages([
-                'embedding' =>
-                    'Descriptor wajah mengandung nilai yang tidak valid.',
+                'embedding' => 'Descriptor wajah mengandung nilai yang tidak valid.',
             ]);
         }
     }
 
     /**
-     * @param array<int, float> $embedding
+     * @param  array<int, float>  $embedding
      */
     private function embeddingIsFinite(
         array $embedding,
@@ -1604,56 +1442,37 @@ class GateFaceVerificationController extends Controller
         return PickupPersonFaceVerificationAttempt::query()
             ->create([
                 'school_id' => $schoolId,
-                'pickup_person_id' =>
-                    $pickupPerson?->id,
-                'verified_by_user_id' =>
-                    $user->id,
+                'pickup_person_id' => $pickupPerson?->id,
+                'verified_by_user_id' => $user->id,
                 'result' => $result,
-                'similarity_score' =>
-                    $similarityScore,
-                'similarity_threshold' =>
-                    $similarityThreshold,
-                'candidate_margin' =>
-                    $candidateMargin,
-                'candidate_count' =>
-                    max(0, $candidateCount),
-                'quality_score' =>
-                    $qualityScore,
-                'liveness_passed' =>
-                    $livenessPassed,
-                'live_score' =>
-                    $liveScore,
-                'real_score' =>
-                    $realScore,
-                'model_name' =>
-                    $modelName,
-                'model_version' =>
-                    $modelVersion,
-                'embedding_dimension' =>
-                    max(0, $embeddingDimension),
-                'capture_method' =>
-                    $captureMethod !== ''
+                'similarity_score' => $similarityScore,
+                'similarity_threshold' => $similarityThreshold,
+                'candidate_margin' => $candidateMargin,
+                'candidate_count' => max(0, $candidateCount),
+                'quality_score' => $qualityScore,
+                'liveness_passed' => $livenessPassed,
+                'live_score' => $liveScore,
+                'real_score' => $realScore,
+                'model_name' => $modelName,
+                'model_version' => $modelVersion,
+                'embedding_dimension' => max(0, $embeddingDimension),
+                'capture_method' => $captureMethod !== ''
                         ? $captureMethod
                         : 'camera',
-                'ip_address' =>
-                    $storeIp
+                'ip_address' => $storeIp
                         ? $request->ip()
                         : null,
-                'user_agent' =>
-                    $storeUserAgent
+                'user_agent' => $storeUserAgent
                         ? $request->userAgent()
                         : null,
-                'metadata' =>
-                    $metadata,
-                'occurred_at' =>
-                    now(),
+                'metadata' => $metadata,
+                'occurred_at' => now(),
             ]);
     }
 
     /**
-     * @param array<string, mixed>|null $clientMetadata
-     * @param array<string, mixed>|null $challengeSummary
-     *
+     * @param  array<string, mixed>|null  $clientMetadata
+     * @param  array<string, mixed>|null  $challengeSummary
      * @return array<string, mixed>
      */
     private function buildAuditMetadata(
@@ -1679,26 +1498,22 @@ class GateFaceVerificationController extends Controller
         }
 
         $metadata['security'] = [
-            'session_binding' =>
-                $this->sessionBindingHash(
-                    $request,
-                    $schoolId,
-                    $user,
-                ),
-
-            'verified_by_user_id' =>
-                (int) $user->id,
-
-            'school_id' =>
+            'session_binding' => $this->sessionBindingHash(
+                $request,
                 $schoolId,
+                $user,
+            ),
+
+            'verified_by_user_id' => (int) $user->id,
+
+            'school_id' => $schoolId,
         ];
 
         return $metadata;
     }
 
     /**
-     * @param array<mixed> $metadata
-     *
+     * @param  array<mixed>  $metadata
      * @return array<mixed>
      */
     private function sanitizeMetadata(
@@ -1801,11 +1616,9 @@ class GateFaceVerificationController extends Controller
         throw new HttpResponseException(
             response()->json(
                 [
-                    'message' =>
-                        'Terlalu banyak verifikasi gagal. Tunggu sebelum mencoba kembali.',
+                    'message' => 'Terlalu banyak verifikasi gagal. Tunggu sebelum mencoba kembali.',
 
-                    'retry_after' =>
-                        $retryAfter,
+                    'retry_after' => $retryAfter,
                 ],
                 429,
             ),
@@ -1843,11 +1656,9 @@ class GateFaceVerificationController extends Controller
         throw new HttpResponseException(
             response()->json(
                 [
-                    'message' =>
-                        'Batas verifikasi gagal telah tercapai. Akun gerbang dikunci sementara.',
+                    'message' => 'Batas verifikasi gagal telah tercapai. Akun gerbang dikunci sementara.',
 
-                    'retry_after' =>
-                        $retryAfter,
+                    'retry_after' => $retryAfter,
                 ],
                 429,
             ),
@@ -1903,11 +1714,9 @@ class GateFaceVerificationController extends Controller
         throw new HttpResponseException(
             response()->json(
                 [
-                    'message' =>
-                        'Verifikasi sebelumnya masih diproses. Tunggu beberapa detik.',
+                    'message' => 'Verifikasi sebelumnya masih diproses. Tunggu beberapa detik.',
 
-                    'retry_after' =>
-                        $retryAfter,
+                    'retry_after' => $retryAfter,
                 ],
                 429,
             ),

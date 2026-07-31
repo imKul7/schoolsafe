@@ -16,16 +16,16 @@ use Illuminate\Support\Facades\Hash;
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
-{
-    if (app()->environment('production')) {
-        $this->command?->warn(
-            'Demo seeder tidak dijalankan pada environment production.',
-        );
+    {
+        if (app()->environment('production')) {
+            $this->command?->warn(
+                'Demo seeder tidak dijalankan pada environment production.',
+            );
 
-        return;
-    }
+            return;
+        }
 
-    DB::transaction(function (): void {
+        DB::transaction(function (): void {
             $school = $this->createSchool();
 
             $this->createUsers($school);
@@ -66,13 +66,13 @@ class DatabaseSeeder extends Seeder
     {
         $demoPassword = config('schoolsafe.demo_password');
 
-if (! is_string($demoPassword) || trim($demoPassword) === '') {
-    throw new \RuntimeException(
-        'SCHOOLSAFE_DEMO_PASSWORD belum dikonfigurasi.',
-    );
-}
+        if (! is_string($demoPassword) || trim($demoPassword) === '') {
+            throw new \RuntimeException(
+                'SCHOOLSAFE_DEMO_PASSWORD belum dikonfigurasi.',
+            );
+        }
 
-$defaultPassword = Hash::make($demoPassword);
+        $defaultPassword = Hash::make($demoPassword);
 
         User::updateOrCreate(
             [
@@ -230,28 +230,21 @@ $defaultPassword = Hash::make($demoPassword);
                         'student_number' => $studentNumber,
                     ],
                     [
-                        'school_class_id' =>
-                            $definition['school_class_id'],
+                        'school_class_id' => $definition['school_class_id'],
 
-                        'nisn' =>
-                            $definition['nisn'],
+                        'nisn' => $definition['nisn'],
 
-                        'full_name' =>
-                            $definition['full_name'],
+                        'full_name' => $definition['full_name'],
 
-                        'gender' =>
-                            $definition['gender'],
+                        'gender' => $definition['gender'],
 
-                        'date_of_birth' =>
-                            $definition['date_of_birth'],
+                        'date_of_birth' => $definition['date_of_birth'],
 
                         'photo_path' => null,
 
-                        'status' =>
-                            $definition['status'],
+                        'status' => $definition['status'],
 
-                        'notes' =>
-                            $definition['notes'],
+                        'notes' => $definition['notes'],
                     ],
                 );
 
@@ -266,7 +259,7 @@ $defaultPassword = Hash::make($demoPassword);
     }
 
     /**
-     * @param array<string, Student> $students
+     * @param  array<string, Student>  $students
      */
     private function createPickupPersons(
         School $school,
@@ -281,8 +274,7 @@ $defaultPassword = Hash::make($demoPassword);
                 'email' => 'budi.pratama@schoolsafe.test',
                 'address' => 'Jl. Melati No. 10, Depok',
                 'photo_path' => null,
-                'face_status' =>
-                    PickupPerson::FACE_REGISTERED,
+                'face_status' => PickupPerson::FACE_REGISTERED,
                 'is_active' => true,
                 'notes' => 'Ayah kandung Andi Pratama.',
             ],
@@ -297,8 +289,7 @@ $defaultPassword = Hash::make($demoPassword);
                 'email' => 'siti.rahmawati@schoolsafe.test',
                 'address' => 'Jl. Anggrek No. 5, Depok',
                 'photo_path' => null,
-                'face_status' =>
-                    PickupPerson::FACE_REGISTERED,
+                'face_status' => PickupPerson::FACE_REGISTERED,
                 'is_active' => true,
                 'notes' => 'Ibu kandung Aulia Rahma.',
             ],
@@ -313,8 +304,7 @@ $defaultPassword = Hash::make($demoPassword);
                 'email' => 'rina.putri@schoolsafe.test',
                 'address' => 'Jl. Kenanga No. 7, Depok',
                 'photo_path' => null,
-                'face_status' =>
-                    PickupPerson::FACE_NOT_REGISTERED,
+                'face_status' => PickupPerson::FACE_NOT_REGISTERED,
                 'is_active' => true,
                 'notes' => 'Ibu kandung Kayla Putri.',
             ],
@@ -329,11 +319,9 @@ $defaultPassword = Hash::make($demoPassword);
                 'email' => 'dedi.setiawan@schoolsafe.test',
                 'address' => 'Jl. Mawar No. 20, Depok',
                 'photo_path' => null,
-                'face_status' =>
-                    PickupPerson::FACE_NEEDS_UPDATE,
+                'face_status' => PickupPerson::FACE_NEEDS_UPDATE,
                 'is_active' => true,
-                'notes' =>
-                    'Pengemudi keluarga yang diizinkan menjemput Dimas dan Nadia.',
+                'notes' => 'Pengemudi keluarga yang diizinkan menjemput Dimas dan Nadia.',
             ],
         );
 
@@ -398,7 +386,7 @@ $defaultPassword = Hash::make($demoPassword);
     }
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     private function upsertPickupPerson(
         School $school,
