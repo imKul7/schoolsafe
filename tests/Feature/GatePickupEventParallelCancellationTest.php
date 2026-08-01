@@ -393,7 +393,7 @@ class GatePickupEventParallelCancellationTest extends TestCase
                     'role' => User::ROLE_GATE_OFFICER,
 
                     'roles' => [
-                    User::ROLE_GATE_OFFICER,
+                        User::ROLE_GATE_OFFICER,
                     ],
 
                     'is_active' => true,

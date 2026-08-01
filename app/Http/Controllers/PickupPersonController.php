@@ -412,15 +412,15 @@ class PickupPersonController extends Controller
                 'permissions' => $this->permissions($user),
 
                 'biometricConfig' => [
-                'minimum_quality_score' => (float) config(
-                    'biometrics.minimum_quality_score',
-                    0.75,
-                ),
+                    'minimum_quality_score' => (float) config(
+                        'biometrics.minimum_quality_score',
+                        0.75,
+                    ),
 
-                'consent_version' => (string) config(
-                    'biometrics.consent_version',
-                    'v1',
-                ),
+                    'consent_version' => (string) config(
+                        'biometrics.consent_version',
+                        'v1',
+                    ),
                 ],
             ],
         );

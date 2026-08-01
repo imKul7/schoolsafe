@@ -8970,34 +8970,34 @@ class GatePickupEventSecurityTest extends TestCase
                 'event_student_id' => (string) $eventStudent->id,
             ],
             [
-            'event_id' => (string) $event->id,
+                'event_id' => (string) $event->id,
 
-            'event_student_id' => sprintf(
-                '%d.0',
-                $eventStudent->id,
-            ),
-        ],
+                'event_student_id' => sprintf(
+                    '%d.0',
+                    $eventStudent->id,
+                ),
+            ],
             [
-            'event_id' => 'not-a-number',
+                'event_id' => 'not-a-number',
 
-            'event_student_id' => (string) $eventStudent->id,
-        ],
+                'event_student_id' => (string) $eventStudent->id,
+            ],
             [
-            'event_id' => (string) $event->id,
+                'event_id' => (string) $event->id,
 
-            'event_student_id' => 'not-a-number',
-        ],
+                'event_student_id' => 'not-a-number',
+            ],
             [
-            'event_id' => sprintf(
-                '-%d',
-                $event->id,
-            ),
+                'event_id' => sprintf(
+                    '-%d',
+                    $event->id,
+                ),
 
-            'event_student_id' => sprintf(
-                '-%d',
-                $eventStudent->id,
-            ),
-        ],
+                'event_student_id' => sprintf(
+                    '-%d',
+                    $eventStudent->id,
+                ),
+            ],
         ];
 
         foreach (
