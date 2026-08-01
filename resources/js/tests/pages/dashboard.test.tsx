@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import type { AnchorHTMLAttributes, ComponentProps, PropsWithChildren } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import Dashboard from './dashboard';
+import Dashboard from '@/pages/dashboard';
 
 const { reloadMock } = vi.hoisted(() => ({
     reloadMock: vi.fn(),
