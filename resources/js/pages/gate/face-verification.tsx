@@ -1,16 +1,26 @@
 import AppLayout from '@/layouts/app-layout';
-import { FaceAnalysisError } from '@/lib/biometrics/analyze-face';
-import { analyzeFaceProbe, FaceProbeAnalysisError, type FaceProbeAnalysis, type FaceProbeProgress } from '@/lib/biometrics/analyze-face-probe';
-import {
-    FaceChallengeError,
-    runFaceChallenge,
-    type FaceChallengeDefinition,
-    type FaceChallengeEvidence,
-    type FaceChallengeProgress,
-} from '@/lib/biometrics/run-face-challenge';
 import type { BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+
+import type { FaceProbeAnalysis, FaceProbeProgress } from '@/lib/biometrics/analyze-face-probe';
+import type { FaceChallengeDefinition, FaceChallengeEvidence, FaceChallengeProgress } from '@/lib/biometrics/run-face-challenge';
+
+const loadBiometricModules = async () => {
+    const [{ FaceAnalysisError }, { analyzeFaceProbe, FaceProbeAnalysisError }, { FaceChallengeError, runFaceChallenge }] = await Promise.all([
+        import('@/lib/biometrics/analyze-face'),
+        import('@/lib/biometrics/analyze-face-probe'),
+        import('@/lib/biometrics/run-face-challenge'),
+    ]);
+
+    return {
+        FaceAnalysisError,
+        analyzeFaceProbe,
+        FaceProbeAnalysisError,
+        FaceChallengeError,
+        runFaceChallenge,
+    };
+};
 
 interface VerificationChallengeConfig {
     blink_min_ms?: number;
@@ -1124,6 +1134,9 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
 
         resetPickupConfirmationState();
 
+        let analyzeFaceProbeFn: typeof import('@/lib/biometrics/analyze-face-probe').analyzeFaceProbe;
+        let runFaceChallengeFn: typeof import('@/lib/biometrics/run-face-challenge').runFaceChallenge;
+
         try {
             const challenge = await requestChallenge(abortController.signal);
 
@@ -1139,7 +1152,12 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
 
             const maximumChallengeDuration = Math.min(configuredMaximumDuration, rawChallengeLifetime);
 
-            const challengeEvidence = await runFaceChallenge(video, challenge, {
+            ({
+                analyzeFaceProbe: analyzeFaceProbeFn,
+                runFaceChallenge: runFaceChallengeFn,
+            } = await loadBiometricModules());
+
+            const challengeEvidence = await runFaceChallengeFn(video, challenge, {
                 blinkMinMs: blinkMinimumMilliseconds,
 
                 blinkMaxMs: blinkMaximumMilliseconds,
@@ -1165,7 +1183,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
 
             setProbeProgress(null);
 
-            const biometricAnalysis = await analyzeFaceProbe(video, {
+            const biometricAnalysis = await analyzeFaceProbeFn(video, {
                 sampleCount: probeSamples,
 
                 delayMilliseconds: probeDelayMilliseconds,
@@ -1220,16 +1238,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                 return;
             }
 
-            if (
-                error instanceof FaceAnalysisError ||
-                error instanceof FaceProbeAnalysisError ||
-                error instanceof FaceChallengeError ||
-                error instanceof Error
-            ) {
-                setVerificationError(error.message);
-            } else {
-                setVerificationError('Verifikasi wajah gagal dilakukan.');
-            }
+            setVerificationError(error instanceof Error ? error.message : 'Verifikasi wajah gagal dilakukan.');
         } finally {
             if (analysisAbortRef.current === abortController) {
                 analysisAbortRef.current = null;
