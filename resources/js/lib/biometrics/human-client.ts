@@ -1,4 +1,4 @@
-import { Human, type Config } from '@vladmandic/human';
+import type { Config, Human } from '@vladmandic/human';
 
 const humanConfig: Partial<Config> = {
     backend: 'webgl',
@@ -80,9 +80,19 @@ const humanConfig: Partial<Config> = {
     },
 };
 
-const human = new Human(humanConfig);
+let human: Human | null = null;
 
 let humanLoadPromise: Promise<Human> | null = null;
+
+/**
+ * Membuat instance Human hanya ketika fitur biometrik
+ * benar-benar mulai digunakan.
+ */
+async function createHuman(): Promise<Human> {
+    const humanModule = await import('@vladmandic/human');
+
+    return new humanModule.Human(humanConfig);
+}
 
 /**
  * Mengambil instance Human yang sudah siap dipakai.
@@ -90,10 +100,13 @@ let humanLoadPromise: Promise<Human> | null = null;
 export async function prepareHuman(): Promise<Human> {
     if (!humanLoadPromise) {
         humanLoadPromise = (async (): Promise<Human> => {
-            await human.load();
+            const instance = human ?? (human = await createHuman());
 
-            return human;
+            await instance.load();
+
+            return instance;
         })().catch((error: unknown) => {
+            human = null;
             humanLoadPromise = null;
 
             throw error;
@@ -107,5 +120,9 @@ export async function prepareHuman(): Promise<Human> {
  * Mengambil instance Human tanpa memuat ulang model.
  */
 export function getHumanInstance(): Human {
+    if (!human) {
+        throw new Error('Human belum disiapkan. Panggil prepareHuman() terlebih dahulu.');
+    }
+
     return human;
 }
