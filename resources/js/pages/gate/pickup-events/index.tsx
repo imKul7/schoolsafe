@@ -451,7 +451,7 @@ function SummaryCard({
     };
 
     return (
-        <article className={`rounded-xl border p-4 shadow-sm ${classes[tone]}`}>
+        <article className={`module-summary-card module-history-card rounded-[22px] border p-4 ${classes[tone]}`}>
             <p className="text-xs font-medium tracking-wide uppercase opacity-80">{label}</p>
 
             <p className="mt-3 text-2xl font-bold">{formatNumber(value)}</p>
@@ -506,7 +506,7 @@ function DetailModal({
                 aria-modal="true"
                 aria-labelledby="pickup-event-detail-title"
                 aria-busy={loading}
-                className="bg-background max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-xl border shadow-xl"
+                className="module-history-modal bg-background max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-[26px] border shadow-xl"
             >
                 <header className="bg-background sticky top-0 z-10 flex items-center justify-between gap-4 border-b px-4 py-4 md:px-6">
                     <div>
@@ -521,7 +521,7 @@ function DetailModal({
                         type="button"
                         onClick={onClose}
                         disabled={isCancelling}
-                        className="hover:bg-muted inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+                        className="module-secondary-button inline-flex h-9 items-center justify-center rounded-xl border px-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Tutup
                     </button>
@@ -557,7 +557,7 @@ function DetailModal({
                                     onClick={() => {
                                         onCancelEvent(detail);
                                     }}
-                                    className="inline-flex h-10 items-center justify-center rounded-md bg-red-600 px-4 text-sm font-semibold text-white hover:bg-red-700"
+                                    className="module-danger-solid inline-flex h-10 items-center justify-center rounded-xl px-4 text-sm font-bold text-white"
                                 >
                                     Batalkan Transaksi
                                 </button>
@@ -710,7 +710,7 @@ function DetailModal({
                             <div className="divide-y">
                                 {detail.students.map((student) => (
                                     <article key={student.id} className="p-4">
-                                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                        <div className="module-history-hero flex flex-col gap-4 rounded-[28px] p-6 sm:flex-row sm:items-center sm:justify-between md:p-8">
                                             <div className="min-w-0">
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <p className="font-semibold">{student.student_name}</p>
@@ -759,7 +759,7 @@ function DetailModal({
                                                     onClick={() => {
                                                         onCancelStudent(detail, student);
                                                     }}
-                                                    className="inline-flex h-9 shrink-0 items-center justify-center rounded-md border border-red-300 px-3 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950"
+                                                    className="module-danger-button inline-flex h-9 shrink-0 items-center justify-center rounded-xl border px-3 text-sm font-bold"
                                                 >
                                                     Batalkan Siswa
                                                 </button>
@@ -810,7 +810,7 @@ function CancellationDialog({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="cancellation-dialog-title"
-                className="bg-background w-full max-w-lg rounded-xl border p-5 shadow-xl"
+                className="module-cancellation-modal bg-background w-full max-w-lg rounded-[24px] border p-5 shadow-xl"
             >
                 <h2 id="cancellation-dialog-title" className="text-lg font-bold">
                     {target.title}
@@ -852,7 +852,7 @@ function CancellationDialog({
                         type="button"
                         onClick={onClose}
                         disabled={busy}
-                        className="hover:bg-muted inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-semibold disabled:opacity-50"
+                        className="module-secondary-button inline-flex h-10 items-center justify-center rounded-xl border px-4 text-sm font-bold disabled:opacity-50"
                     >
                         Kembali
                     </button>
@@ -861,7 +861,7 @@ function CancellationDialog({
                         type="button"
                         onClick={onSubmit}
                         disabled={busy || reason.trim().length < 5}
-                        className="inline-flex h-10 items-center justify-center rounded-md bg-red-600 px-4 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="module-danger-solid inline-flex h-10 items-center justify-center rounded-xl px-4 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {busy ? 'Membatalkan...' : 'Konfirmasi Pembatalan'}
                     </button>
@@ -1312,8 +1312,8 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Riwayat Gerbang" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
-                <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="module-page module-gate-history flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
+                <header className="module-history-hero flex flex-col gap-4 rounded-[28px] p-6 sm:flex-row sm:items-center sm:justify-between md:p-8">
                     <div>
                         <p className="text-muted-foreground text-sm">Keamanan Penjemputan</p>
 
@@ -1326,7 +1326,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
 
                     <Link
                         href="/gate/face-verification"
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-semibold"
+                        className="module-primary-button inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-bold text-white"
                     >
                         Verifikasi Penjemput
                     </Link>
@@ -1359,7 +1359,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
                         <p className="text-muted-foreground mt-1 text-xs">Statistik mengikuti filter yang sedang aktif.</p>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                    <div className="module-history-summary-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                         <SummaryCard label="Total Transaksi" value={summary.total_transactions} description="Seluruh hasil filter" />
 
                         <SummaryCard label="Dikonfirmasi" value={summary.confirmed_transactions} description="Transaksi aktif" tone="green" />
@@ -1372,7 +1372,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
                     </div>
                 </section>
 
-                <section className="bg-card rounded-xl border p-4 shadow-sm md:p-5">
+                <section className="module-filter-panel module-history-filter rounded-[24px] p-4 md:p-5">
                     <form onSubmit={applyFilters} className="grid gap-4 lg:grid-cols-12">
                         <div className="lg:col-span-4">
                             <label htmlFor="history-search" className="text-sm font-medium">
@@ -1519,7 +1519,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
                         <div className="flex items-end gap-2 lg:col-span-6">
                             <button
                                 type="submit"
-                                className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 flex-1 items-center justify-center rounded-md px-4 text-sm font-semibold"
+                                className="module-filter-apply inline-flex h-11 flex-1 items-center justify-center rounded-xl px-4 text-sm font-bold text-white"
                             >
                                 Terapkan Filter
                             </button>
@@ -1527,7 +1527,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
                             <button
                                 type="button"
                                 onClick={resetFilters}
-                                className="bg-background hover:bg-muted inline-flex h-10 flex-1 items-center justify-center rounded-md border px-4 text-sm font-semibold"
+                                className="module-secondary-button inline-flex h-11 flex-1 items-center justify-center rounded-xl border px-4 text-sm font-bold"
                             >
                                 Reset
                             </button>
@@ -1535,7 +1535,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
                     </form>
                 </section>
 
-                <section className="bg-card overflow-hidden rounded-xl border shadow-sm">
+                <section className="module-table-panel module-history-table overflow-hidden rounded-[24px]">
                     <div className="border-b px-4 py-4 md:px-5">
                         <h2 className="font-semibold">Transaksi Penjemputan</h2>
 
@@ -1545,7 +1545,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
                     </div>
 
                     {pickupEvents.data.length === 0 ? (
-                        <div className="px-5 py-16 text-center">
+                        <div className="module-empty-state module-history-empty px-5 py-16 text-center">
                             <h3 className="font-semibold">Riwayat tidak ditemukan</h3>
 
                             <p className="text-muted-foreground mt-2 text-sm">Belum ada transaksi atau tidak ada data yang cocok dengan filter.</p>
@@ -1572,7 +1572,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
 
                                     <tbody className="divide-y">
                                         {pickupEvents.data.map((item) => (
-                                            <tr key={item.id} className="hover:bg-muted/30">
+                                            <tr key={item.id} className="module-table-row module-history-row">
                                                 <td className="px-5 py-4">
                                                     <p className="font-semibold">#{item.id}</p>
 
@@ -1609,7 +1609,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
                                                         onClick={() => {
                                                             void openDetail(item.id);
                                                         }}
-                                                        className="bg-background hover:bg-muted inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium"
+                                                        className="module-detail-button inline-flex h-9 items-center justify-center rounded-xl border px-3 text-sm font-bold"
                                                     >
                                                         Detail
                                                     </button>
@@ -1622,7 +1622,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
 
                             <div className="divide-y lg:hidden">
                                 {pickupEvents.data.map((item) => (
-                                    <article key={item.id} className="p-4">
+                                    <article key={item.id} className="module-history-mobile-card p-4">
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
                                                 <p className="font-semibold">Transaksi #{item.id}</p>
@@ -1664,7 +1664,7 @@ export default function PickupEventHistory({ pickupEvents, summary, filters, fil
                                             onClick={() => {
                                                 void openDetail(item.id);
                                             }}
-                                            className="bg-background hover:bg-muted mt-4 inline-flex h-10 w-full items-center justify-center rounded-md border px-4 text-sm font-semibold"
+                                            className="module-detail-button mt-4 inline-flex h-10 w-full items-center justify-center rounded-xl border px-4 text-sm font-bold"
                                         >
                                             Lihat Detail
                                         </button>

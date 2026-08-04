@@ -1,8 +1,8 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 interface AppShellProps {
-    children: React.ReactNode;
+    children: ReactNode;
     variant?: 'header' | 'sidebar';
 }
 
@@ -18,11 +18,16 @@ export function AppShell({ children, variant = 'header' }: AppShellProps) {
     };
 
     if (variant === 'header') {
-        return <div className="flex min-h-screen w-full flex-col">{children}</div>;
+        return <div className="flex min-h-svh w-full flex-col bg-slate-50">{children}</div>;
     }
 
     return (
-        <SidebarProvider defaultOpen={isOpen} open={isOpen} onOpenChange={handleSidebarChange}>
+        <SidebarProvider
+            defaultOpen={isOpen}
+            open={isOpen}
+            onOpenChange={handleSidebarChange}
+            className="h-svh min-h-0 w-full overflow-hidden bg-slate-50"
+        >
             {children}
         </SidebarProvider>
     );

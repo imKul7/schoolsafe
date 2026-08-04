@@ -1,5 +1,15 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarCheck2, History, LayoutDashboard, ScanFace, ShieldCheck, UserRoundCheck, UsersRound, type LucideIcon } from 'lucide-react';
+import {
+    CalendarCheck2,
+    CircleUserRound,
+    History,
+    LayoutDashboard,
+    ScanFace,
+    ShieldCheck,
+    UserRoundCheck,
+    UsersRound,
+    type LucideIcon,
+} from 'lucide-react';
 
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -52,6 +62,12 @@ const mainNavItems: RoleAwareNavItem[] = [
         icon: History,
         roles: ['school_admin', 'gate_officer'],
     },
+    {
+        title: 'Profil',
+        url: '/profile',
+        icon: CircleUserRound,
+        roles: ['super_admin', 'school_admin', 'gate_officer', 'teacher', 'parent'],
+    },
 ];
 
 type ComingSoonItem = {
@@ -78,29 +94,37 @@ export function AppSidebar() {
     const canViewSchoolManagement = auth.user.role === 'school_admin';
 
     return (
-        <Sidebar collapsible="icon" variant="inset" className="border-r border-[#e6eef5] bg-white/95 shadow-sm backdrop-blur-sm">
-            <SidebarHeader className="border-b border-[#edf2f7] px-3 py-4">
+        <Sidebar
+            collapsible="icon"
+            variant="sidebar"
+            className="border-r border-slate-800/80 shadow-none transition-all duration-300 ease-in-out [&_[data-sidebar=sidebar]]:bg-gradient-to-b [&_[data-sidebar=sidebar]]:from-[#071426] [&_[data-sidebar=sidebar]]:via-[#0a1830] [&_[data-sidebar=sidebar]]:to-[#0b1e3a] [&_[data-sidebar=sidebar]]:text-slate-200"
+        >
+            <SidebarHeader className="border-b border-white/[0.08] px-3 py-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild className="rounded-3xl transition-colors duration-200 hover:bg-[#eef6ff]">
-                            <Link href="/dashboard" prefetch>
-                                <AppLogo />
+                        <SidebarMenuButton
+                            size="lg"
+                            asChild
+                            className="group h-16 rounded-2xl border border-white/[0.08] bg-white/[0.045] px-3 text-white shadow-lg shadow-black/10 transition-all duration-300 group-data-[collapsible=icon]:size-12 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-xl group-data-[collapsible=icon]:px-1 hover:bg-white/[0.08] hover:text-white hover:shadow-xl"
+                        >
+                            <Link href="/dashboard" prefetch aria-label="SchoolSafe Dashboard">
+                                <AppLogo variant="sidebar" />
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent className="px-3 py-4">
+            <SidebarContent className="px-1 py-4">
                 <NavMain items={visibleMainNavItems} />
 
                 {canViewSchoolManagement && (
-                    <SidebarGroup>
-                        <SidebarGroupLabel className="text-xs font-semibold tracking-[0.24em] text-[#8b9fb5] uppercase">
+                    <SidebarGroup className="mt-4 border-t border-white/[0.07] px-2 pt-4">
+                        <SidebarGroupLabel className="mb-2 px-3 text-[10px] font-bold tracking-[0.22em] text-slate-400/90 uppercase group-data-[collapsible=icon]:hidden">
                             Manajemen Sekolah
                         </SidebarGroupLabel>
 
-                        <SidebarMenu className="gap-1">
+                        <SidebarMenu className="gap-1.5">
                             {comingSoonItems.map((item) => {
                                 const Icon = item.icon;
 
@@ -110,13 +134,14 @@ export function AppSidebar() {
                                             type="button"
                                             disabled
                                             aria-disabled="true"
-                                            className="cursor-not-allowed rounded-2xl text-[#8b9fb5] opacity-80"
+                                            tooltip={`${item.title} — segera`}
+                                            className="h-10 cursor-not-allowed rounded-xl px-3 text-slate-500 opacity-80 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2"
                                         >
-                                            <Icon className="size-4" />
+                                            <Icon className="size-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
 
-                                            <span>{item.title}</span>
+                                            <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
 
-                                            <span className="ml-auto rounded-full bg-[#f3f7fb] px-2 py-0.5 text-[10px] font-semibold text-[#7a90ae] group-data-[collapsible=icon]:hidden">
+                                            <span className="ml-auto rounded-full border border-white/[0.08] bg-white/[0.06] px-2 py-0.5 text-[9px] font-bold tracking-wide text-slate-400 uppercase group-data-[collapsible=icon]:hidden">
                                                 Segera
                                             </span>
                                         </SidebarMenuButton>
@@ -128,16 +153,21 @@ export function AppSidebar() {
                 )}
             </SidebarContent>
 
-            <SidebarFooter className="border-t border-[#edf2f7] p-3">
-                <div className="mx-1 mb-2 rounded-3xl border border-[#d9e8ef] bg-gradient-to-br from-[#f7fbff] to-[#eef7f8] p-4 text-xs group-data-[collapsible=icon]:hidden">
-                    <div className="mb-1.5 flex items-center gap-3 font-semibold text-[#345a7a]">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-[#53a69f] shadow-sm">
-                            <ShieldCheck className="size-4" />
+            <SidebarFooter className="border-t border-white/[0.08] p-3">
+                <div className="mx-0 mb-2 overflow-hidden rounded-2xl border border-white/[0.1] bg-gradient-to-br from-white/[0.09] to-cyan-400/[0.04] p-4 text-xs shadow-lg shadow-black/10 group-data-[collapsible=icon]:hidden">
+                    <div className="mb-2 flex items-center gap-3 font-semibold text-white">
+                        <div className="flex size-9 items-center justify-center rounded-xl bg-cyan-300/10 text-cyan-200 ring-1 ring-cyan-200/15">
+                            <ShieldCheck className="size-4" strokeWidth={2} aria-hidden="true" />
                         </div>
-                        Sistem Aman
+
+                        <div>
+                            <p className="text-sm font-bold">Sistem Aman</p>
+
+                            <p className="mt-0.5 text-[10px] font-medium tracking-wide text-emerald-300 uppercase">Terlindungi</p>
+                        </div>
                     </div>
 
-                    <p className="leading-relaxed text-[#627d98]">Seluruh aktivitas penjemputan tercatat dan dapat ditinjau oleh pihak sekolah.</p>
+                    <p className="leading-relaxed text-slate-400">Seluruh aktivitas penjemputan tercatat dan dapat ditinjau oleh pihak sekolah.</p>
                 </div>
 
                 <NavUser />

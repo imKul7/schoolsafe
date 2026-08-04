@@ -152,10 +152,10 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
         <AppLayout>
             <Head title="Data Siswa" />
 
-            <main className="min-h-full bg-[#eef4fb]">
-                <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 p-4 md:p-6">
+            <main className="module-page module-students min-h-full">
+                <div className="module-container mx-auto flex w-full max-w-[1600px] flex-col gap-6 p-4 md:p-6">
                     {/* Header */}
-                    <section className="relative overflow-hidden rounded-[32px] border border-[#dce8f4] bg-gradient-to-r from-[#eef6ff] via-[#f9fcff] to-[#fff9f0] p-6 shadow-2xl shadow-[#d9e7f6]/70 transition-transform duration-200 hover:-translate-y-0.5 md:p-8">
+                    <section className="module-hero module-hero-students relative overflow-hidden rounded-[30px] p-6 md:p-8">
                         <div className="absolute -top-24 -right-16 h-56 w-56 rounded-full bg-white/60 blur-3xl" />
 
                         <div className="relative flex flex-col justify-between gap-5 md:flex-row md:items-center">
@@ -175,7 +175,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
 
                             <Link
                                 href="/students/create"
-                                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#5b8def] to-[#3b6bdc] px-5 text-sm font-semibold text-white shadow-lg shadow-blue-200/45 transition duration-200 hover:-translate-y-0.5 hover:bg-[#4c7fd9] focus-visible:ring-2 focus-visible:ring-[#bdd7f3] focus-visible:outline-none"
+                                className="module-primary-button inline-flex h-12 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-bold text-white"
                             >
                                 <Plus aria-hidden="true" className="size-4" />
                                 Tambah Siswa
@@ -184,7 +184,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
                     </section>
 
                     {/* Ringkasan */}
-                    <section aria-label="Ringkasan data siswa" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    <section aria-label="Ringkasan data siswa" className="module-summary-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         <SummaryCard
                             title="Total Siswa"
                             value={students.total}
@@ -211,7 +211,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
                     </section>
 
                     {/* Filter */}
-                    <section className="rounded-3xl border border-[#dfe8f2] bg-white p-5 shadow-sm shadow-[#dce4ee]/50">
+                    <section className="module-filter-panel rounded-[24px] p-5">
                         <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                             <div>
                                 <h2 className="font-semibold text-[#1f334f]">Cari dan Filter</h2>
@@ -298,7 +298,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
                     </section>
 
                     {/* Tabel */}
-                    <section className="overflow-hidden rounded-2xl border border-[#e6eef5] bg-white shadow-sm">
+                    <section className="module-table-panel overflow-hidden rounded-[24px]">
                         <div className="flex flex-col justify-between gap-2 border-b border-[#edf2f7] px-5 py-4 sm:flex-row sm:items-center">
                             <div>
                                 <h2 className="font-bold text-[#243b53]">Daftar Siswa</h2>
@@ -361,7 +361,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
 
                                         <tbody className="divide-y divide-[#edf2f7]">
                                             {students.data.map((student) => (
-                                                <tr key={student.id} className="group transition duration-200 hover:bg-[#f4f8ff]">
+                                                <tr key={student.id} className="module-table-row group transition duration-200">
                                                     <td className="px-5 py-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf3fa] text-sm font-bold text-[#4f7cac] transition group-hover:bg-[#dcecff]">
@@ -468,7 +468,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
                                 </div>
                             </>
                         ) : (
-                            <div className="px-6 py-16 text-center">
+                            <div className="module-empty-state px-6 py-16 text-center">
                                 <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[28px] bg-[#eef4fb] text-[#5b8def] shadow-sm">
                                     <UsersRound aria-hidden="true" className="size-8" />
                                 </div>
@@ -500,7 +500,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
                     </section>
 
                     {/* Bantuan */}
-                    <section className="flex flex-col justify-between gap-4 rounded-2xl border border-[#dceaf5] bg-[#eef7fc] p-5 sm:flex-row sm:items-center">
+                    <section className="module-help-panel flex flex-col justify-between gap-4 rounded-[24px] p-5 sm:flex-row sm:items-center">
                         <div className="flex items-start gap-3">
                             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#5b8def] shadow-sm">
                                 <UserRound className="size-5" />
@@ -535,9 +535,7 @@ function SummaryCard({ title, value, description, icon: Icon, tone }: SummaryCar
     const styles = summaryToneStyles[tone];
 
     return (
-        <article
-            className={`rounded-[28px] border p-5 shadow-sm shadow-[#dce4ee]/50 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg ${styles.card}`}
-        >
+        <article className={`module-summary-card rounded-[24px] border p-5 ${styles.card}`}>
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <p className="text-sm font-semibold text-[#546d87]">{title}</p>

@@ -117,18 +117,18 @@ function formatDate(value: string, timezone: string): string {
 
 function StatCard({ label, value, description, icon: Icon, accent, iconStyle }: StatCardProps) {
     return (
-        <article className="group relative overflow-hidden rounded-2xl border border-[#e0e9f0] bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#315c7c]/10">
-            <span className={`absolute inset-x-0 top-0 h-1 ${accent}`} />
+        <article className="dashboard-stat-card dashboard-reveal group relative overflow-hidden rounded-[24px] p-5">
+            <span className={`dashboard-stat-accent absolute inset-x-5 top-0 h-1 rounded-b-full ${accent}`} />
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <p className="text-sm font-semibold text-[#617990]">{label}</p>
-                    <p className="mt-3 text-3xl font-bold tracking-tight text-[#17324d]">{value}</p>
+                    <p className="dashboard-stat-label text-sm font-bold">{label}</p>
+                    <p className="dashboard-stat-value mt-3 text-4xl font-extrabold tracking-[-0.04em]">{value}</p>
                 </div>
-                <span className={`grid size-11 place-items-center rounded-xl ${iconStyle}`}>
+                <span className={`dashboard-stat-icon grid size-12 place-items-center rounded-2xl ${iconStyle}`}>
                     <Icon className="size-5" />
                 </span>
             </div>
-            <p className="mt-4 text-xs font-medium text-[#829ab1]">{description}</p>
+            <p className="dashboard-stat-description mt-5 text-xs leading-5 font-semibold">{description}</p>
         </article>
     );
 }
@@ -175,13 +175,13 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
     return (
         <AppLayout>
             <Head title="Dashboard" />
-            <main className="min-h-full bg-[#f5f8fc]" aria-busy={isRefreshing}>
-                <div className="mx-auto w-full max-w-[1500px] space-y-6 p-4 sm:p-6 lg:p-8">
-                    <section className="relative overflow-hidden rounded-3xl border border-[#dce8f0] bg-white px-6 py-7 shadow-sm sm:px-8">
+            <main className="dashboard-page dashboard-surface min-h-full" aria-busy={isRefreshing}>
+                <div className="dashboard-container mx-auto w-full max-w-[1500px] space-y-6 p-4 sm:p-6 lg:p-8">
+                    <section className="dashboard-hero dashboard-reveal relative overflow-hidden rounded-[30px] px-6 py-8 sm:px-8 lg:px-10 lg:py-10">
                         <div className="pointer-events-none absolute top-0 right-0 size-72 translate-x-1/3 -translate-y-1/2 rounded-full bg-[#e9f1ff] blur-3xl" />
                         <div className="relative flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
                             <div>
-                                <div className="inline-flex items-center gap-2 rounded-full bg-[#edf6ff] px-3 py-1.5 text-xs font-bold text-[#4d79d4]">
+                                <div className="dashboard-hero-badge inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold">
                                     {dashboard.has_school ? (
                                         <CheckCircle2 className="size-3.5 text-[#43a797]" />
                                     ) : (
@@ -189,8 +189,10 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                     )}
                                     {dashboard.has_school ? 'Sekolah terhubung' : 'Akun tanpa sekolah'}
                                 </div>
-                                <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#17324d] sm:text-4xl">Selamat datang di SchoolSafe</h1>
-                                <p className="mt-2 text-sm font-medium text-[#71869b] sm:text-base">
+                                <h1 className="dashboard-hero-title mt-5 text-3xl font-extrabold tracking-[-0.04em] sm:text-4xl lg:text-[46px] lg:leading-[1.08]">
+                                    Selamat datang di SchoolSafe
+                                </h1>
+                                <p className="dashboard-hero-description mt-3 max-w-3xl text-sm leading-7 font-medium sm:text-base">
                                     {formatDate(dashboard.generated_at, dashboard.timezone)} · Ringkasan operasional sekolah Anda.
                                 </p>
                             </div>
@@ -199,7 +201,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                     <Link
                                         href="/gate/face-verification"
                                         prefetch
-                                        className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#5b8def] px-4 text-sm font-bold text-white shadow-lg shadow-[#5b8def]/25 transition hover:-translate-y-0.5 hover:bg-[#4979da]"
+                                        className="dashboard-primary-action inline-flex h-12 items-center gap-2 rounded-2xl px-5 text-sm font-extrabold"
                                     >
                                         <ScanFace className="size-4" />
                                         Buka face scanner
@@ -210,7 +212,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                     onClick={refreshDashboard}
                                     disabled={isRefreshing}
                                     aria-label={isRefreshing ? 'Memperbarui data dashboard' : 'Perbarui data dashboard'}
-                                    className="inline-flex h-11 items-center gap-2 rounded-xl border border-[#d9e5ef] bg-white px-4 text-sm font-bold text-[#486b8d] transition hover:border-[#b9cfe7] hover:bg-[#f8fbff] disabled:cursor-not-allowed disabled:opacity-60"
+                                    className="dashboard-secondary-action inline-flex h-12 items-center gap-2 rounded-2xl px-5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     <RefreshCw className={`size-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                                     {isRefreshing ? 'Memperbarui...' : 'Perbarui'}
@@ -238,7 +240,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                         </div>
                     )}
 
-                    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Statistik sekolah">
+                    <section className="dashboard-stats grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Statistik sekolah">
                         <StatCard
                             label="Siswa Aktif"
                             value={formatNumber(statistics.active_students)}
@@ -274,10 +276,10 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                     </section>
 
                     <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-                        <article className="rounded-3xl border border-[#e0e9f0] bg-white p-6 shadow-sm">
+                        <article className="dashboard-panel dashboard-reveal rounded-[26px] p-5 sm:p-6">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
-                                    <p className="text-sm font-bold text-[#17324d]">Kesiapan biometrik</p>
+                                    <p className="dashboard-panel-title">Kesiapan biometrik</p>
                                     <p className="mt-1 text-sm leading-6 text-[#71869b]">
                                         Profil wajah yang siap digunakan untuk verifikasi gerbang.
                                     </p>
@@ -288,7 +290,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                             </div>
                             <div className="mt-8 flex items-center gap-6">
                                 <div
-                                    className="relative grid size-32 shrink-0 place-items-center rounded-full"
+                                    className="dashboard-progress-ring relative grid size-32 shrink-0 place-items-center rounded-full"
                                     role="progressbar"
                                     aria-label="Persentase wajah penjemput terdaftar"
                                     aria-valuemin={0}
@@ -298,7 +300,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                         background: `conic-gradient(#54b6a5 0deg ${registeredFacePercentage * 3.6}deg, #edf2f7 ${registeredFacePercentage * 3.6}deg 360deg)`,
                                     }}
                                 >
-                                    <div className="grid size-[102px] place-items-center rounded-full bg-white shadow-sm">
+                                    <div className="dashboard-progress-center grid size-[102px] place-items-center rounded-full">
                                         <strong className="text-2xl font-bold text-[#17324d]">{registeredFacePercentage}%</strong>
                                         <span className="text-[11px] text-[#829ab1]">terdaftar</span>
                                     </div>
@@ -329,10 +331,10 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                             )}
                         </article>
 
-                        <article className="rounded-3xl border border-[#e0e9f0] bg-white p-6 shadow-sm">
+                        <article className="dashboard-panel dashboard-reveal rounded-[26px] p-5 sm:p-6">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
-                                    <p className="text-sm font-bold text-[#17324d]">Status penjemputan hari ini</p>
+                                    <p className="dashboard-panel-title">Status penjemputan hari ini</p>
                                     <p className="mt-1 text-sm leading-6 text-[#71869b]">Pantau progres transaksi pada gerbang sekolah.</p>
                                 </div>
                                 <span className="grid size-10 place-items-center rounded-xl bg-[#edf6ff] text-[#4d79d4]">
@@ -353,11 +355,11 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3 border-t border-[#edf2f7] pt-5">
-                                    <div className="rounded-xl bg-[#f6f9fc] p-3">
+                                    <div className="dashboard-mini-card rounded-2xl p-4">
                                         <p className="text-xs font-medium text-[#71869b]">Dibatalkan</p>
                                         <p className="mt-1 text-xl font-bold text-[#c65f58]">{formatNumber(statistics.cancelled_today)}</p>
                                     </div>
-                                    <div className="rounded-xl bg-[#f6f9fc] p-3">
+                                    <div className="dashboard-mini-card rounded-2xl p-4">
                                         <p className="text-xs font-medium text-[#71869b]">Total transaksi</p>
                                         <p className="mt-1 text-xl font-bold text-[#17324d]">{formatNumber(statistics.pickup_events_today)}</p>
                                     </div>
@@ -367,7 +369,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                     </section>
 
                     {permissions.can_view_gate_activity && (
-                        <section className="rounded-3xl border border-[#e0e9f0] bg-white p-6 shadow-sm">
+                        <section className="dashboard-panel dashboard-activity-panel dashboard-reveal rounded-[26px] p-5 sm:p-6">
                             <div className="flex flex-wrap items-end justify-between gap-4">
                                 <div>
                                     <h2 className="text-lg font-bold text-[#17324d]">Aktivitas terbaru</h2>
@@ -384,7 +386,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                 )}
                             </div>
                             {dashboard.recent_activities.length === 0 ? (
-                                <div className="mt-6 rounded-2xl border border-dashed border-[#d8e5ee] bg-[#f8fbfd] px-5 py-10 text-center">
+                                <div className="dashboard-empty-state mt-6 rounded-[22px] px-5 py-12 text-center">
                                     <Clock3 className="mx-auto size-6 text-[#9ab0c2]" />
                                     <p className="mt-3 font-bold text-[#486b8d]">Belum ada aktivitas penjemputan</p>
                                     <p className="mt-1 text-sm text-[#829ab1]">Transaksi terbaru akan muncul di bagian ini.</p>
@@ -392,7 +394,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                             ) : (
                                 <div className="mt-6 divide-y divide-[#edf2f7]">
                                     {dashboard.recent_activities.map((activity) => (
-                                        <div key={activity.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
+                                        <div key={activity.id} className="dashboard-activity-row flex items-center gap-4 rounded-2xl px-3 py-4">
                                             <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[#eaf2ff] text-xs font-bold text-[#4d79d4]">
                                                 {activityInitials(activityDisplayName(activity.pickup_person_name))}
                                             </span>
@@ -422,7 +424,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                         </section>
                     )}
 
-                    <section className="flex items-start gap-3 rounded-2xl border border-[#d7e9e6] bg-[#effaf7] p-4 text-sm">
+                    <section className="dashboard-security dashboard-reveal flex items-start gap-4 rounded-[24px] p-5 text-sm">
                         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white text-[#319687] shadow-sm">
                             <ShieldCheck className="size-5" />
                         </span>
