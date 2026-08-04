@@ -9,7 +9,7 @@ export default function AppLogo() {
 
             <div className="ml-2 grid flex-1 text-left leading-tight">
                 <span className="truncate text-sm font-semibold text-[#1f3b5b]">SchoolSafe</span>
-                <span className="truncate text-[11px] uppercase tracking-[0.28em] text-[#829ab1]">Smart Pickup</span>
+                <span className="truncate text-[11px] tracking-[0.28em] text-[#829ab1] uppercase">Smart Pickup</span>
             </div>
         </>
     );

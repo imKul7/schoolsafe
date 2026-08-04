@@ -1,142 +1,311 @@
 import { Head, Link } from '@inertiajs/react';
+import { ArrowRight, Check, ChevronRight, ClipboardCheck, Menu, ScanFace, ShieldCheck, UsersRound, X } from 'lucide-react';
+import { type MouseEvent, useState } from 'react';
+
+const features = [
+    {
+        icon: ScanFace,
+        title: 'Verifikasi wajah yang meyakinkan',
+        description: 'Pencocokan wajah dengan liveness challenge untuk membantu petugas memverifikasi penjemput secara cepat.',
+    },
+    {
+        icon: UsersRound,
+        title: 'Izin penjemputan yang jelas',
+        description: 'Setiap siswa terhubung dengan daftar penjemput yang sah, aktif, dan sesuai masa berlaku izin.',
+    },
+    {
+        icon: ClipboardCheck,
+        title: 'Riwayat yang siap ditelusuri',
+        description: 'Konfirmasi, pembatalan, dan aktivitas gerbang tercatat rapi untuk kebutuhan keamanan sekolah.',
+    },
+];
 
 export default function Welcome() {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const scrollToSection = (event: MouseEvent<HTMLAnchorElement>, href: string): void => {
+        event.preventDefault();
+
+        const target = document.querySelector(href);
+
+        if (target instanceof HTMLElement) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
+
+            window.history.replaceState(null, '', href);
+        }
+    };
+
     return (
         <>
-            <Head title="SchoolSafe — Smart Student Pickup" />
+            <Head title="SchoolSafe — Penjemputan siswa yang lebih aman" />
 
-            <div className="min-h-screen overflow-hidden bg-slate-950 text-white">
-                <div className="mx-auto max-w-7xl px-6 py-16 lg:flex lg:items-center lg:justify-between lg:gap-16">
-                    <div className="lg:w-1/2 xl:max-w-xl">
-                        <div className="mb-6 inline-flex items-center gap-3 rounded-full bg-slate-900/70 px-4 py-2 ring-1 ring-white/10 backdrop-blur-sm">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-400 text-slate-950 font-bold">SS</div>
-                            <div className="text-sm font-semibold text-slate-200">SchoolSafe</div>
-                        </div>
+            <main className="min-h-screen overflow-x-hidden bg-[#f7fafc] text-[#17324d]">
+                <section className="relative isolate overflow-hidden bg-[#0b1f33] pt-5 pb-16 text-white sm:pb-24">
+                    <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_75%_18%,rgba(62,180,163,0.22),transparent_27%),radial-gradient(circle_at_18%_82%,rgba(63,125,204,0.22),transparent_32%)]" />
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-[#0b1f33] to-transparent" />
 
-                        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-6xl">
-                            Belajar pulang lebih aman, terkontrol, dan profesional.
-                        </h1>
-
-                        <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-                            SchoolSafe membantu sekolah mengelola proses penjemputan dengan verifikasi wajah real-time, izin orang tua yang jelas, dan audit aktivitas yang dapat ditelusuri.
-                        </p>
-
-                        <div className="mt-10 flex flex-wrap items-center gap-4">
-                            <Link
-                                href={route('login')}
-                                className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-7 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-emerald-300"
-                            >
-                                Masuk ke SchoolSafe
-                            </Link>
-
-                            <a
-                                href="#features"
-                                className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-7 py-3 text-sm font-semibold text-slate-100 transition hover:border-white/30 hover:bg-white/10"
-                            >
-                                Lihat fitur
+                    <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+                        <nav
+                            className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 backdrop-blur-md sm:px-5"
+                            aria-label="Navigasi utama"
+                        >
+                            <a href="#top" className="flex items-center gap-3" aria-label="SchoolSafe beranda">
+                                <span className="grid size-10 place-items-center rounded-xl bg-[#5b8def] text-white shadow-lg shadow-blue-950/30">
+                                    <ShieldCheck className="size-5" strokeWidth={2.4} />
+                                </span>
+                                <span>
+                                    <span className="block text-base font-bold tracking-tight">SchoolSafe</span>
+                                    <span className="block text-[10px] font-semibold tracking-[0.18em] text-[#a9c6d9] uppercase">
+                                        Smart pickup system
+                                    </span>
+                                </span>
                             </a>
-                        </div>
 
-                        <div className="mt-12 grid gap-4 sm:grid-cols-2">
-                            <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl shadow-slate-950/40 backdrop-blur-sm">
-                                <p className="text-sm uppercase tracking-[0.24em] text-emerald-300">Kinerja</p>
-                                <p className="mt-3 text-3xl font-semibold text-white">99% waktu respon</p>
-                                <p className="mt-2 text-sm text-slate-400">Proses penjemputan cepat, bebas antre, dan dapat dipantau langsung.</p>
+                            <div className="hidden items-center gap-7 text-sm font-medium text-[#c5d6e4] md:flex">
+                                <a
+                                    className="transition hover:text-white"
+                                    href="#cara-kerja"
+                                    onClick={(event) => scrollToSection(event, '#cara-kerja')}
+                                >
+                                    Cara kerja
+                                </a>
+                                <a className="transition hover:text-white" href="#fitur" onClick={(event) => scrollToSection(event, '#fitur')}>
+                                    Fitur
+                                </a>
+                                <a className="transition hover:text-white" href="#keamanan" onClick={(event) => scrollToSection(event, '#keamanan')}>
+                                    Keamanan
+                                </a>
                             </div>
 
-                            <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl shadow-slate-950/40 backdrop-blur-sm">
-                                <p className="text-sm uppercase tracking-[0.24em] text-emerald-300">Kepercayaan</p>
-                                <p className="mt-3 text-3xl font-semibold text-white">Audit penuh</p>
-                                <p className="mt-2 text-sm text-slate-400">Semua aktivitas tercatat untuk keamanan sekolah dan orang tua.</p>
+                            <div className="hidden items-center gap-4 md:flex">
+                                <Link href={route('login')} className="text-sm font-semibold text-white transition hover:text-[#9edbd3]">
+                                    Masuk
+                                </Link>
+                                <Link
+                                    href={route('login')}
+                                    className="rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-[#17324d] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#eaf7f5]"
+                                >
+                                    Mulai gunakan
+                                </Link>
                             </div>
-                        </div>
-                    </div>
 
-                    <div className="mt-14 lg:mt-0 lg:w-1/2 xl:order-2">
-                        <div className="relative mx-auto max-w-md overflow-hidden rounded-[40px] border border-white/10 bg-slate-900/75 p-8 shadow-2xl shadow-slate-950/50 backdrop-blur-xl">
-                            <div className="absolute -right-14 top-10 h-32 w-32 rounded-full bg-emerald-400/20 blur-3xl" />
-                            <div className="absolute left-8 top-8 h-28 w-28 rounded-full bg-sky-400/10 blur-3xl" />
+                            <button
+                                type="button"
+                                className="grid size-10 place-items-center rounded-xl border border-white/15 text-white md:hidden"
+                                aria-label={isMenuOpen ? 'Tutup menu' : 'Buka menu'}
+                                aria-expanded={isMenuOpen}
+                                onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
+                            >
+                                {isMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+                            </button>
+                        </nav>
 
-                            <div className="relative z-10 space-y-6">
-                                <div className="rounded-3xl bg-slate-950/90 p-6 ring-1 ring-white/10">
-                                    <div className="mb-4 flex items-center justify-between">
-                                        <span className="rounded-full bg-slate-800/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
-                                            Dashboard
+                        {isMenuOpen && (
+                            <div className="mt-3 rounded-2xl border border-white/10 bg-[#102b43] p-3 shadow-xl md:hidden">
+                                {[
+                                    ['Cara kerja', '#cara-kerja'],
+                                    ['Fitur', '#fitur'],
+                                    ['Keamanan', '#keamanan'],
+                                ].map(([label, href]) => (
+                                    <a
+                                        key={href}
+                                        href={href}
+                                        onClick={(event) => {
+                                            setIsMenuOpen(false);
+                                            scrollToSection(event, href);
+                                        }}
+                                        className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-[#d8e6f0] hover:bg-white/10"
+                                    >
+                                        {label}
+                                        <ChevronRight className="size-4" />
+                                    </a>
+                                ))}
+                                <Link
+                                    href={route('login')}
+                                    className="mt-2 block rounded-xl bg-[#5b8def] px-4 py-3 text-center text-sm font-bold"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    Masuk ke SchoolSafe
+                                </Link>
+                            </div>
+                        )}
+
+                        <div id="top" className="grid items-center gap-14 pt-16 pb-6 lg:grid-cols-[1fr_0.93fr] lg:pt-24 lg:pb-10">
+                            <div className="max-w-2xl">
+                                <div className="inline-flex items-center gap-2 rounded-full border border-[#8bd4c8]/25 bg-[#1f665f]/20 px-3 py-1.5 text-xs font-bold text-[#b6eee5]">
+                                    <span className="size-1.5 rounded-full bg-[#66dbc9]" />
+                                    Keamanan penjemputan untuk sekolah modern
+                                </div>
+                                <h1 className="mt-6 text-4xl font-bold tracking-[-0.045em] text-white sm:text-5xl lg:text-[3.7rem] lg:leading-[1.06]">
+                                    Setiap anak pulang bersama orang yang tepat.
+                                </h1>
+                                <p className="mt-6 max-w-xl text-base leading-8 text-[#bdd0de] sm:text-lg">
+                                    SchoolSafe membuat proses penjemputan lebih tertib, cepat, dan dapat dipertanggungjawabkan—dari verifikasi
+                                    identitas hingga riwayat aktivitas di gerbang.
+                                </p>
+                                <div className="mt-8 flex flex-wrap items-center gap-3">
+                                    <Link
+                                        href={route('login')}
+                                        className="group inline-flex items-center gap-2 rounded-xl bg-[#5b8def] px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-950/30 transition hover:-translate-y-0.5 hover:bg-[#719cf2]"
+                                    >
+                                        Masuk ke SchoolSafe <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                                    </Link>
+                                    <a
+                                        href="#cara-kerja"
+                                        onClick={(event) => scrollToSection(event, '#cara-kerja')}
+                                        className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3.5 text-sm font-bold text-white transition hover:border-white/30 hover:bg-white/10"
+                                    >
+                                        Pelajari cara kerja
+                                    </a>
+                                </div>
+                                <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#b4c9d8]">
+                                    {['Terpisah per sekolah', 'Audit aktivitas lengkap', 'Akses sesuai peran'].map((item) => (
+                                        <span key={item} className="inline-flex items-center gap-2">
+                                            <Check className="size-4 text-[#69d2c4]" strokeWidth={3} />
+                                            {item}
                                         </span>
-                                        <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">Active</span>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="rounded-3xl bg-slate-900/90 p-4 ring-1 ring-white/5">
-                                            <p className="text-sm text-slate-400">Verifikasi Wajah</p>
-                                            <p className="mt-2 text-xl font-semibold text-white">3 Detik per identitas</p>
-                                        </div>
-
-                                        <div className="rounded-3xl bg-slate-900/90 p-4 ring-1 ring-white/5">
-                                            <p className="text-sm text-slate-400">Orang tua terverifikasi</p>
-                                            <p className="mt-2 text-xl font-semibold text-white">97% kepercayaan</p>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
+                            </div>
 
-                                <div className="rounded-3xl bg-white/5 p-6 ring-1 ring-white/10">
-                                    <div className="mb-4 flex items-center justify-between text-sm text-slate-400">
-                                        <span>Progress penjemputan</span>
-                                        <span className="text-emerald-300">+12% minggu ini</span>
-                                    </div>
-
-                                    <div className="h-2 overflow-hidden rounded-full bg-slate-800">
-                                        <div className="h-full w-[82%] rounded-full bg-emerald-400" />
-                                    </div>
-
-                                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                                        <div className="rounded-3xl bg-slate-950/90 p-4 text-white">
-                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Target</p>
-                                            <p className="mt-2 text-2xl font-semibold">12 sesi</p>
+                            <div className="relative mx-auto w-full max-w-xl lg:mr-0">
+                                <div className="absolute -inset-8 rounded-full bg-[#58b9b0]/15 blur-3xl" />
+                                <div className="relative overflow-hidden rounded-[26px] border border-white/15 bg-[#f9fcff] p-3 shadow-2xl shadow-[#020b15]/45 sm:p-4">
+                                    <div className="rounded-[19px] border border-[#dce8f0] bg-white p-4 text-[#17324d] sm:p-5">
+                                        <div className="flex items-center justify-between border-b border-[#e7eef4] pb-4">
+                                            <div className="flex items-center gap-3">
+                                                <span className="grid size-9 place-items-center rounded-lg bg-[#e9f1ff] text-[#4d79d4]">
+                                                    <ShieldCheck className="size-5" />
+                                                </span>
+                                                <div>
+                                                    <p className="text-sm font-bold">Gerbang Utama</p>
+                                                    <p className="text-xs text-[#71869b]">Senin, 04 Agustus 2026</p>
+                                                </div>
+                                            </div>
+                                            <span className="rounded-full bg-[#e9f8f4] px-2.5 py-1 text-xs font-bold text-[#248576]">Aktif</span>
                                         </div>
-                                        <div className="rounded-3xl bg-slate-950/90 p-4 text-white">
-                                            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Streak</p>
-                                            <p className="mt-2 text-2xl font-semibold">6 hari</p>
+                                        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                                            {[
+                                                ['24', 'Siswa dijemput'],
+                                                ['12', 'Menunggu'],
+                                                ['0', 'Perlu perhatian'],
+                                            ].map(([value, label], index) => (
+                                                <div key={label} className={`rounded-xl p-3 ${index === 2 ? 'bg-[#fff5f1]' : 'bg-[#f5f8fb]'}`}>
+                                                    <p className={`text-xl font-bold ${index === 2 ? 'text-[#cf664e]' : 'text-[#203c58]'}`}>
+                                                        {value}
+                                                    </p>
+                                                    <p className="mt-1 text-[11px] leading-4 font-medium text-[#71869b]">{label}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="mt-5 rounded-2xl border border-[#dce8f0] p-4">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-sm font-bold">Verifikasi terbaru</p>
+                                                <span className="text-xs font-semibold text-[#4d79d4]">Lihat riwayat</span>
+                                            </div>
+                                            <div className="mt-4 flex items-center gap-3">
+                                                <span className="grid size-10 place-items-center rounded-full bg-[#d7f2ec] text-sm font-bold text-[#267c70]">
+                                                    RP
+                                                </span>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="truncate text-sm font-bold">Rina Pratama</p>
+                                                    <p className="mt-0.5 text-xs text-[#71869b]">Penjemput Kayla Putri · Kelas 3A</p>
+                                                </div>
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-[#e9f8f4] px-2 py-1 text-[11px] font-bold text-[#248576]">
+                                                    <Check className="size-3" strokeWidth={3} /> Cocok
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <section id="features" className="border-t border-white/10 bg-slate-950/90 py-20">
-                    <div className="mx-auto max-w-6xl px-6">
-                        <div className="grid gap-10 lg:grid-cols-3">
-                            <div className="space-y-4 rounded-3xl bg-slate-900/70 p-8 ring-1 ring-white/10">
-                                <p className="text-sm uppercase tracking-[0.24em] text-emerald-300">Keunggulan</p>
-                                <h2 className="text-3xl font-semibold text-white">Sistem penjemputan modern untuk sekolah</h2>
-                                <p className="text-slate-400">Semua data tersentral, proses dioptimalkan, dan keamanan ditingkatkan bagi setiap siswa dan orang tua.</p>
-                            </div>
+                <section id="cara-kerja" className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+                    <div className="max-w-2xl">
+                        <p className="text-sm font-bold tracking-[0.16em] text-[#4684c6] uppercase">Proses sederhana, kontrol menyeluruh</p>
+                        <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#17324d] sm:text-4xl">
+                            Satu alur yang membuat gerbang lebih tenang.
+                        </h2>
+                    </div>
+                    <div className="mt-10 grid gap-5 md:grid-cols-3">
+                        {[
+                            ['01', 'Siapkan data', 'Kelola siswa, penjemput, dan hak penjemputan dalam satu tempat.'],
+                            ['02', 'Verifikasi di gerbang', 'Petugas memeriksa wajah penjemput dengan challenge liveness.'],
+                            ['03', 'Simpan riwayat aman', 'Setiap penjemputan tercatat agar mudah ditinjau bila diperlukan.'],
+                        ].map(([number, title, description]) => (
+                            <article
+                                key={number}
+                                className="group rounded-2xl border border-[#dce7ef] bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#315c7c]/10"
+                            >
+                                <span className="text-sm font-bold text-[#5b8def]">{number}</span>
+                                <h3 className="mt-7 text-lg font-bold text-[#17324d]">{title}</h3>
+                                <p className="mt-3 text-sm leading-6 text-[#617990]">{description}</p>
+                            </article>
+                        ))}
+                    </div>
+                </section>
 
-                            {[
-                                {
-                                    title: 'Verifikasi Wajah',
-                                    description: 'Identifikasi penjemput dengan rekam wajah, deteksi liveness, dan peringatan otomatis.',
-                                },
-                                {
-                                    title: 'Akses Terstruktur',
-                                    description: 'Kelompok pengguna, peran, dan persetujuan penjemputan dalam satu kontrol dashboard.',
-                                },
-                                {
-                                    title: 'Audit Penuh',
-                                    description: 'Riwayat penjemputan tersimpan rapih untuk pemeriksaan keamanan kapan saja.',
-                                },
-                            ].map((feature) => (
-                                <div key={feature.title} className="rounded-3xl bg-slate-900/80 p-6 ring-1 ring-white/5">
-                                    <h3 className="text-xl font-semibold text-white">{feature.title}</h3>
-                                    <p className="mt-3 text-slate-400">{feature.description}</p>
-                                </div>
+                <section id="fitur" className="border-y border-[#dfe9f0] bg-white">
+                    <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:px-10 lg:py-24">
+                        <div>
+                            <p className="text-sm font-bold tracking-[0.16em] text-[#4684c6] uppercase">Dirancang untuk keamanan</p>
+                            <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#17324d] sm:text-4xl">
+                                Teknologi yang bekerja tanpa membuat proses menjadi rumit.
+                            </h2>
+                            <p className="mt-5 max-w-md leading-7 text-[#617990]">
+                                Antarmuka yang jelas membantu setiap peran fokus pada tugasnya, sementara sistem menjaga jejak penjemputan di belakang
+                                layar.
+                            </p>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-3">
+                            {features.map(({ icon: Icon, title, description }) => (
+                                <article key={title} className="rounded-2xl bg-[#f5f9fc] p-5 transition hover:bg-[#eef5fb]">
+                                    <span className="grid size-10 place-items-center rounded-xl bg-white text-[#4d79d4] shadow-sm">
+                                        <Icon className="size-5" />
+                                    </span>
+                                    <h3 className="mt-5 text-base font-bold text-[#17324d]">{title}</h3>
+                                    <p className="mt-2 text-sm leading-6 text-[#617990]">{description}</p>
+                                </article>
                             ))}
                         </div>
                     </div>
                 </section>
-            </div>
+
+                <section id="keamanan" className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+                    <div className="rounded-3xl bg-[#143854] px-6 py-10 text-white sm:px-10 lg:flex lg:items-center lg:justify-between lg:px-14 lg:py-14">
+                        <div className="max-w-2xl">
+                            <span className="inline-flex items-center gap-2 text-sm font-bold text-[#9ee4db]">
+                                <ShieldCheck className="size-4" /> Dibangun dengan keamanan sebagai fondasi
+                            </span>
+                            <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Buat pengalaman pulang sekolah terasa lebih aman.</h2>
+                            <p className="mt-4 leading-7 text-[#c4d8e7]">
+                                Masuk untuk mengelola data sekolah, menjalankan verifikasi, dan melihat aktivitas penjemputan hari ini.
+                            </p>
+                        </div>
+                        <Link
+                            href={route('login')}
+                            className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-bold text-[#17324d] transition hover:-translate-y-0.5 hover:bg-[#eaf7f5] lg:mt-0"
+                        >
+                            Masuk ke aplikasi <ArrowRight className="size-4" />
+                        </Link>
+                    </div>
+                </section>
+
+                <footer className="border-t border-[#dfe9f0] bg-white">
+                    <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-7 text-sm text-[#71869b] sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
+                        <div className="flex items-center gap-2 font-bold text-[#284762]">
+                            <ShieldCheck className="size-4 text-[#5b8def]" /> SchoolSafe
+                        </div>
+                        <p>Keamanan siswa adalah prioritas.</p>
+                    </div>
+                </footer>
+            </main>
         </>
     );
 }

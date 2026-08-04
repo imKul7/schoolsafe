@@ -117,7 +117,7 @@ describe('Dashboard', () => {
 
         expect(
             screen.getByRole('heading', {
-                name: 'Selamat datang di SchoolSafe 👋',
+                name: 'Selamat datang di SchoolSafe',
             }),
         ).toBeInTheDocument();
 
@@ -129,7 +129,7 @@ describe('Dashboard', () => {
 
         expect(
             screen.getByRole('link', {
-                name: 'Face Scanner',
+                name: 'Buka face scanner',
             }),
         ).toHaveAttribute('href', '/gate/face-verification');
 
@@ -141,7 +141,7 @@ describe('Dashboard', () => {
 
         expect(
             screen.getByRole('heading', {
-                name: 'Aktivitas Terbaru',
+                name: 'Aktivitas terbaru',
             }),
         ).toBeInTheDocument();
 
@@ -167,7 +167,7 @@ describe('Dashboard', () => {
 
         expect(
             screen.queryByRole('link', {
-                name: 'Face Scanner',
+                name: 'Buka face scanner',
             }),
         ).not.toBeInTheDocument();
 

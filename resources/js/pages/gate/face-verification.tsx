@@ -1152,10 +1152,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
 
             const maximumChallengeDuration = Math.min(configuredMaximumDuration, rawChallengeLifetime);
 
-            ({
-                analyzeFaceProbe: analyzeFaceProbeFn,
-                runFaceChallenge: runFaceChallengeFn,
-            } = await loadBiometricModules());
+            ({ analyzeFaceProbe: analyzeFaceProbeFn, runFaceChallenge: runFaceChallengeFn } = await loadBiometricModules());
 
             const challengeEvidence = await runFaceChallengeFn(video, challenge, {
                 blinkMinMs: blinkMinimumMilliseconds,

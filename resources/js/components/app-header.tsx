@@ -48,7 +48,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const getInitials = useInitials();
     return (
         <>
-            <div className="border-b border-[#e5ecf3] bg-white/90 backdrop-blur-sm shadow-sm">
+            <div className="border-b border-[#e5ecf3] bg-white/90 shadow-sm backdrop-blur-sm">
                 <div className="mx-auto flex h-16 items-center gap-3 px-4 md:max-w-7xl">
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
@@ -126,7 +126,11 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
                     <div className="ml-auto flex items-center gap-2">
                         <div className="relative flex items-center space-x-1">
-                            <Button variant="ghost" size="icon" className="group h-10 w-10 rounded-2xl border border-[#e6eef5] bg-white/70 shadow-sm transition hover:bg-[#f4f7fb]">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="group h-10 w-10 rounded-2xl border border-[#e6eef5] bg-white/70 shadow-sm transition hover:bg-[#f4f7fb]"
+                            >
                                 <Search className="!size-5 opacity-80 group-hover:opacity-100" />
                             </Button>
                             <div className="hidden lg:flex">
@@ -138,7 +142,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     href={item.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="group inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/70 text-[#4f7cac] transition hover:bg-[#eef6ff] hover:text-[#346aad] focus-visible:ring-ring focus-visible:outline-none"
+                                                    className="group focus-visible:ring-ring inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/70 text-[#4f7cac] transition hover:bg-[#eef6ff] hover:text-[#346aad] focus-visible:outline-none"
                                                 >
                                                     <span className="sr-only">{item.title}</span>
                                                     {item.icon && <Icon iconNode={item.icon} className="size-5 opacity-80 group-hover:opacity-100" />}
@@ -154,7 +158,10 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="size-11 rounded-full border border-[#e6eef5] bg-white/90 p-1 shadow-sm transition hover:bg-[#f4f7fb]">
+                                <Button
+                                    variant="ghost"
+                                    className="size-11 rounded-full border border-[#e6eef5] bg-white/90 p-1 shadow-sm transition hover:bg-[#f4f7fb]"
+                                >
                                     <Avatar className="size-8 overflow-hidden rounded-full">
                                         <AvatarImage src={auth.user.avatar} alt={auth.user.name} />
                                         <AvatarFallback className="rounded-full bg-[#e2eaf5] text-[#1e3a5a]">

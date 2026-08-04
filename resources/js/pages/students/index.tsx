@@ -475,8 +475,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
 
                                 <h3 className="mt-5 text-xl font-semibold text-[#243b53]">Data siswa tidak ditemukan</h3>
 
-                                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#627d98]">
-                                </p>
+                                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#627d98]"></p>
 
                                 {hasActiveFilters ? (
                                     <button
@@ -536,7 +535,9 @@ function SummaryCard({ title, value, description, icon: Icon, tone }: SummaryCar
     const styles = summaryToneStyles[tone];
 
     return (
-        <article className={`rounded-[28px] border p-5 shadow-sm shadow-[#dce4ee]/50 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg ${styles.card}`}>
+        <article
+            className={`rounded-[28px] border p-5 shadow-sm shadow-[#dce4ee]/50 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg ${styles.card}`}
+        >
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <p className="text-sm font-semibold text-[#546d87]">{title}</p>
