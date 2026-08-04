@@ -47,7 +47,7 @@ $productionValues = [ordered]@{
     SESSION_SECURE_COOKIE    = 'true'
     SESSION_HTTP_ONLY        = 'true'
     SESSION_SAME_SITE        = 'lax'
-    SESSION_PARTITIONED      = 'false'
+    SESSION_PARTITIONED_COOKIE      = 'false'
     SESSION_TABLE            = 'sessions'
 
     BROADCAST_CONNECTION     = 'log'
