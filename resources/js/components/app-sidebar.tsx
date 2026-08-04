@@ -78,11 +78,11 @@ export function AppSidebar() {
     const canViewSchoolManagement = auth.user.role === 'school_admin';
 
     return (
-        <Sidebar collapsible="icon" variant="inset" className="border-r border-[#e6eef5] bg-[#fbfdff]">
-            <SidebarHeader className="border-b border-[#edf2f7] px-2 py-3">
+        <Sidebar collapsible="icon" variant="inset" className="border-r border-[#e6eef5] bg-white/95 shadow-sm backdrop-blur-sm">
+            <SidebarHeader className="border-b border-[#edf2f7] px-3 py-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild className="rounded-2xl transition-colors hover:bg-[#eef6ff]">
+                        <SidebarMenuButton size="lg" asChild className="rounded-3xl transition-colors duration-200 hover:bg-[#eef6ff]">
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
@@ -91,12 +91,12 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent className="px-2 py-3">
+            <SidebarContent className="px-3 py-4">
                 <NavMain items={visibleMainNavItems} />
 
                 {canViewSchoolManagement && (
                     <SidebarGroup>
-                        <SidebarGroupLabel className="text-xs font-semibold tracking-wider text-[#9fb3c8] uppercase">
+                        <SidebarGroupLabel className="text-xs font-semibold tracking-[0.24em] text-[#8b9fb5] uppercase">
                             Manajemen Sekolah
                         </SidebarGroupLabel>
 
@@ -110,13 +110,13 @@ export function AppSidebar() {
                                             type="button"
                                             disabled
                                             aria-disabled="true"
-                                            className="cursor-not-allowed rounded-xl text-[#829ab1] opacity-75"
+                                            className="cursor-not-allowed rounded-2xl text-[#8b9fb5] opacity-80"
                                         >
                                             <Icon className="size-4" />
 
                                             <span>{item.title}</span>
 
-                                            <span className="ml-auto rounded-full bg-[#f1f5f9] px-2 py-0.5 text-[10px] font-semibold text-[#829ab1] group-data-[collapsible=icon]:hidden">
+                                            <span className="ml-auto rounded-full bg-[#f3f7fb] px-2 py-0.5 text-[10px] font-semibold text-[#7a90ae] group-data-[collapsible=icon]:hidden">
                                                 Segera
                                             </span>
                                         </SidebarMenuButton>
@@ -128,10 +128,10 @@ export function AppSidebar() {
                 )}
             </SidebarContent>
 
-            <SidebarFooter className="border-t border-[#edf2f7] p-2">
-                <div className="mx-1 mb-2 rounded-2xl border border-[#dceaf5] bg-gradient-to-br from-[#eef7fc] to-[#eef9f6] p-3 text-xs group-data-[collapsible=icon]:hidden">
-                    <div className="mb-1.5 flex items-center gap-2 font-semibold text-[#335e7e]">
-                        <div className="flex size-7 items-center justify-center rounded-lg bg-white text-[#64b6ac] shadow-sm">
+            <SidebarFooter className="border-t border-[#edf2f7] p-3">
+                <div className="mx-1 mb-2 rounded-3xl border border-[#d9e8ef] bg-gradient-to-br from-[#f7fbff] to-[#eef7f8] p-4 text-xs group-data-[collapsible=icon]:hidden">
+                    <div className="mb-1.5 flex items-center gap-3 font-semibold text-[#345a7a]">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-[#53a69f] shadow-sm">
                             <ShieldCheck className="size-4" />
                         </div>
                         Sistem Aman

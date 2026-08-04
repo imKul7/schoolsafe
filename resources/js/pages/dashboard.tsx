@@ -237,22 +237,21 @@ function StatCard({ title, value, description, icon: Icon, tone }: StatCardProps
     const styles = toneStyles[tone];
 
     return (
-        <article className={`rounded-2xl border p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}>
+        <article className={`rounded-[28px] border p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg ${styles.card}`}>
             <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                    <p className="text-sm font-medium text-[#627d98]">{title}</p>
+                    <p className="text-sm font-semibold text-[#556f8c]">{title}</p>
 
-                    <p className="mt-3 text-3xl font-bold tracking-tight text-[#243b53]">{value}</p>
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-[#1f314c]">{value}</p>
                 </div>
 
-                <div className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${styles.icon}`}>
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-3xl ${styles.icon}`}>
                     <Icon className="size-5" aria-hidden="true" />
                 </div>
             </div>
 
             <p className={`mt-4 flex items-center gap-1.5 text-xs font-medium ${styles.indicator}`}>
                 <Activity className="size-3.5" aria-hidden="true" />
-
                 {description}
             </p>
         </article>
@@ -339,16 +338,16 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
         <AppLayout>
             <Head title="Dashboard" />
 
-            <main className="min-h-full bg-[#f8fafc]" aria-busy={isRefreshing}>
+            <main className="min-h-full bg-[#eef4fb]" aria-busy={isRefreshing}>
                 <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 p-4 md:p-6">
-                    <section className="relative overflow-hidden rounded-[28px] border border-[#deebf5] bg-gradient-to-r from-[#eaf4ff] via-[#eef9f6] to-[#fff9eb] p-6 shadow-sm md:p-8">
-                        <div className="absolute -top-20 -right-10 size-60 rounded-full bg-white/50 blur-3xl" aria-hidden="true" />
+                    <section className="relative overflow-hidden rounded-[32px] border border-[#dce8f5] bg-gradient-to-r from-[#eef6ff] via-[#f7fbff] to-[#fffaf0] p-6 shadow-2xl shadow-[#d8e6f5]/70 transition-transform duration-200 hover:-translate-y-0.5 md:p-8">
+                        <div className="absolute -top-24 -right-10 h-56 w-56 rounded-full bg-white/60 blur-3xl" aria-hidden="true" />
 
-                        <div className="absolute -bottom-28 left-1/3 size-52 rounded-full bg-[#ccece5]/40 blur-3xl" aria-hidden="true" />
+                        <div className="absolute -bottom-28 left-1/3 h-52 w-52 rounded-full bg-[#ccece5]/40 blur-3xl" aria-hidden="true" />
 
                         <div className="relative z-10 flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
                             <div>
-                                <span className="inline-flex items-center gap-2 rounded-full border border-white bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#4f7cac] shadow-sm backdrop-blur">
+                                <span className="inline-flex items-center gap-2 rounded-full border border-white bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#4f7cac] shadow-sm backdrop-blur-sm">
                                     {dashboard.has_school ? (
                                         <CheckCircle2 className="size-3.5 text-[#64b6ac]" aria-hidden="true" />
                                     ) : (
@@ -358,9 +357,9 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                     {dashboard.has_school ? 'Data sekolah terhubung' : 'Agregasi lintas sekolah dinonaktifkan'}
                                 </span>
 
-                                <h1 className="mt-4 text-2xl font-bold tracking-tight text-[#243b53] md:text-3xl">Selamat datang di SchoolSafe 👋</h1>
+                                <h1 className="mt-4 text-3xl font-bold tracking-tight text-[#1f314c] sm:text-4xl">Selamat datang di SchoolSafe 👋</h1>
 
-                                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#627d98]">
+                                <p className="mt-3 max-w-2xl text-base leading-7 text-[#4f6b85]">
                                     {dashboard.has_school
                                         ? 'Pantau data siswa, penjemput, biometrik, dan transaksi penjemputan sekolah melalui satu dashboard.'
                                         : 'Akun ini tidak terhubung dengan sekolah tertentu sehingga statistik lintas sekolah tidak ditampilkan.'}
@@ -372,7 +371,7 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                     <Link
                                         href="/gate/face-verification"
                                         prefetch
-                                        className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-5 text-sm font-semibold text-white shadow-lg shadow-blue-200/60 transition hover:bg-[#4f7fd8] focus-visible:ring-2 focus-visible:ring-[#5b8def] focus-visible:ring-offset-2 focus-visible:outline-none"
+                                        className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#5b8def] to-[#3b6cdb] px-5 text-sm font-semibold text-white shadow-lg shadow-blue-200/50 transition duration-200 hover:-translate-y-0.5 hover:bg-[#4e83e5] focus-visible:ring-2 focus-visible:ring-[#5b8def] focus-visible:ring-offset-2 focus-visible:outline-none"
                                     >
                                         <ScanFace className="size-5" aria-hidden="true" />
                                         Face Scanner
@@ -384,20 +383,20 @@ export default function Dashboard({ dashboard }: DashboardPageProps) {
                                     onClick={refreshDashboard}
                                     disabled={isRefreshing}
                                     aria-label={isRefreshing ? 'Memperbarui data dashboard' : 'Perbarui data dashboard'}
-                                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#dceaf5] bg-white/80 px-4 text-sm font-semibold text-[#4f7cac] shadow-sm backdrop-blur transition hover:border-[#bfd7ec] hover:bg-white focus-visible:ring-2 focus-visible:ring-[#5b8def] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-[#dcebf8] bg-white px-4 text-sm font-semibold text-[#4f7cac] shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-[#b6d4f1] hover:bg-[#fafcff] focus-visible:ring-2 focus-visible:ring-[#5b8def] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     <RefreshCw className={`size-4 ${isRefreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
 
                                     <span>{isRefreshing ? 'Memperbarui...' : 'Perbarui'}</span>
                                 </button>
 
-                                <div className="flex min-h-12 flex-col justify-center rounded-xl border border-white bg-white/70 px-4 py-2 text-[#627d98] shadow-sm backdrop-blur">
-                                    <span className="inline-flex items-center gap-2 text-sm font-medium">
+                                <div className="flex min-h-12 flex-col justify-center rounded-2xl border border-white bg-white/80 px-4 py-2 text-[#627d98] shadow-sm backdrop-blur-sm">
+                                    <span className="inline-flex items-center gap-2 text-sm font-semibold">
                                         <Clock3 className="size-4 text-[#4f7cac]" aria-hidden="true" />
                                         {formatNumber(statistics.pickup_events_today)} transaksi hari ini
                                     </span>
 
-                                    <time dateTime={dashboard.generated_at} className="mt-0.5 pl-6 text-xs text-[#829ab1]">
+                                    <time dateTime={dashboard.generated_at} className="mt-1 pl-6 text-xs text-[#829ab1]">
                                         Diperbarui {formatLastUpdated(dashboard.generated_at, dashboard.timezone)}
                                     </time>
                                 </div>

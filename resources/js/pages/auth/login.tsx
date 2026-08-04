@@ -52,9 +52,9 @@ export default function Login({ status, canResetPassword = true }: LoginProps) {
                 <div
                     role="status"
                     aria-live="polite"
-                    className="mb-5 flex items-start gap-3 rounded-2xl border border-[#cde9e3] bg-[#eef9f6] px-4 py-3 text-sm text-[#397a72]"
+                    className="mb-5 flex items-start gap-3 rounded-2xl border border-slate-700 bg-slate-800/60 px-4 py-3 text-sm text-slate-200"
                 >
-                    <ShieldCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+                    <ShieldCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-emerald-300" />
 
                     <span className="leading-6">{status}</span>
                 </div>
@@ -63,7 +63,7 @@ export default function Login({ status, canResetPassword = true }: LoginProps) {
             <form onSubmit={submit} className="space-y-5" aria-busy={processing} noValidate>
                 {/* Email */}
                 <div>
-                    <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#334e68]">
+                    <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#334e68] dark:text-slate-100">
                         Alamat email
                     </label>
 
@@ -89,12 +89,12 @@ export default function Login({ status, canResetPassword = true }: LoginProps) {
                             aria-invalid={Boolean(errors.email)}
                             aria-describedby={errors.email ? 'email-error' : undefined}
                             className={[
-                                'h-12 rounded-xl bg-[#fbfdff] pl-11',
-                                'text-[#334e68] placeholder:text-[#bcccdc]',
+                                'h-12 rounded-xl bg-white/5 dark:bg-slate-800 pl-11',
+                                'text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500',
                                 'transition-colors',
-                                'focus-visible:ring-[#dcebf8]',
+                                'focus-visible:ring-[#dcebf8] focus-visible:ring-opacity-50',
                                 'disabled:cursor-not-allowed disabled:opacity-70',
-                                errors.email ? 'border-[#e97a7a] focus-visible:border-[#e97a7a]' : 'border-[#d9e5ee] focus-visible:border-[#7fa9d8]',
+                                errors.email ? 'border-[#e97a7a] focus-visible:border-[#e97a7a]' : 'border-slate-700 focus-visible:border-emerald-500',
                             ].join(' ')}
                         />
                     </div>
@@ -107,7 +107,7 @@ export default function Login({ status, canResetPassword = true }: LoginProps) {
                 {/* Password */}
                 <div>
                     <div className="mb-2 flex items-center justify-between gap-4">
-                        <label htmlFor="password" className="text-sm font-semibold text-[#334e68]">
+                        <label htmlFor="password" className="text-sm font-semibold text-[#334e68] dark:text-slate-100">
                             Kata sandi
                         </label>
 
@@ -145,14 +145,14 @@ export default function Login({ status, canResetPassword = true }: LoginProps) {
                             aria-invalid={Boolean(errors.password)}
                             aria-describedby={errors.password ? 'password-error' : undefined}
                             className={[
-                                'h-12 rounded-xl bg-[#fbfdff] px-11',
-                                'text-[#334e68] placeholder:text-[#bcccdc]',
+                                'h-12 rounded-xl bg-white/5 dark:bg-slate-800 px-11',
+                                'text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500',
                                 'transition-colors',
-                                'focus-visible:ring-[#dcebf8]',
+                                'focus-visible:ring-[#dcebf8] focus-visible:ring-opacity-50',
                                 'disabled:cursor-not-allowed disabled:opacity-70',
                                 errors.password
                                     ? 'border-[#e97a7a] focus-visible:border-[#e97a7a]'
-                                    : 'border-[#d9e5ee] focus-visible:border-[#7fa9d8]',
+                                    : 'border-slate-700 focus-visible:border-emerald-500',
                             ].join(' ')}
                         />
 
@@ -164,7 +164,7 @@ export default function Login({ status, canResetPassword = true }: LoginProps) {
                             disabled={processing}
                             aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                             aria-pressed={showPassword}
-                            className="absolute top-1/2 right-3.5 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-[#9fb3c8] transition-colors hover:bg-[#eef6ff] hover:text-[#4f7cac] focus-visible:ring-2 focus-visible:ring-[#dcebf8] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                            className="absolute top-1/2 right-3.5 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-700 hover:text-emerald-300 focus-visible:ring-2 focus-visible:ring-[#dcebf8] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {showPassword ? <EyeOff aria-hidden="true" className="size-5" /> : <Eye aria-hidden="true" className="size-5" />}
                         </button>
@@ -196,7 +196,7 @@ export default function Login({ status, canResetPassword = true }: LoginProps) {
                 <Button
                     type="submit"
                     disabled={processing}
-                    className="h-12 w-full rounded-xl bg-[#5b8def] font-semibold text-white shadow-lg shadow-blue-200/60 transition-all hover:-translate-y-0.5 hover:bg-[#4c7fd9] hover:shadow-xl focus-visible:ring-2 focus-visible:ring-[#bdd7f3] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
+                    className="h-12 w-full rounded-xl bg-emerald-600 font-semibold text-white shadow-lg shadow-emerald-800/40 transition-all hover:-translate-y-0.5 hover:bg-emerald-500 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                     {processing ? (
                         <span className="flex items-center gap-2">
@@ -216,24 +216,24 @@ export default function Login({ status, canResetPassword = true }: LoginProps) {
 
             {/* Divider */}
             <div className="mt-7 flex items-center gap-3">
-                <div className="h-px flex-1 bg-[#e6eef5]" />
+                <div className="h-px flex-1 bg-slate-700/40" />
 
-                <span className="text-xs whitespace-nowrap text-[#9fb3c8]">Sistem penjemputan aman</span>
+                <span className="text-xs whitespace-nowrap text-slate-400">Sistem penjemputan aman</span>
 
-                <div className="h-px flex-1 bg-[#e6eef5]" />
+                <div className="h-px flex-1 bg-slate-700/40" />
             </div>
 
             {/* Security information */}
-            <div className="mt-5 rounded-2xl border border-[#e6eef5] bg-[#f8fbfd] p-4">
+            <div className="mt-5 rounded-2xl border border-slate-700 bg-slate-800/60 p-4">
                 <div className="flex items-start gap-3">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#e8f6f3] text-[#4c9e94]">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-700 text-emerald-300">
                         <ShieldCheck aria-hidden="true" className="size-5" />
                     </div>
 
                     <div>
-                        <p className="text-sm font-semibold text-[#334e68]">Akses terlindungi</p>
+                        <p className="text-sm font-semibold text-white">Akses terlindungi</p>
 
-                        <p className="mt-1 text-xs leading-5 text-[#829ab1]">
+                        <p className="mt-1 text-xs leading-5 text-slate-300">
                             Gunakan akun resmi yang telah diberikan oleh administrator sekolah. Jangan membagikan kata sandi kepada orang lain.
                         </p>
                     </div>

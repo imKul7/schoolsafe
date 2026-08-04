@@ -152,22 +152,22 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
         <AppLayout>
             <Head title="Data Siswa" />
 
-            <main className="min-h-full bg-[#f8fafc]">
+            <main className="min-h-full bg-[#eef4fb]">
                 <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 p-4 md:p-6">
                     {/* Header */}
-                    <section className="relative overflow-hidden rounded-[28px] border border-[#deebf5] bg-gradient-to-r from-[#edf6ff] via-[#f2faf8] to-[#fffaf0] p-6 shadow-sm md:p-8">
-                        <div className="absolute -top-24 -right-16 size-60 rounded-full bg-white/55 blur-3xl" />
+                    <section className="relative overflow-hidden rounded-[32px] border border-[#dce8f4] bg-gradient-to-r from-[#eef6ff] via-[#f9fcff] to-[#fff9f0] p-6 shadow-2xl shadow-[#d9e7f6]/70 transition-transform duration-200 hover:-translate-y-0.5 md:p-8">
+                        <div className="absolute -top-24 -right-16 h-56 w-56 rounded-full bg-white/60 blur-3xl" />
 
                         <div className="relative flex flex-col justify-between gap-5 md:flex-row md:items-center">
                             <div className="flex items-start gap-4">
-                                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#5b8def] shadow-sm">
+                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[24px] bg-white text-[#5b8def] shadow-lg shadow-[#dfe8ff]/90">
                                     <UsersRound aria-hidden="true" className="size-6" />
                                 </div>
 
                                 <div>
-                                    <h1 className="text-2xl font-bold tracking-tight text-[#243b53] md:text-3xl">Data Siswa</h1>
+                                    <h1 className="text-3xl font-bold tracking-tight text-[#1f334f] md:text-4xl">Data Siswa</h1>
 
-                                    <p className="mt-2 max-w-xl text-sm leading-6 text-[#627d98]">
+                                    <p className="mt-2 max-w-xl text-sm leading-6 text-[#526a88]">
                                         Kelola identitas, kelas, status, dan informasi siswa yang terdaftar di SchoolSafe.
                                     </p>
                                 </div>
@@ -175,7 +175,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
 
                             <Link
                                 href="/students/create"
-                                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-5 text-sm font-semibold text-white shadow-md shadow-blue-200/60 transition hover:-translate-y-0.5 hover:bg-[#4c7fd9] focus-visible:ring-2 focus-visible:ring-[#bdd7f3] focus-visible:outline-none"
+                                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#5b8def] to-[#3b6bdc] px-5 text-sm font-semibold text-white shadow-lg shadow-blue-200/45 transition duration-200 hover:-translate-y-0.5 hover:bg-[#4c7fd9] focus-visible:ring-2 focus-visible:ring-[#bdd7f3] focus-visible:outline-none"
                             >
                                 <Plus aria-hidden="true" className="size-4" />
                                 Tambah Siswa
@@ -211,12 +211,12 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
                     </section>
 
                     {/* Filter */}
-                    <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm">
+                    <section className="rounded-3xl border border-[#dfe8f2] bg-white p-5 shadow-sm shadow-[#dce4ee]/50">
                         <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                             <div>
-                                <h2 className="font-bold text-[#243b53]">Cari dan Filter</h2>
+                                <h2 className="font-semibold text-[#1f334f]">Cari dan Filter</h2>
 
-                                <p className="mt-1 text-sm text-[#829ab1]">Temukan siswa berdasarkan nama, nomor siswa, NISN, kelas, atau status.</p>
+                                <p className="mt-1 text-sm text-[#607289]">Temukan siswa berdasarkan nama, nomor siswa, NISN, kelas, atau status.</p>
                             </div>
 
                             {hasActiveFilters && (
@@ -277,7 +277,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
                             <div className="flex gap-2">
                                 <button
                                     type="submit"
-                                    className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-4 text-sm font-semibold text-white transition hover:bg-[#4c7fd9] focus-visible:ring-2 focus-visible:ring-[#bdd7f3] focus-visible:outline-none"
+                                    className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#5b8def] to-[#3b6bdc] px-4 text-sm font-semibold text-white shadow-lg shadow-blue-200/40 transition duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#bdd7f3] focus-visible:outline-none"
                                 >
                                     <Filter aria-hidden="true" className="size-4" />
                                     Terapkan
@@ -289,7 +289,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
                                     disabled={!hasActiveFilters}
                                     aria-label="Reset filter"
                                     title="Reset filter"
-                                    className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-[#d9e5ee] bg-white text-[#627d98] transition hover:bg-[#f7fafc] focus-visible:ring-2 focus-visible:ring-[#dcebf8] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+                                    className="inline-flex h-11 items-center justify-center rounded-2xl border border-[#d7e2ed] bg-white px-3 text-[#5e6c7f] transition duration-200 hover:border-[#c3d5ec] hover:bg-[#f7fbff] focus-visible:ring-2 focus-visible:ring-[#bdd7f3] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                     <X aria-hidden="true" className="size-4" />
                                 </button>
@@ -312,8 +312,8 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
                         {students.data.length > 0 ? (
                             <>
                                 <div className="overflow-x-auto">
-                                    <table className="w-full min-w-[920px]">
-                                        <thead className="bg-[#f8fbfd]">
+                                    <table className="w-full min-w-[920px] text-left text-sm">
+                                        <thead className="bg-[#f7faff]">
                                             <tr className="border-b border-[#e6eef5]">
                                                 <th
                                                     scope="col"
@@ -361,7 +361,7 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
 
                                         <tbody className="divide-y divide-[#edf2f7]">
                                             {students.data.map((student) => (
-                                                <tr key={student.id} className="group transition-colors hover:bg-[#fbfdff]">
+                                                <tr key={student.id} className="group transition duration-200 hover:bg-[#f4f8ff]">
                                                     <td className="px-5 py-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf3fa] text-sm font-bold text-[#4f7cac] transition group-hover:bg-[#dcecff]">
@@ -469,14 +469,13 @@ export default function StudentsIndex({ students, classes, filters }: StudentsIn
                             </>
                         ) : (
                             <div className="px-6 py-16 text-center">
-                                <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-[#f1f6fa] text-[#9fb3c8]">
+                                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[28px] bg-[#eef4fb] text-[#5b8def] shadow-sm">
                                     <UsersRound aria-hidden="true" className="size-8" />
                                 </div>
 
-                                <h3 className="mt-5 font-semibold text-[#334e68]">Data siswa tidak ditemukan</h3>
+                                <h3 className="mt-5 text-xl font-semibold text-[#243b53]">Data siswa tidak ditemukan</h3>
 
-                                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#829ab1]">
-                                    Tidak ada siswa yang sesuai dengan pencarian atau filter yang digunakan.
+                                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#627d98]">
                                 </p>
 
                                 {hasActiveFilters ? (
@@ -537,20 +536,20 @@ function SummaryCard({ title, value, description, icon: Icon, tone }: SummaryCar
     const styles = summaryToneStyles[tone];
 
     return (
-        <article className={`rounded-2xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}>
+        <article className={`rounded-[28px] border p-5 shadow-sm shadow-[#dce4ee]/50 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg ${styles.card}`}>
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p className="text-sm font-medium text-[#627d98]">{title}</p>
+                    <p className="text-sm font-semibold text-[#546d87]">{title}</p>
 
-                    <p className="mt-2 text-3xl font-bold tracking-tight text-[#243b53]">{value}</p>
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-[#1f334f]">{value}</p>
                 </div>
 
-                <div className={`flex size-11 shrink-0 items-center justify-center rounded-xl shadow-sm ${styles.icon}`}>
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-3xl ${styles.icon}`}>
                     <Icon aria-hidden="true" className="size-5" />
                 </div>
             </div>
 
-            <p className="mt-4 text-xs leading-5 text-[#829ab1]">{description}</p>
+            <p className="mt-4 text-xs leading-5 text-[#728199]">{description}</p>
         </article>
     );
 }
