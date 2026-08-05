@@ -1,16 +1,26 @@
 import AppLayout from '@/layouts/app-layout';
-import { FaceAnalysisError } from '@/lib/biometrics/analyze-face';
-import { analyzeFaceProbe, FaceProbeAnalysisError, type FaceProbeAnalysis, type FaceProbeProgress } from '@/lib/biometrics/analyze-face-probe';
-import {
-    FaceChallengeError,
-    runFaceChallenge,
-    type FaceChallengeDefinition,
-    type FaceChallengeEvidence,
-    type FaceChallengeProgress,
-} from '@/lib/biometrics/run-face-challenge';
 import type { BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+
+import type { FaceProbeAnalysis, FaceProbeProgress } from '@/lib/biometrics/analyze-face-probe';
+import type { FaceChallengeDefinition, FaceChallengeEvidence, FaceChallengeProgress } from '@/lib/biometrics/run-face-challenge';
+
+const loadBiometricModules = async () => {
+    const [{ FaceAnalysisError }, { analyzeFaceProbe, FaceProbeAnalysisError }, { FaceChallengeError, runFaceChallenge }] = await Promise.all([
+        import('@/lib/biometrics/analyze-face'),
+        import('@/lib/biometrics/analyze-face-probe'),
+        import('@/lib/biometrics/run-face-challenge'),
+    ]);
+
+    return {
+        FaceAnalysisError,
+        analyzeFaceProbe,
+        FaceProbeAnalysisError,
+        FaceChallengeError,
+        runFaceChallenge,
+    };
+};
 
 interface VerificationChallengeConfig {
     blink_min_ms?: number;
@@ -1124,6 +1134,9 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
 
         resetPickupConfirmationState();
 
+        let analyzeFaceProbeFn: typeof import('@/lib/biometrics/analyze-face-probe').analyzeFaceProbe;
+        let runFaceChallengeFn: typeof import('@/lib/biometrics/run-face-challenge').runFaceChallenge;
+
         try {
             const challenge = await requestChallenge(abortController.signal);
 
@@ -1139,7 +1152,9 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
 
             const maximumChallengeDuration = Math.min(configuredMaximumDuration, rawChallengeLifetime);
 
-            const challengeEvidence = await runFaceChallenge(video, challenge, {
+            ({ analyzeFaceProbe: analyzeFaceProbeFn, runFaceChallenge: runFaceChallengeFn } = await loadBiometricModules());
+
+            const challengeEvidence = await runFaceChallengeFn(video, challenge, {
                 blinkMinMs: blinkMinimumMilliseconds,
 
                 blinkMaxMs: blinkMaximumMilliseconds,
@@ -1165,7 +1180,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
 
             setProbeProgress(null);
 
-            const biometricAnalysis = await analyzeFaceProbe(video, {
+            const biometricAnalysis = await analyzeFaceProbeFn(video, {
                 sampleCount: probeSamples,
 
                 delayMilliseconds: probeDelayMilliseconds,
@@ -1220,16 +1235,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                 return;
             }
 
-            if (
-                error instanceof FaceAnalysisError ||
-                error instanceof FaceProbeAnalysisError ||
-                error instanceof FaceChallengeError ||
-                error instanceof Error
-            ) {
-                setVerificationError(error.message);
-            } else {
-                setVerificationError('Verifikasi wajah gagal dilakukan.');
-            }
+            setVerificationError(error instanceof Error ? error.message : 'Verifikasi wajah gagal dilakukan.');
         } finally {
             if (analysisAbortRef.current === abortController) {
                 analysisAbortRef.current = null;
@@ -1243,7 +1249,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Verifikasi Wajah Gerbang" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
+            <div className="module-page module-gate-verification flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
                 <div>
                     <p className="text-muted-foreground text-sm">Keamanan Penjemputan</p>
 
@@ -1254,9 +1260,9 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                     </p>
                 </div>
 
-                <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-                    <section className="bg-card rounded-xl border p-5 shadow-sm">
-                        <div className="relative mx-auto aspect-square max-w-2xl overflow-hidden rounded-xl bg-black">
+                <div className="module-gate-grid grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+                    <section className="module-panel bg-card rounded-[24px] border p-5 shadow-sm">
+                        <div className="module-camera-frame relative mx-auto aspect-[3/4] w-full max-w-[420px] overflow-hidden rounded-[24px] bg-black">
                             <video
                                 ref={videoRef}
                                 autoPlay
@@ -1271,7 +1277,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                             />
 
                             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                                <div className="h-[72%] w-[58%] rounded-[50%] border-2 border-dashed border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]" />
+                                <div className="h-[68%] w-[58%] rounded-[50%] border-2 border-dashed border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]" />
                             </div>
 
                             {!cameraReady && !cameraError && (
@@ -1317,14 +1323,14 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                             </div>
                         )}
 
-                        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="module-camera-actions mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                             <button
                                 type="button"
                                 onClick={() => {
                                     void startCamera();
                                 }}
                                 disabled={isStartingCamera || isVerifying || isConfirmingPickup}
-                                className="bg-background hover:bg-muted inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                className="module-secondary-button inline-flex h-11 items-center justify-center rounded-xl border px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {isStartingCamera ? 'Membuka...' : cameraReady ? 'Mulai Ulang' : 'Buka Kamera'}
                             </button>
@@ -1335,7 +1341,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                                     void verifyNow();
                                 }}
                                 disabled={!cameraReady || isVerifying || isConfirmingPickup || cooldownRemaining > 0}
-                                className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                className="module-primary-button inline-flex h-11 items-center justify-center rounded-xl px-4 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {isVerifying ? 'Memproses...' : cooldownRemaining > 0 ? `Tunggu ${cooldownRemaining}s` : 'Verifikasi'}
                             </button>
@@ -1344,7 +1350,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                                 type="button"
                                 onClick={clearVerificationResult}
                                 disabled={isVerifying || isConfirmingPickup}
-                                className="bg-background hover:bg-muted inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                                className="module-secondary-button inline-flex h-11 items-center justify-center rounded-xl border px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 Reset Hasil
                             </button>
@@ -1353,13 +1359,13 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                                 type="button"
                                 onClick={stopCamera}
                                 disabled={!cameraReady || isVerifying || isConfirmingPickup}
-                                className="bg-background inline-flex h-10 items-center justify-center rounded-md border border-red-300 px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:hover:bg-red-950"
+                                className="module-danger-button inline-flex h-11 items-center justify-center rounded-xl border px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 Tutup Kamera
                             </button>
                         </div>
 
-                        <div className="bg-muted/30 text-muted-foreground mt-4 rounded-lg border p-4 text-sm">
+                        <div className="module-guide-panel mt-4 rounded-2xl border p-4 text-sm">
                             <p>Pastikan hanya satu wajah terlihat di dalam bingkai.</p>
 
                             <p className="mt-1">Tatap lurus terlebih dahulu agar baseline wajah dan mata dapat dibaca.</p>
@@ -1371,7 +1377,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                     </section>
 
                     <div className="space-y-6">
-                        <section className="bg-card rounded-xl border p-5 shadow-sm">
+                        <section className="module-panel bg-card rounded-[24px] border p-5 shadow-sm">
                             <h2 className="font-semibold">Keamanan Verifikasi</h2>
 
                             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-1">
@@ -1416,7 +1422,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                         </section>
 
                         {challengeProgress && (
-                            <section className="bg-card rounded-xl border p-5 shadow-sm">
+                            <section className="module-panel bg-card rounded-[24px] border p-5 shadow-sm">
                                 <h2 className="font-semibold">Challenge Liveness</h2>
 
                                 <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-1">
@@ -1455,7 +1461,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                             </section>
                         )}
 
-                        <section className="bg-card rounded-xl border p-5 shadow-sm">
+                        <section className="module-panel bg-card rounded-[24px] border p-5 shadow-sm">
                             <h2 className="font-semibold">Analisis Kamera</h2>
 
                             {analysis ? (
@@ -1500,7 +1506,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                         </section>
 
                         {verificationError && (
-                            <section className="rounded-xl border border-red-300 bg-red-50 p-5 text-red-700 shadow-sm dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+                            <section className="module-error-panel rounded-[24px] border p-5 text-red-700 shadow-sm dark:text-red-300">
                                 <h2 className="font-semibold">Verifikasi Gagal</h2>
 
                                 <p className="mt-2 text-sm">{verificationError}</p>
@@ -1509,7 +1515,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
 
                         {verificationResult && (
                             <section
-                                className={`rounded-xl border p-5 shadow-sm ${
+                                className={`module-result-panel rounded-[24px] border p-5 shadow-sm ${
                                     verificationResult.matched
                                         ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950'
                                         : 'border-amber-300 bg-amber-50 dark:border-amber-900 dark:bg-amber-950'
@@ -1550,7 +1556,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                         )}
 
                         {matchedPickupPerson && (
-                            <section className="bg-card rounded-xl border p-5 shadow-sm">
+                            <section className="module-panel bg-card rounded-[24px] border p-5 shadow-sm">
                                 <div className="flex items-center gap-4">
                                     {matchedPickupPerson.photo_url ? (
                                         <img
@@ -1626,7 +1632,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                                                 return (
                                                     <label
                                                         key={student.id}
-                                                        className={`flex gap-3 rounded-lg border p-3 transition-colors ${
+                                                        className={`module-student-selection flex gap-3 rounded-2xl border p-3 transition-colors ${
                                                             checked ? 'border-primary bg-primary/5' : 'bg-muted/30'
                                                         } ${pickupConfirmation ? 'cursor-default' : 'hover:bg-muted/60 cursor-pointer'}`}
                                                     >
@@ -1715,7 +1721,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                                                     isConfirmingPickup ||
                                                     !isPositiveIntegerValue(verificationResult?.verification_attempt_id)
                                                 }
-                                                className="inline-flex h-11 w-full items-center justify-center rounded-md bg-emerald-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                                className="module-success-button inline-flex h-12 w-full items-center justify-center rounded-xl px-4 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
                                             >
                                                 {isConfirmingPickup
                                                     ? 'Menyimpan Konfirmasi...'
@@ -1734,7 +1740,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                         )}
 
                         {pickupConfirmation && (
-                            <section className="rounded-xl border border-emerald-300 bg-emerald-50 p-5 shadow-sm dark:border-emerald-900 dark:bg-emerald-950">
+                            <section className="module-success-panel rounded-[24px] border p-5 shadow-sm">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div>
                                         <p className="text-xs font-medium tracking-wide text-emerald-700 uppercase dark:text-emerald-300">
@@ -1809,7 +1815,7 @@ export default function GateFaceVerification({ verificationConfig }: PageProps) 
                                 <button
                                     type="button"
                                     onClick={clearVerificationResult}
-                                    className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-md border border-emerald-400 bg-white/70 px-4 text-sm font-semibold text-emerald-700 transition hover:bg-white dark:bg-black/10 dark:text-emerald-300"
+                                    className="module-success-secondary mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl border px-4 text-sm font-bold"
                                 >
                                     Proses Penjemput Berikutnya
                                 </button>

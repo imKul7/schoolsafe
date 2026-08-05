@@ -3,7 +3,7 @@ import laravel from 'laravel-vite-plugin';
 import {
     defineConfig
 } from 'vite';
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
     plugins: [
@@ -17,5 +17,27 @@ export default defineConfig({
     ],
     esbuild: {
         jsx: 'automatic',
+    },
+    build: {
+        target: 'es2019',
+        sourcemap: false,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        if (id.includes('@radix-ui') || id.includes('@headlessui') || id.includes('@inertiajs')) {
+                            return 'ui-vendor';
+                        }
+
+                        if (id.includes('@vladmandic/human')) {
+                            return 'biometric-vendor';
+                        }
+
+                        return 'vendor';
+                    }
+                },
+            },
+        },
+        chunkSizeWarningLimit: 1000,
     },
 });

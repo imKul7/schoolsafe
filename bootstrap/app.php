@@ -3,11 +3,16 @@
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\PreventSensitiveResponseCaching;
+use App\Http\Middleware\ProductionSecurityHeaders;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Middleware\TrustHosts;
+use Illuminate\Http\Middleware\TrustProxies;
+use Illuminate\Http\Middleware\ValidatePostSize;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -17,6 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->use([
+            TrustHosts::class,
+            TrustProxies::class,
+            ValidatePostSize::class,
+        ]);
+
         $middleware->web(append: [
             EnsureUserIsActive::class,
             HandleInertiaRequests::class,
@@ -25,6 +36,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
+            'prevent-sensitive-cache' => PreventSensitiveResponseCaching::class,
+        ]);
+
+        $middleware->appendToGroup('web', [
+            ProductionSecurityHeaders::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

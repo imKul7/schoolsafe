@@ -189,9 +189,9 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
         <AppLayout>
             <Head title="Data Penjemput" />
 
-            <main className="min-h-full bg-[#f8fafc]">
-                <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 p-4 md:p-6">
-                    <section className="relative overflow-hidden rounded-[28px] border border-[#deebf5] bg-gradient-to-r from-[#edf6ff] via-[#f2faf8] to-[#fffaf0] p-6 shadow-sm md:p-8">
+            <main className="module-page module-pickup-persons min-h-full">
+                <div className="module-container mx-auto flex w-full max-w-[1600px] flex-col gap-6 p-4 md:p-6">
+                    <section className="module-hero module-hero-pickup relative overflow-hidden rounded-[30px] p-6 md:p-8">
                         <div className="absolute -top-24 -right-16 size-60 rounded-full bg-white/55 blur-3xl" />
 
                         <div className="relative flex flex-col justify-between gap-5 md:flex-row md:items-center">
@@ -213,7 +213,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                                 {permissions.can_archive && (
                                     <Link
                                         href="/pickup-persons/archive"
-                                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#eadfcb] bg-white px-4 text-sm font-semibold text-[#9a741f] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#fff8e8]"
+                                        className="module-secondary-button inline-flex h-11 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-bold"
                                     >
                                         <Archive aria-hidden="true" className="size-4" />
                                         Lihat Arsip
@@ -223,7 +223,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                                 {permissions.can_manage && (
                                     <Link
                                         href="/pickup-persons/create"
-                                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-5 text-sm font-semibold text-white shadow-md shadow-blue-200/60 transition hover:-translate-y-0.5 hover:bg-[#4c7fd9]"
+                                        className="module-primary-button inline-flex h-11 items-center justify-center gap-2 rounded-2xl px-5 text-sm font-bold text-white"
                                     >
                                         <Plus aria-hidden="true" className="size-4" />
                                         Tambah Penjemput
@@ -233,7 +233,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                         </div>
                     </section>
 
-                    <section aria-label="Ringkasan data penjemput" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    <section aria-label="Ringkasan data penjemput" className="module-summary-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         <SummaryCard
                             title="Total Penjemput"
                             value={stats.total}
@@ -259,7 +259,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                         />
                     </section>
 
-                    <section className="rounded-2xl border border-[#e6eef5] bg-white p-5 shadow-sm">
+                    <section className="module-filter-panel rounded-[24px] p-5">
                         <div className="mb-4">
                             <h2 className="font-bold text-[#243b53]">Cari dan Filter</h2>
 
@@ -316,7 +316,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                             <div className="flex gap-2">
                                 <button
                                     type="submit"
-                                    className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-4 text-sm font-semibold text-white transition hover:bg-[#4c7fd9]"
+                                    className="module-filter-apply inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold text-white"
                                 >
                                     <Filter aria-hidden="true" className="size-4" />
                                     Terapkan
@@ -328,7 +328,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                                     disabled={!hasActiveFilters}
                                     title="Reset filter"
                                     aria-label="Reset filter"
-                                    className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-[#d9e5ee] bg-white text-[#627d98] transition hover:bg-[#f7fafc] disabled:cursor-not-allowed disabled:opacity-40"
+                                    className="module-filter-reset inline-flex size-11 shrink-0 items-center justify-center rounded-xl border disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                     <X aria-hidden="true" className="size-4" />
                                 </button>
@@ -336,7 +336,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                         </form>
                     </section>
 
-                    <section className="overflow-hidden rounded-2xl border border-[#e6eef5] bg-white shadow-sm">
+                    <section className="module-table-panel overflow-hidden rounded-[24px]">
                         <div className="flex flex-col justify-between gap-2 border-b border-[#edf2f7] px-5 py-4 sm:flex-row sm:items-center">
                             <div>
                                 <h2 className="font-bold text-[#243b53]">Daftar Penjemput</h2>
@@ -381,7 +381,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
 
                                         <tbody className="divide-y divide-[#edf2f7]">
                                             {pickupPersons.data.map((pickupPerson) => (
-                                                <tr key={pickupPerson.id} className="transition hover:bg-[#fbfdff]">
+                                                <tr key={pickupPerson.id} className="module-table-row transition">
                                                     <td className="px-5 py-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#eaf3fa] text-sm font-bold text-[#4f7cac]">
@@ -483,7 +483,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                                                             href={`/pickup-persons/${pickupPerson.id}`}
                                                             title={`Lihat detail ${pickupPerson.full_name}`}
                                                             aria-label={`Lihat detail ${pickupPerson.full_name}`}
-                                                            className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-[#dce6ee] bg-white px-3 text-xs font-semibold text-[#627d98] transition hover:border-[#bdd7f0] hover:bg-[#eef6ff] hover:text-[#4f7cac]"
+                                                            className="module-detail-button inline-flex h-9 items-center justify-center gap-2 rounded-xl border px-3 text-xs font-bold"
                                                         >
                                                             <Eye aria-hidden="true" className="size-4" />
                                                             Detail
@@ -536,7 +536,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                                 </div>
                             </>
                         ) : (
-                            <div className="px-6 py-16 text-center">
+                            <div className="module-empty-state px-6 py-16 text-center">
                                 <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-[#f1f6fa] text-[#9fb3c8]">
                                     <UserRoundCheck className="size-8" />
                                 </div>
@@ -551,7 +551,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                                     <button
                                         type="button"
                                         onClick={resetFilters}
-                                        className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#d9e5ee] bg-white px-4 text-sm font-semibold text-[#627d98] transition hover:bg-[#f7fafc]"
+                                        className="module-secondary-button module-empty-action mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold"
                                     >
                                         <X aria-hidden="true" className="size-4" />
                                         Reset Filter
@@ -560,7 +560,7 @@ export default function PickupPersonsIndex({ pickupPersons, filters, stats, perm
                                     permissions.can_manage && (
                                         <Link
                                             href="/pickup-persons/create"
-                                            className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#5b8def] px-4 text-sm font-semibold text-white transition hover:bg-[#4c7fd9]"
+                                            className="module-primary-button module-empty-action mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold text-white"
                                         >
                                             <Plus aria-hidden="true" className="size-4" />
                                             Tambah Penjemput
@@ -580,7 +580,7 @@ function SummaryCard({ title, value, description, icon: Icon, tone }: SummaryCar
     const styles = summaryToneStyles[tone];
 
     return (
-        <article className={`rounded-2xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${styles.card}`}>
+        <article className={`module-summary-card rounded-[24px] border p-5 ${styles.card}`}>
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <p className="text-sm font-medium text-[#627d98]">{title}</p>

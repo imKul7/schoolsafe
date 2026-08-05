@@ -48,13 +48,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const getInitials = useInitials();
     return (
         <>
-            <div className="border-sidebar-border/80 border-b">
-                <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
+            <div className="border-b border-[#e5ecf3] bg-white/90 shadow-sm backdrop-blur-sm">
+                <div className="mx-auto flex h-16 items-center gap-3 px-4 md:max-w-7xl">
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
                         <Sheet>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="mr-2 h-[34px] w-[34px]">
+                                <Button variant="ghost" size="icon" className="mr-2 h-10 w-10 rounded-2xl">
                                     <Menu className="h-5 w-5" />
                                 </Button>
                             </SheetTrigger>
@@ -99,7 +99,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
+                    <div className="ml-6 hidden h-full items-center space-x-2 lg:flex">
                         <NavigationMenu className="flex h-full items-stretch">
                             <NavigationMenuList className="flex h-full items-stretch space-x-2">
                                 {mainNavItems.map((item, index) => (
@@ -109,14 +109,14 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             className={cn(
                                                 navigationMenuTriggerStyle(),
                                                 page.url === item.url && activeItemStyles,
-                                                'h-9 cursor-pointer px-3',
+                                                'h-10 rounded-2xl px-4 text-sm font-semibold transition-colors duration-200',
                                             )}
                                         >
                                             {item.icon && <Icon iconNode={item.icon} className="mr-2 h-4 w-4" />}
                                             {item.title}
                                         </Link>
                                         {page.url === item.url && (
-                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
+                                            <div className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-[#5b8def]"></div>
                                         )}
                                     </NavigationMenuItem>
                                 ))}
@@ -124,9 +124,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </NavigationMenu>
                     </div>
 
-                    <div className="ml-auto flex items-center space-x-2">
+                    <div className="ml-auto flex items-center gap-2">
                         <div className="relative flex items-center space-x-1">
-                            <Button variant="ghost" size="icon" className="group h-9 w-9 cursor-pointer">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="group h-10 w-10 rounded-2xl border border-[#e6eef5] bg-white/70 shadow-sm transition hover:bg-[#f4f7fb]"
+                            >
                                 <Search className="!size-5 opacity-80 group-hover:opacity-100" />
                             </Button>
                             <div className="hidden lg:flex">
@@ -138,7 +142,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     href={item.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="group text-accent-foreground ring-offset-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                                                    className="group focus-visible:ring-ring inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/70 text-[#4f7cac] transition hover:bg-[#eef6ff] hover:text-[#346aad] focus-visible:outline-none"
                                                 >
                                                     <span className="sr-only">{item.title}</span>
                                                     {item.icon && <Icon iconNode={item.icon} className="size-5 opacity-80 group-hover:opacity-100" />}
@@ -154,10 +158,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="size-10 rounded-full p-1">
+                                <Button
+                                    variant="ghost"
+                                    className="size-11 rounded-full border border-[#e6eef5] bg-white/90 p-1 shadow-sm transition hover:bg-[#f4f7fb]"
+                                >
                                     <Avatar className="size-8 overflow-hidden rounded-full">
                                         <AvatarImage src={auth.user.avatar} alt={auth.user.name} />
-                                        <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                        <AvatarFallback className="rounded-full bg-[#e2eaf5] text-[#1e3a5a]">
                                             {getInitials(auth.user.name)}
                                         </AvatarFallback>
                                     </Avatar>
@@ -171,8 +178,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                 </div>
             </div>
             {breadcrumbs.length > 1 && (
-                <div className="border-sidebar-border/70 flex w-full border-b">
-                    <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">
+                <div className="border-sidebar-border/70 flex w-full border-b bg-[#f8fafc]">
+                    <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-[#627d98] md:max-w-7xl">
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>
                 </div>
