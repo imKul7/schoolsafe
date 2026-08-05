@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
 
-const root = process.cwd()
+const root = path.resolve(".")
 const manifestPath = path.join(
   root,
   "public/build/manifest.json"

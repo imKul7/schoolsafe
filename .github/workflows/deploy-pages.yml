@@ -37,9 +37,7 @@ jobs:
         run: npm ci
 
       - name: Build aset SchoolSafe
-        env:
-          GITHUB_PAGES: "true"
-        run: npm run build
+        run: npm run build -- --base=/schoolsafe/
 
       - name: Buat preview statis
         run: node .github/scripts/create-pages-preview.mjs
